@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "mug-cakes"
+version = "0.1.0"
+description = ""
+authors = ["Steven Jin"]
+license = "GPL v3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+nbdev-scipy = "^0.0.1229"
+scipy = "^1.12.0"
+ipykernel = "^6.29.2"
+jupyter = "^1.0.0"
+tqdm = "^4.66.2"
+coverage = "^7.4.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+venvPath = ".venv"
