@@ -62,6 +62,7 @@ class BayesianOptimizer:
         K_2star = self.k(X_star, X_star)
         y_star = K_star @ np.linalg.solve(self._K, self._y)  # FIXME could cache this?
         ## TODO: use Cholesky?
+        ## todo optimize the np.diag
         var = np.diag(K_2star) - (K_star * np.linalg.solve(self._K, K_star.T).T).sum(
             axis=1
         )
