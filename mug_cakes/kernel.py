@@ -1,13 +1,20 @@
 import numpy as np
+import scipy
 from numpy.typing import NDArray
 
 
-class RbfKernel:
-    def __init__(self):
-        # TODO
-        pass
+def rbfv(x: NDArray, y: NDArray, scale: NDArray, s2f: NDArray) -> NDArray:
+    """
+    Calculate RBF kernel for x,y with many different parameters.
+    """
+    K = scipy.spatial.distance.cdist(x, y, "sqeuclidean")
+    K = np.exp(-0.5 * np.multiply.outer( 1 / scale , K))
+    K = s2f.reshape(-1, 1, 1) * K
+    return K
 
-    def __call__(self, x1: NDArray, x2: NDArray) -> NDArray:
-        x1 = x1.reshape(-1, 1)
-        x2 = x2.reshape(1, -1)
-        return np.exp(-0.5 * (x1 - x2) ** 2)
+def rbf(x: NDArray, y: NDArray, scale: float, s2f: float) -> NDArray:
+    """Non vectorized rbf kernel"""
+    scalev = np.array([scale])
+    s2fv = np.array([s2f])
+    return rbfv(x, y, scalev, s2fv)[0]
+
