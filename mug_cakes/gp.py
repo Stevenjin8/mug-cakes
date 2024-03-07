@@ -6,11 +6,10 @@ Work tracker:
 [x] functions for biases
 [x] kernel parameter optmizers
 [ ] acquisition functions with gradient optimization.
-[ ] tests lol
+[.] tests lol
 """
 
 import numpy as np
-import scipy
 from numpy.typing import NDArray
 
 
@@ -66,8 +65,6 @@ def conditional_var(
 
     if len(var1.shape) == 2:
         var1 = np.diag(var1)
-    if len(var1.shape) > 2:
-        raise ValueError("var1 must be square of vector")
     return var1 - (cov12 * (precision2 @ cov12.T).T).sum(axis=1)
 
 

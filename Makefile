@@ -1,4 +1,4 @@
-.PHONY: lint test
+.PHONY: lint test coverage-test coverage-html
 
 lint:
 	black .
@@ -7,4 +7,9 @@ lint:
 test:
 	python -m unittest
 
+test-coverage:
+	coverage run -m unittest
+
+coverage-html:
+	coverage html
 

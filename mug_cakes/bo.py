@@ -93,7 +93,7 @@ def _dhp_target(
 
 def optimize_rbf_params(
     X: NDArray[np.float64],
-    Y: NDArray[np.float64],
+    y: NDArray[np.float64],
     N_b: int,
     B: NDArray[np.float64],
     var_b: float,
@@ -109,7 +109,7 @@ def optimize_rbf_params(
         method="L-BFGS-B",
         jac=_dhp_target,
         options={"disp": disp},
-        args=(X, Y, N_b, B, var_b),
+        args=(X, y, N_b, B, var_b),
         bounds=bounds,
     )
     assert res.success, "Did not converge"
