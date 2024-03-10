@@ -1,32 +1,35 @@
 import unittest
 
 import numpy as np
+from numpy.typing import NDArray
 
-from mug_cakes.kernel import rbf, rbfv
+from mug_cakes.kernel import _rbfv, drbf, rbf
+
+from . import utils
 
 
-class TestKernel(unittest.TestCase):
+class TestKernel(utils.NpTestCase):
     """Behaviour fixing test cases"""
 
-    X = np.array(
+    X: NDArray[np.float64] = np.array(
         [
-            [0, 1],
-            [1, 1],
-            [3, 2],
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [3.0, 2.0],
         ]
     )
-    Y = np.array(
+    Y: NDArray[np.float64] = np.array(
         [
-            [0, 1],
-            [3, 1],
-            [3, -9],
+            [0.0, 1.0],
+            [3.0, 1.0],
+            [3.0, -9.0],
         ]
     )
 
     def test_rbfv(self):
-        scale = np.array([1, 2])
-        s2f = np.array([0.5, 4])
-        result = rbfv(self.X, self.Y, scale, s2f)
+        scale = np.array([1.0, 2.0])
+        s2f = np.array([0.5, 4.0])
+        result = _rbfv(self.X, self.Y, scale, s2f)
         expected = np.array(
             [
                 [
@@ -58,3 +61,21 @@ class TestKernel(unittest.TestCase):
         self.assertEqual(expected.shape, result.shape)
         self.assertAlmostEqual(np.abs(expected - result).max(), 0)
 
+    def test_drbfv(self):
+        eps = 0.000001
+        scale = 0.9
+        s2f = 0.5
+        base = rbf(self.X[1][None], self.Y, scale, s2f)[0]
+        grad = drbf(self.X[1], self.Y, scale, s2f)
+        self.assertEqual(grad.shape, (3, 2))
+
+        x1 = self.X[1].copy()
+        x1[1] += eps
+        self.assert_np_array_equals(
+            (rbf(x1[None], self.Y, scale, s2f)[0] - base) / eps, grad[:, 1], places=5
+        )
+        x0 = self.X[1].copy()
+        x0[0] += eps
+        self.assert_np_array_equals(
+            (rbf(x0[None], self.Y, scale, s2f)[0] - base) / eps, grad[:, 0], places=5
+        )

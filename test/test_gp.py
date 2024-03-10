@@ -1,7 +1,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from mug_cakes.gp import conditional_covar, conditional_mean, conditional_var
+from mug_cakes.gp import (conditional_covar, conditional_mean, conditional_var,
+                          expected_improvement, dexpected_improvement)
 
 from . import utils
 
@@ -50,3 +51,30 @@ class TestGP(utils.NpTestCase):
         expected2 = np.diag(expected1)
         result2 = conditional_var(var1, precision2, cov12)
         self.assert_np_array_equals(expected2, result2)
+
+    def test_expected_improvement(self):
+        """MC"""
+        mu = 0.898234
+        var = 1.2873123**2
+        expected = expected_improvement(mu, var)
+        N = 50000
+        np.random.seed(99)
+        samp = np.random.normal(size=N) * var**0.5 + mu
+        samp[samp < 0] = 0
+        result = samp.mean()
+        self.assertAlmostEqual(expected, result, places=2)
+
+    def test_dexpected_improvement(self):
+        eps = 0.00000001
+        mu = 2.8
+        var = 4.09
+        grad = dexpected_improvement(mu, var)
+        base = expected_improvement(mu, var)
+        grad2 = np.array(
+            [
+                expected_improvement(mu + eps, var),
+                expected_improvement(mu, var + eps)
+            ]
+        )
+        grad2 = (grad2 - base) / eps
+        self.assert_np_array_equals(grad, grad2, places = 5)

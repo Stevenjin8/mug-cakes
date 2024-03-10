@@ -10,16 +10,19 @@ Work tracker:
 """
 
 import numpy as np
+import scipy
 from numpy.typing import NDArray
+
+_unitnorm = scipy.stats.norm(0, 1)
 
 
 def conditional_mean(
-    x2: NDArray,
-    precision2: NDArray,
-    cov12: NDArray,
-    mu1: NDArray = np.array(0),
-    mu2: NDArray = np.array(0),
-) -> NDArray:
+    x2: NDArray[np.float64],
+    precision2: NDArray[np.float64],
+    cov12: NDArray[np.float64],
+    mu1: NDArray[np.float64] = np.array(0.0),
+    mu2: NDArray[np.float64] = np.array(0.0),
+) -> NDArray[np.float64]:
     """Posterior mean of x1 given x2 where x1, x2 are jointly gaussian.
 
     Parameters:
@@ -33,10 +36,10 @@ def conditional_mean(
 
 
 def conditional_covar(
-    var1: NDArray,
-    precision2: NDArray,
-    cov12: NDArray,
-) -> NDArray:
+    var1: NDArray[np.float64],
+    precision2: NDArray[np.float64],
+    cov12: NDArray[np.float64],
+) -> NDArray[np.float64]:
     """
     Variance of x1 given x2 where x1, x2 are jointly Gaussian.
 
@@ -49,10 +52,10 @@ def conditional_covar(
 
 
 def conditional_var(
-    var1: NDArray,
-    precision2: NDArray,
-    cov12: NDArray,
-) -> NDArray:
+    var1: NDArray[np.float64],
+    precision2: NDArray[np.float64],
+    cov12: NDArray[np.float64],
+) -> NDArray[np.float64]:
     """
     Variance of x1 given x2 where x1, x2 are jointly Gaussian.
     That is, we return a vector because we don't care about the covariance terms.
@@ -69,13 +72,13 @@ def conditional_var(
 
 
 def likelyhood_grad(
-    y: NDArray, mu: NDArray, precision: NDArray, dvar: NDArray
-) -> NDArray:
+    y: NDArray[np.float64], mu: NDArray[np.float64], precision: NDArray[np.float64], dvar: NDArray[np.float64]
+) -> NDArray[np.float64]:
     alpha = precision @ (y - mu)
     return 0.5 * np.trace((np.multiply.outer(alpha, alpha) - precision) @ dvar)
 
 
-def mvn_multi_log_unnormalized_pdf(y: NDArray, mus: NDArray, covs: NDArray) -> NDArray:
+def mvn_multi_log_unnormalized_pdf(y: NDArray[np.float64], mus: NDArray[np.float64], covs: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Find the unnormalized log density of y given a many different Gaussian distribution.
     For `mus` and `cov`, the first index indexes the distributionl
@@ -96,6 +99,26 @@ def mvn_multi_log_unnormalized_pdf(y: NDArray, mus: NDArray, covs: NDArray) -> N
     N = len(y)
     ret -= N * np.log(2 * np.pi)
     return 0.5 * ret
-    #return ret
+    # return ret
 
 
+def expected_improvement(mu: float, var: float):
+    """
+    If X ~ N(mu, var), then the expected improvement is E[max(X, 0)], but we can
+    evaluate this in closed form.
+    """
+    if var == 0:
+        return max(0, mu)
+
+    sigma = var**0.5
+
+    return mu * _unitnorm.cdf(mu / sigma) + sigma * _unitnorm.pdf(mu / sigma)
+
+
+def dexpected_improvement(mu: float, var: float) -> NDArray[np.float64]:
+    """Gradient or jacobian of expected improvement."""
+    sigma = var**0.5
+    dEIdmu = _unitnorm.cdf(mu / sigma)
+    dEIdsigma = _unitnorm.pdf(mu / sigma)
+    dEIdsigma2 = dEIdsigma * 1 / 2 / sigma
+    return np.array([dEIdmu, dEIdsigma2])
