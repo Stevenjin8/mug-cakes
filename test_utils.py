@@ -1,12 +1,12 @@
-#import unittest
+# import unittest
 #
-#import numpy as np
+# import numpy as np
 #
-#from mug_cakes import utils, kernel, bo, gp
-#from scipy import stats
+# from mug_cakes import utils, kernel, bo, gp
+# from scipy import stats
 #
 #
-#class TestUtils(unittest.TestCase):
+# class TestUtils(unittest.TestCase):
 #    def test_rowpeat(self):
 #        A = np.array(
 #            [
@@ -45,13 +45,13 @@
 #        # fmt: on
 #        self.assertTrue((B == expected).all())
 
-    #def test_move(self):
-    #    scale = 0.1
-    #    s2f = 25.
-    #    s2e = 0.3 ** 2
-    #    X = np.linspace(0, 1, 100).reshape(-1, 1)
-    #    K = kernel.rbf(X, X, scale, s2f)
-    #    var = K + s2e * np.eye(K.shape[0])
-    #    Y = stats.multivariate_normal.rvs(cov = var)
-    #    stf_star, scale_star, s2e_star = bo.optimize_rbf_params(1, 100, 0.1, 1, 0.001, 1, 100, X, Y, 1, 1)
-    #    breakpoint()
+# def test_move(self):
+#    scale = 0.1
+#    s2f = 25.
+#    s2e = 0.3 ** 2
+#    X = np.linspace(0, 1, 100).reshape(-1, 1)
+#    K = kernel.rbf(X, X, scale, s2f)
+#    var = K + s2e * np.eye(K.shape[0])
+#    Y = stats.multivariate_normal.rvs(cov = var)
+#    stf_star, scale_star, s2e_star = bo.optimize_rbf_params(1, 100, 0.1, 1, 0.001, 1, 100, X, Y, 1, 1)
+#    breakpoint()

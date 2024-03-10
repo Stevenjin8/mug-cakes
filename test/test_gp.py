@@ -2,7 +2,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from mug_cakes.gp import (conditional_covar, conditional_mean, conditional_var,
-                          expected_improvement, dexpected_improvement)
+                          dexpected_improvement, expected_improvement)
 
 from . import utils
 
@@ -71,10 +71,7 @@ class TestGP(utils.NpTestCase):
         grad = dexpected_improvement(mu, var)
         base = expected_improvement(mu, var)
         grad2 = np.array(
-            [
-                expected_improvement(mu + eps, var),
-                expected_improvement(mu, var + eps)
-            ]
+            [expected_improvement(mu + eps, var), expected_improvement(mu, var + eps)]
         )
         grad2 = (grad2 - base) / eps
-        self.assert_np_array_equals(grad, grad2, places = 5)
+        self.assert_np_array_equals(grad, grad2, places=5)

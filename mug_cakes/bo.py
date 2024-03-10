@@ -125,9 +125,9 @@ def optimize_rbf_params(
     disp: bool = False,
 ):
     """Optimize kernel hyperparameters.
-    
+
     Parameters:
-        X: N x D 
+        X: N x D
         y: N
         N_b: total number of observers
         B: N which observations correspond to which observers
@@ -152,11 +152,13 @@ def optimize_rbf_params(
 
 
 def _diff_params(
-    x_s: NDArray,
-    x_M: NDArray,
-    X: NDArray,
-    y: NDArray,
-    precision: NDArray,
+    x_s: NDArray[np.float64],
+    x_M: NDArray[np.float64],
+    X: NDArray[np.float64],
+    y: NDArray[np.float64],
+    precision: NDArray[np.float64],
+    k_s: NDArray[np.float64],
+    k_M: NDArray[np.float64],
     scale: float,
     s2f: float,
     lambda_: float = 1,
@@ -171,8 +173,6 @@ def _diff_params(
     x_s = x_s[None]
     x_M = x_M[None]
     x = np.vstack((x_s, x_M))
-    k_s = kernel.rbf(x_s, X, scale, s2f)
-    k_M = kernel.rbf(x_M, X, scale, s2f)
     k = np.vstack((k_s, k_M))
     kk = kernel.rbf(x, x, scale, s2f)
     mu = gp.conditional_mean(y, precision, k)
@@ -182,11 +182,11 @@ def _diff_params(
 
 
 def expected_diff(
-    x_s: NDArray,
-    x_M: NDArray,
-    X: NDArray,
-    y: NDArray,
-    precision: NDArray,
+    x_s: NDArray[np.float64],
+    x_M: NDArray[np.float64],
+    X: NDArray[np.float64],
+    y: NDArray[np.float64],
+    precision: NDArray[np.float64],
     scale: float,
     s2f: float,
     lambda_: float = 1,
@@ -197,21 +197,24 @@ def expected_diff(
     Parameters:
         x_s: D
         x_M: D
-        X: N x D 
+        X: N x D
         y: N
         lambda_, gamma: exploration vs exploitation parameters.
     """
+
+    k_s = kernel.rbf(x_s[None], X, scale, s2f)
+    k_M = kernel.rbf(x_M[None], X, scale, s2f)
     return gp.expected_improvement(
-        *_diff_params(x_s, x_M, X, y, precision, scale, s2f, lambda_, gamma)
+        *_diff_params(x_s, x_M, X, y, precision, k_s, k_M, scale, s2f, lambda_, gamma)
     )
 
 
 def dexpected_diff(
-    x_s: NDArray,
-    x_M: NDArray,
-    X: NDArray,
-    y: NDArray,
-    precision: NDArray,
+    x_s: NDArray[np.float64],
+    x_M: NDArray[np.float64],
+    X: NDArray[np.float64],
+    y: NDArray[np.float64],
+    precision: NDArray[np.float64],
     scale: float,
     s2f: float,
     lambda_: float = 1,
@@ -221,20 +224,58 @@ def dexpected_diff(
     Derivative with respect to x_s.
     See docstring for `expected_diff`.
     """
+
+    k_s = kernel.rbf(x_s[None], X, scale, s2f)
+    k_M = kernel.rbf(x_M[None], X, scale, s2f)
     mu, var = _diff_params(
-        x_s, x_M, X, y, precision, scale, s2f, lambda_, gamma
+        x_s, x_M, X, y, precision, k_s, k_M, scale, s2f, lambda_, gamma
     )
 
-    k_s = kernel.rbf(x_s[None], X, scale, s2f).reshape(-1, 1)
-    k_M = kernel.rbf(x_M[None], X, scale, s2f).reshape(-1, 1)
     dk_s_dx_s = kernel.drbf(x_s, X, scale, s2f)
     dmu_dx_s = dk_s_dx_s.T @ precision @ y
     dkappa_dx_s = kernel.drbf(x_s, x_M[None], scale, s2f)[0]
     dvar_dx_s = (
-        -2 * k_s.T @ precision @ dk_s_dx_s
+        -2 * k_s @ precision @ dk_s_dx_s
         - 2 * lambda_ * dkappa_dx_s
-        + 2 * lambda_ * k_M.T @ precision @ dk_s_dx_s
+        + 2 * lambda_ * k_M @ precision @ dk_s_dx_s
     )
     dvar_dx_s = dvar_dx_s[0]
     dEI = gp.dexpected_improvement(mu, var)
     return dEI[0] * dmu_dx_s + dEI[1] * dvar_dx_s
+
+
+def optimize_x(
+    X: NDArray[np.float64],
+    y: NDArray[np.float64],
+    N_b: int,
+    B: NDArray[np.uint64],
+    var_b: float,
+    bounds: Tuple[Tuple[float, float], ...] = ((-1.0, 4.0), (-7.0, 4.0), (-7.0, 4.0)),
+    x0: Optional[NDArray[np.float64]] = None,
+    disp: bool = False,
+):
+    """Optimize kernel hyperparameters.
+
+    Parameters:
+        X: N x D
+        y: N
+        N_b: total number of observers
+        B: N which observations correspond to which observers
+        var_b: variance of biases
+        bounds: Search bounds. I really regret adding this because L-BFGS-B supports constraints which I have to add anyways for stability.
+        x0: initial guess. Defaults to zeros.
+        disp: Display L-BFSG-B progress.
+    """
+    if x0 is None:
+        x0 = np.zeros(3)
+    res = scipy.optimize.minimize(
+        _hp_target,
+        x0,
+        method="L-BFGS-B",
+        jac=_dhp_target,
+        options={"disp": disp},
+        args=(X, y, N_b, B, var_b),
+        bounds=bounds,
+    )
+    assert res.success, "Did not converge"
+    return np.exp(res.x)

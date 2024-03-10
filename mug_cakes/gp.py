@@ -72,13 +72,18 @@ def conditional_var(
 
 
 def likelyhood_grad(
-    y: NDArray[np.float64], mu: NDArray[np.float64], precision: NDArray[np.float64], dvar: NDArray[np.float64]
+    y: NDArray[np.float64],
+    mu: NDArray[np.float64],
+    precision: NDArray[np.float64],
+    dvar: NDArray[np.float64],
 ) -> NDArray[np.float64]:
     alpha = precision @ (y - mu)
     return 0.5 * np.trace((np.multiply.outer(alpha, alpha) - precision) @ dvar)
 
 
-def mvn_multi_log_unnormalized_pdf(y: NDArray[np.float64], mus: NDArray[np.float64], covs: NDArray[np.float64]) -> NDArray[np.float64]:
+def mvn_multi_log_unnormalized_pdf(
+    y: NDArray[np.float64], mus: NDArray[np.float64], covs: NDArray[np.float64]
+) -> NDArray[np.float64]:
     """
     Find the unnormalized log density of y given a many different Gaussian distribution.
     For `mus` and `cov`, the first index indexes the distributionl

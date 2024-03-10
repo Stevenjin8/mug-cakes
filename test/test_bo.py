@@ -9,6 +9,7 @@ from . import utils
 
 class TestGP(utils.NpTestCase):
     """Tests for GP module"""
+
     X: NDArray[np.float64] = (
         np.array(
             [
@@ -128,15 +129,20 @@ class TestGP(utils.NpTestCase):
 
         x_s0 = x_s.copy()
         x_s0[0] += eps
-        result0 = (bo.expected_diff(
-            x_s0, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
-        ) - base) / eps
-        self.assertAlmostEqual(grad[0], result0, places = 5)
+        result0 = (
+            bo.expected_diff(
+                x_s0, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
+            )
+            - base
+        ) / eps
+        self.assertAlmostEqual(grad[0], result0, places=5)
 
         x_s1 = x_s.copy()
         x_s1[1] += eps
-        result1 = (bo.expected_diff(
-            x_s1, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
-        ) - base) / eps
-        self.assertAlmostEqual(grad[1], result1, places = 5)
-
+        result1 = (
+            bo.expected_diff(
+                x_s1, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
+            )
+            - base
+        ) / eps
+        self.assertAlmostEqual(grad[1], result1, places=5)

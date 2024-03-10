@@ -16,6 +16,7 @@ tqdm = "^4.66.2"
 coverage = "^7.4.3"
 black = {extras = ["jupyter"], version = "^24.2.0"}
 numpy = "^1.26.4"
+numba = "^0.59.0"
 
 
 [build-system]
