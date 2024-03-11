@@ -122,6 +122,8 @@ def expected_improvement(mu: float, var: float):
 
 def dexpected_improvement(mu: float, var: float) -> NDArray[np.float64]:
     """Gradient or jacobian of expected improvement."""
+    if var == 0:
+        return np.array([0, 0])
     sigma = var**0.5
     dEIdmu = _unitnorm.cdf(mu / sigma)
     dEIdsigma = _unitnorm.pdf(mu / sigma)

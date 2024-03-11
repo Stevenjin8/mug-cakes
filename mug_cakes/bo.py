@@ -1,8 +1,12 @@
+import functools
+from dataclasses import dataclass
 from typing import Optional, Tuple
 
 import numpy as np
 import scipy
 from numpy.typing import NDArray
+
+from mug_cakes import simplex
 
 from . import gp, kernel
 
@@ -27,7 +31,7 @@ def full_cov(
         (N + N_b) x (N + N_b) covariance matrix for observations and biases
     """
     # Check shapes
-    assert N_b == 0 or K.shape[0] % N_b == 0, "Wrong shape"
+    # assert N_b == 0 or K.shape[0] % N_b == 0, "Wrong shape"
     assert K.shape[0] == B.shape[0], "Wrong shape"
     assert B.max() < N_b, "Invalid indices"
 
@@ -69,13 +73,15 @@ def _hp_target(
 ) -> float:
     """Log scaled inputs for negative log posterior"""
     N = X.shape[0]
-    s2f, scale, s2e = np.exp(x0)
+    s2f, scale2, s2e = np.exp(x0)
 
-    K = kernel.rbf(X, X, scale, s2f)
+    K = kernel.rbf(X, X, scale2, s2f)
     vara = full_cov(K, N_b, B, s2e, var_b)[:N, :N]
     # FIXME should pass these as prior parameters.
-    return -gp.mvn_multi_log_unnormalized_pdf(y, np.array(0), vara[None])[0] + 0.5 * (
-        scale**2 + N * s2e**2
+    return (
+        -gp.mvn_multi_log_unnormalized_pdf(y, np.array(0), vara[None])[0]
+        + 0.5 * (N * s2e**2 / 10)
+        + N * 10 * scale2
     )
 
 
@@ -109,8 +115,8 @@ def _dhp_target(
 
     # this is where we insert the prior loss.
     dpost_ds2f = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2f)
-    dpost_dscale = gp.likelyhood_grad(y, np.array(0), precision, dvar_dscale) - scale2
-    dpost_ds2e = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2e) - N * s2e
+    dpost_dscale = gp.likelyhood_grad(y, np.array(0), precision, dvar_dscale) - 10 * N
+    dpost_ds2e = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2e) - N * s2e / 10
     return -np.array([s2f * dpost_ds2f, scale2 * dpost_dscale, s2e * dpost_ds2e])
 
 
@@ -181,13 +187,13 @@ def _diff_params(
     return mu[0] - mu[1], v
 
 
-def expected_diff(
+def minus_expected_diff(
     x_s: NDArray[np.float64],
     x_M: NDArray[np.float64],
     X: NDArray[np.float64],
     y: NDArray[np.float64],
     precision: NDArray[np.float64],
-    scale: float,
+    scale2: float,
     s2f: float,
     lambda_: float = 1,
     gamma: float = 1,
@@ -202,14 +208,14 @@ def expected_diff(
         lambda_, gamma: exploration vs exploitation parameters.
     """
 
-    k_s = kernel.rbf(x_s[None], X, scale, s2f)
-    k_M = kernel.rbf(x_M[None], X, scale, s2f)
-    return gp.expected_improvement(
-        *_diff_params(x_s, x_M, X, y, precision, k_s, k_M, scale, s2f, lambda_, gamma)
+    k_s = kernel.rbf(x_s[None], X, scale2, s2f)
+    k_M = kernel.rbf(x_M[None], X, scale2, s2f)
+    return -gp.expected_improvement(
+        *_diff_params(x_s, x_M, X, y, precision, k_s, k_M, scale2, s2f, lambda_, gamma)
     )
 
 
-def dexpected_diff(
+def dminus_expected_diff(
     x_s: NDArray[np.float64],
     x_M: NDArray[np.float64],
     X: NDArray[np.float64],
@@ -224,7 +230,6 @@ def dexpected_diff(
     Derivative with respect to x_s.
     See docstring for `expected_diff`.
     """
-
     k_s = kernel.rbf(x_s[None], X, scale, s2f)
     k_M = kernel.rbf(x_M[None], X, scale, s2f)
     mu, var = _diff_params(
@@ -241,7 +246,7 @@ def dexpected_diff(
     )
     dvar_dx_s = dvar_dx_s[0]
     dEI = gp.dexpected_improvement(mu, var)
-    return dEI[0] * dmu_dx_s + dEI[1] * dvar_dx_s
+    return -1.0 * (dEI[0] * dmu_dx_s + dEI[1] * dvar_dx_s)
 
 
 def optimize_x(
@@ -279,3 +284,83 @@ def optimize_x(
     )
     assert res.success, "Did not converge"
     return np.exp(res.x)
+
+
+@dataclass
+class BoState:
+    "Keep track of BO experiment state." ""
+    X: NDArray[np.float64]
+    y: NDArray[np.float64]
+    N_b: int
+    B: NDArray[np.uint64]
+    var_b: float
+    N: int
+    simplex: bool
+
+    def __init__(
+        self,
+        X: NDArray[np.float64],
+        y: NDArray[np.float64],
+        N_b: int,
+        B: NDArray[np.uint64],
+        var_b: float,
+        simplex: bool,
+    ):
+        assert X.shape[0] == y.shape[0] == B.shape[0]
+        self.X = X
+        self.y = y
+        self.N_b = N_b
+        self.B = B
+        self.var_b = var_b
+        self.N = X.shape[0]
+        self.simplex = simplex
+
+    def add(self, x: NDArray[np.float64], y: float, b: int):
+        self.X = np.vstack((self.X, x))
+        self.y = np.append(self.y, y)
+        self.B = np.append(self.B, np.array(b, np.uint64))
+        self.N += 1
+
+
+def bo_iter(state: BoState, disp: bool = False):
+    # estimate hyperparameters and get Gram matrix
+    hparams_mle = optimize_rbf_params(state.X, state.y, state.N_b, state.B, state.var_b)
+    s2f_map, scale2_map, s2e_map = hparams_mle
+    K = kernel.rbf(state.X, state.X, scale2_map, s2f_map)
+
+    # variance and precision matrix
+    var = full_cov(K, state.N_b, state.B, s2e_map, state.var_b)[: state.N, : state.N]
+    precision = np.linalg.inv(var)
+
+    # get observation with highest observed mean
+    post_obs = gp.conditional_mean(state.y, precision, K)
+    x_M = state.X[post_obs.argmax()]
+    x_0 = x_M.copy()  # seed using x_M
+    target = minus_expected_diff
+    dtarget = dminus_expected_diff
+
+    # do the simplex reparametrization
+    if state.simplex:
+        x_0 = simplex.reparaminv(x_0)
+        target = simplex.simplex_wrap(target)
+        dtarget = simplex.dsimplex_wrap(dtarget)
+
+    bounds = tuple((0.0000001, 0.9999999) for _ in x_0)
+    res = scipy.optimize.basinhopping(
+        target,
+        x_0,
+        minimizer_kwargs={
+            "jac": dtarget,
+            "options": {"disp": False},
+            "args": (x_M, state.X, state.y, precision, scale2_map, s2f_map),
+            "bounds": bounds,
+        },
+        disp=disp,
+    )
+    assert res.success
+
+    x_s = res.x
+    if state.simplex:
+        x_s = simplex.reparam(x_s)
+
+    return x_s, hparams_mle, x_M

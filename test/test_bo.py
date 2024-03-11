@@ -68,28 +68,28 @@ class TestGP(utils.NpTestCase):
             : -self.N_b, : -self.N_b
         ]
 
-        diff1 = bo.expected_diff(
+        diff1 = bo.minus_expected_diff(
             x_s1, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
-        diff2 = bo.expected_diff(
+        diff2 = bo.minus_expected_diff(
             x_s2, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
-        diff3 = bo.expected_diff(
+        diff3 = bo.minus_expected_diff(
             x_s3, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
-        diff4 = bo.expected_diff(
+        diff4 = bo.minus_expected_diff(
             x_s4, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
-        diff5 = bo.expected_diff(
+        diff5 = bo.minus_expected_diff(
             x_s5, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
-        diff6 = bo.expected_diff(
+        diff6 = bo.minus_expected_diff(
             x_s6, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f
         )
 
         self.assertEqual(diff1, 0)
         self.assertAlmostEqual(diff2, 0, places=4)
-        self.assertTrue(diff1 < diff2 < diff3 < diff4 < diff5)
+        self.assertTrue(diff1 > diff2 > diff3 > diff4 > diff5)
         self.assertAlmostEqual(diff5, diff6)
 
         lambda1 = 1
@@ -97,16 +97,16 @@ class TestGP(utils.NpTestCase):
         lambda3 = 0
         x_s = np.array([1.1, 1.2])
 
-        diff7 = bo.expected_diff(
+        diff7 = bo.minus_expected_diff(
             x_s, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, lambda_=lambda1
         )
-        diff8 = bo.expected_diff(
+        diff8 = bo.minus_expected_diff(
             x_s, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, lambda_=lambda2
         )
-        diff9 = bo.expected_diff(
+        diff9 = bo.minus_expected_diff(
             x_s, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, lambda_=lambda3
         )
-        self.assertTrue(0 < diff7 < diff8 < diff9)
+        self.assertTrue(0 > diff7 > diff8 > diff9)
 
     def test_dexpected_diff(self):
         s2f = 0.1
@@ -120,17 +120,17 @@ class TestGP(utils.NpTestCase):
         x_M = np.array([0.12, 0.13])
         eps = 0.000000001
         kwargs = {"gamma": 0.99, "lambda_": 0.2394}
-        grad = bo.dexpected_diff(
+        grad = bo.dminus_expected_diff(
             x_s, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
         )
-        base = bo.expected_diff(
+        base = bo.minus_expected_diff(
             x_s, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
         )
 
         x_s0 = x_s.copy()
         x_s0[0] += eps
         result0 = (
-            bo.expected_diff(
+            bo.minus_expected_diff(
                 x_s0, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
             )
             - base
@@ -140,9 +140,37 @@ class TestGP(utils.NpTestCase):
         x_s1 = x_s.copy()
         x_s1[1] += eps
         result1 = (
-            bo.expected_diff(
+            bo.minus_expected_diff(
                 x_s1, x_M, self.X, self.y, np.linalg.inv(var), scale, s2f, **kwargs
             )
             - base
         ) / eps
         self.assertAlmostEqual(grad[1], result1, places=5)
+
+    def test_bo_state(self):
+        X = np.array([[0, 1], [0.0, 2]])
+        y = np.array([0, 1.0])
+        B = np.array([0, 1], dtype=np.uint64)
+        N_b = 2
+        var_b = 1
+
+        state = bo.BoState(X.copy(), y.copy(), N_b, B.copy(), var_b)
+        self.assert_np_array_equals(state.X, X)
+        self.assert_np_array_equals(state.y, y)
+        self.assert_np_array_equals(state.B, B)
+        self.assertEqual(state.N, 2)
+        self.assertEqual(state.N_b, 2)
+        self.assertEqual(state.var_b, 1)
+
+        x_new =  np.array([0, 0.1])
+        y_new =  -0.1
+        state.add(x_new, y_new, 1)
+        self.assert_np_array_equals(state.X, np.array([[0, 1], [0.0, 2], [0, 0.1]]))
+        self.assert_np_array_equals(state.y, np.array([0, 1.0, -0.1]))
+        self.assert_np_array_equals(state.B, np.array([0, 1, 1]))
+        self.assertEqual(state.B.dtype, np.uint64)
+        self.assertEqual(state.N, 3)
+        self.assertEqual(state.N_b, 2)
+
+
+        state.add
