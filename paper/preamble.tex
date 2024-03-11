@@ -1,0 +1,159 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\setlist[enumerate]{leftmargin=*, label=(\alph*)}
+
+\author{Steven Jin}
+\pdfminorversion=7
+
+% Hide page number when page is empty
+\usepackage{emptypage}
+\usepackage{subcaption}
+\usepackage{multicol}
+\usepackage{xcolor}
+% Other font I sometimes use.
+% \usepackage{cmbright}
+
+% Math stuff
+\usepackage{amsmath, amsfonts, mathtools, amsthm, amssymb}
+% Fancy script capitals
+\usepackage{mathrsfs}
+\usepackage{cancel}
+% Bold math
+\usepackage{bm}
+
+% Command for short corrections
+% Usage: 1+1=\correct{3}{2}
+
+\definecolor{correct}{HTML}{009900}
+\newcommand\correct[2]{\ensuremath{\:}{\color{red}{#1}}\ensuremath{\to }{\color{correct}{#2}}\ensuremath{\:}}
+\newcommand\green[1]{{\color{correct}{#1}}}
+\newcommand\ex[1]{\section*{Exercise #1}}
+
+% horizontal rule
+\newcommand\hr{
+    \noindent\rule[0.5ex]{\linewidth}{0.5pt}
+}
+
+% hide parts
+\newcommand\hide[1]{}
+
+% si unitx
+\usepackage{siunitx}
+\sisetup{locale = US}
+
+% Environments
+\makeatother
+% For box around Definition, Theorem, \ldots
+\usepackage[innertopmargin=4pt, innerleftmargin=4pt, innerrightmargin=4pt]{mdframed}
+\mdfsetup{skipabove=1em,skipbelow=0em}
+\theoremstyle{definition}
+\newmdtheoremenv[nobreak=true]{definition}{Definition}
+\newmdtheoremenv[nobreak=true]{lemma}{Lemma}
+\newmdtheoremenv[nobreak=true]{proposition}{Proposition}
+
+\newtheorem{eg}{Example}
+\newtheorem*{notation}{Notation}
+\newtheorem*{previouslyseen}{As previously seen}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem*{problem}{Problem}
+\newtheorem*{observe}{Observe}
+\newtheorem*{property}{Property}
+\newtheorem*{intuition}{Intuition}
+\newmdtheoremenv[nobreak=true]{prop}{Proposition}
+\newmdtheoremenv[nobreak=true]{theorem}{Theorem}
+\newmdtheoremenv[nobreak=true]{corollary}{Corollary}
+
+% End example and intermezzo environments with a small diamond (just like proof
+% environments end with a small square)
+\usepackage{etoolbox}
+\AtEndEnvironment{vb}{\null\hfill$\diamond$}%
+\AtEndEnvironment{intermezzo}{\null\hfill$\diamond$}%
+\AtEndEnvironment{opmerking}{\null\hfill$\diamond$}%
+
+% Fix some spacing
+% http://tex.stackexchange.com/questions/22119/how-can-i-change-the-spacing-before-theorems-with-amsthm
+\makeatletter
+\def\thm@space@setup{%
+  \thm@preskip=\parskip \thm@postskip=0pt
+}
+
+
+% \lecture starts a new lecture (les in dutch)
+%
+% Usage:
+% \lecture{1}{di 12 feb 2019 16:00}{Inleiding}
+%
+% This adds a section heading with the number / title of the lecture and a
+% margin paragraph with the date.
+
+
+% These are the fancy headers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% LE: left even
+% RO: right odd
+% CE, CO: center even, center odd
+% My name for when I print my lecture notes to use for an open book exam.
+% \fancyhead[LE,RO]{Gilles Castel}
+
+\setlength{\headheight}{30pt}
+\fancyhead[L]{Bayesian Statistics\\\theauthor}
+\fancyhead[R]{\thetitle\\\thedate}
+%
+\makeatother
+%
+% Todonotes and inline notes in fancy boxes
+\usepackage{tcolorbox}
+%
+% Make boxes breakable
+\tcbuselibrary{breakable}
+%
+% Figure support as explained in my blog post.
+\usepackage{import}
+\usepackage{xifthen}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\newcommand{\incfig}[1]{%
+    \def\svgwidth{\columnwidth}
+    \import{./figures/}{#1.pdf_tex}
+}
+% Fix some stuff
+%http://tex.stackexchange.com/questions/76273/multiple-pdfs-with-page-group-included-in-a-single-page-warning
+\pdfsuppresswarningpagegroup=1
+
+% Operators
+\DeclareMathOperator{\Bd}{Bd}
+\DeclareMathOperator{\Int}{Int}
+\DeclareMathOperator{\cif}{if\;}
+
+
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\SD}{SD}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\Pois}{Pois}
+\DeclareMathOperator{\Dir}{Dir}
+\DeclareMathOperator{\Unif}{Unif}
+\DeclareMathOperator{\Gam}{Gamma}
+\DeclareMathOperator{\Binom}{Binom}
+\DeclareMathOperator{\Expo}{Expo}
+\DeclareMathOperator{\dBeta}{dBeta}
+\DeclareMathOperator{\tBeta}{tBeta}
+\DeclareMathOperator{\Ber}{Ber}
+\DeclareMathOperator{\IG}{IG}
+\DeclareMathOperator{\Pb}{Pr}
+\newcommand\deq{\stackrel{\mathclap{\tiny\mbox{d}}}{=}}
+\def\bsy{\boldsymbol}
