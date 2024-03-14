@@ -18,17 +18,17 @@ def reparam(r: NDArray[np.float64]) -> NDArray[np.float64]:
     # return ss
     return x
 
+
 def reparaminv(x: NDArray[np.float64]) -> NDArray[np.float64]:
     r = np.empty(x.shape[0] - 1)
     s = 0
     for i in range(r.shape[0]):
-        if 1 - s == 0:
+        if 1 - s <= 0:
             r[i] = 0
         else:
             r[i] = x[i] / (1 - s)
         s += x[i]
     return r
-
 
 
 def dreparam(r: NDArray[np.float64]) -> NDArray[np.float64]:
@@ -49,16 +49,18 @@ def dreparam(r: NDArray[np.float64]) -> NDArray[np.float64]:
 
     return dr
 
+
 def simplex_wrap(func):
     @functools.wraps(func)
     def wrapped(x, *args, **kwargs):
         return func(reparam(x), *args, **kwargs)
+
     return wrapped
+
 
 def dsimplex_wrap(func):
     @functools.wraps(func)
     def wrapped(x, *args, **kwargs):
         return func(reparam(x), *args, **kwargs) @ dreparam(x)
+
     return wrapped
-
-

@@ -75,3 +75,7 @@ class TestGP(utils.NpTestCase):
         )
         grad2 = (grad2 - base) / eps
         self.assert_np_array_equals(grad, grad2, places=5)
+
+        self.assert_np_array_equals(dexpected_improvement(-1, 0), np.zeros(2))
+        self.assert_np_array_equals(dexpected_improvement(0, 0), np.zeros(2))
+        self.assert_np_array_equals(dexpected_improvement(1, 0), np.zeros(2))

@@ -1,0 +1,42 @@
+\subsection{Gaussian Distributions}
+
+This section reviews important properties of Gaussian distributions that will use to make posterior inference using observed data in our Bayesian Optimization loop.
+
+
+\begin{theorem}[Once Gaussian Always Gaussian]
+    Let $\mathbf{x} = (\mathbf{x}_1, \mathbf{x}_2)$ be a multivariate Gaussian with mean and variance
+    \begin{equation*}
+        \bsy{\mu} = \begin{pmatrix}
+            \bsy{\mu}_1 \\ \bsy{\mu}_2
+        \end{pmatrix},\quad
+        \bsy{\Sigma} = \begin{pmatrix}
+            \bsy{\Sigma}_{11} && \bsy{\Sigma}_{12} \\
+            \bsy{\Sigma}_{21} && \bsy{\Sigma}_{22} \\
+        \end{pmatrix}
+    \end{equation*}
+
+    The marginal of $\mathbf{x}_1$ is
+    \begin{equation*}
+        \mathbf{x}_{1} \sim \mathcal{N}(\bsy{\mu}_1, \bsy{\Sigma}_{11})
+    \end{equation*}
+    
+    The conditional of $\mathbf{x}_1$ given $\mathbf{x}_2$ is Gaussian
+    \begin{align*}
+        &\mathbf{x}_1 | \mathbf{x}_2 \sim \mathcal{N}(\bsy{\mu}_{1 | 2}, \bsy{\Sigma}_{1 | 2}) \\
+        &\bsy{\mu}_{1 | 2} = \mathcal{N}\left(\bsy{\mu}_1 + \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} (\mathbf{x}_2 - \bsy{\mu}_2)\right) \\
+        &\bsy{\Sigma}_{1|2 } = \bsy{\Sigma}_{11} - \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} \bsy{\Sigma}_{21}
+    \end{align*}
+    
+    A affine transformation of $\mathbf{x}$ is also normal
+    \begin{equation*}
+        \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}(
+        \mathbf{A} \bsy{\mu} + \mathbf{b},
+        \mathbf{A} \bsy{\Sigma} \mathbf{A}^{T}
+        )
+    \end{equation*}
+    
+
+
+    
+\end{theorem}
+

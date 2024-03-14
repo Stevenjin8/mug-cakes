@@ -1,12 +1,5 @@
 """
-Functions relation to Gaussian Processes and Gaussian Distribution.
-Work tracker:
-
-[x] create basic gaussian functions
-[x] functions for biases
-[x] kernel parameter optmizers
-[ ] acquisition functions with gradient optimization.
-[.] tests lol
+Functions relation to Gaussian Processes and Gaussian Distributions.
 """
 
 import numpy as np

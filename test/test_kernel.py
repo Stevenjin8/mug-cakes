@@ -62,6 +62,7 @@ class TestKernel(utils.NpTestCase):
         self.assertAlmostEqual(np.abs(expected - result).max(), 0)
 
     def test_drbfv(self):
+        """Limit approximation"""
         eps = 0.000001
         scale = 0.9
         s2f = 0.5

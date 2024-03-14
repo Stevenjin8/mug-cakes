@@ -8,7 +8,7 @@ from . import utils
 
 
 class TestGP(utils.NpTestCase):
-    """Tests for GP module"""
+    """Tests for Gaussian Processes module"""
 
     X: NDArray[np.float64] = (
         np.array(
@@ -27,7 +27,7 @@ class TestGP(utils.NpTestCase):
     N_b = 2
 
     def test_target(self):
-        """Test gradients"""
+        """Test gradients by comparing grad function with limit approximation."""
 
         eps = 0.000001  # can't make this too small.
         xa = np.zeros(3)
@@ -42,6 +42,7 @@ class TestGP(utils.NpTestCase):
             self.assertAlmostEqual(est, grad[i], places=3)
 
     def test_optimize(self):
+        """Test that we can optimize kernel hyperparameters"""
         res = bo.optimize_rbf_params(self.X, self.y, self.N_b, self.B, self.var_b)
         res = np.log(res)
         for i in range(3):
@@ -53,6 +54,7 @@ class TestGP(utils.NpTestCase):
             )
 
     def test_expected_diff(self):
+        """No MC tests, bc thye take too long to be any good. Just make sure things make sense."""
         s2f = 0.1
         scale = 1
         s2e = s2f
@@ -109,6 +111,7 @@ class TestGP(utils.NpTestCase):
         self.assertTrue(0 > diff7 > diff8 > diff9)
 
     def test_dexpected_diff(self):
+        """Use limit approx for test gradients"""
         s2f = 0.1
         scale = 0.9
         s2e = s2f
@@ -148,13 +151,14 @@ class TestGP(utils.NpTestCase):
         self.assertAlmostEqual(grad[1], result1, places=5)
 
     def test_bo_state(self):
+        """Basic tests for dataclass"""
         X = np.array([[0, 1], [0.0, 2]])
         y = np.array([0, 1.0])
         B = np.array([0, 1], dtype=np.uint64)
         N_b = 2
         var_b = 1
 
-        state = bo.BoState(X.copy(), y.copy(), N_b, B.copy(), var_b)
+        state = bo.BoState(X.copy(), y.copy(), N_b, B.copy(), var_b, simplex=False)
         self.assert_np_array_equals(state.X, X)
         self.assert_np_array_equals(state.y, y)
         self.assert_np_array_equals(state.B, B)
@@ -162,8 +166,8 @@ class TestGP(utils.NpTestCase):
         self.assertEqual(state.N_b, 2)
         self.assertEqual(state.var_b, 1)
 
-        x_new =  np.array([0, 0.1])
-        y_new =  -0.1
+        x_new = np.array([0, 0.1])
+        y_new = -0.1
         state.add(x_new, y_new, 1)
         self.assert_np_array_equals(state.X, np.array([[0, 1], [0.0, 2], [0, 0.1]]))
         self.assert_np_array_equals(state.y, np.array([0, 1.0, -0.1]))
@@ -172,5 +176,38 @@ class TestGP(utils.NpTestCase):
         self.assertEqual(state.N, 3)
         self.assertEqual(state.N_b, 2)
 
+    def test_full_cycle(self):
+        """Test that we can perform a BO experiment on simple data"""
 
-        state.add
+        def target(x):
+            """Has clear global max at x[0] = 0.67967968 but has local max at x[0]=0.16616617"""
+            return (
+                2 * np.sin(10 * x[..., 0] + 1)
+                + 20 * x[..., 0] ** 0.5
+                + 20 * (x[..., 1]) ** 0.3
+                - 27
+            )
+
+        np.random.seed(42)
+
+        s2e = 0.4**2
+        bb = np.array([-2.0, 2.0, 0])
+        var_b = 1**2
+        N_b = 3
+        N = 3
+        X = np.random.rand(N, 1)
+        X = np.hstack((X, 1 - X))
+        B = np.array([0, 1, 2], dtype=np.uint64)
+        y = (target(X) + np.random.normal(size=(X.shape[0])) * s2e**0.5) + bb[B]
+        state = bo.BoState(X, y, N_b, B, var_b, simplex=True)
+
+        # idk 8 might be too few
+        for _ in range(8):
+            x_new, _, x_M = bo.bo_iter(state)
+            j = np.random.choice(N_b)
+            y_new = target(x_new) + bb[j] + np.random.normal() * s2e**0.5
+            np.array(j, dtype=np.uint64)
+            state.add(x_new, y_new, j)
+        x_new, _, x_M = bo.bo_iter(state)
+        self.assertAlmostEqual(0.67967968, x_M[0], places=1)
+        self.assertAlmostEqual(x_M.sum(), 1)

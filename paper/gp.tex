@@ -1,0 +1,75 @@
+\subsection{Gaussian Processes}
+
+Gaussian Processes are an extension of Gaussian distributions to random continuous functions $f: \mathcal{X} \to \mathbb{R}$.
+Working with such a distribution might overwhelming, especially if $\mathcal{X}$ is infinite.
+The key to making this problem tractable is that we only consider $f$ at a finite number of points.
+
+
+\begin{definition}[Gaussian Process]
+    A Gaussian Process on $\mathcal{X}$ is a random function $f$ parameterized by
+    $m: \mathcal{X} \to \mathbb{R}$ and $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
+    such that
+    \begin{align*}
+        \mathbb{E}[f(\mathbf{x})] &= m(\mathbf{x}) \\
+        \mathbb{E}[(f(\mathbf{x}) - m(\mathbf{x}))(f(\mathbf{x}') - m(\mathbf{x}'))] &= \kappa(\mathbf{x}, \mathbf{x}').
+    \end{align*}
+    Then, for any $\mathbf{x}_1, \ldots,\mathbf{x}_n \in \mathcal{X}$,
+    \begin{equation*}
+        \begin{bmatrix}
+            f(\mathbf{x}_1) \\ \vdots \\ f(\mathbf{x}_n)
+        \end{bmatrix} \sim
+        \mathcal{N}\left(
+        \begin{bmatrix}
+            m(\mathbf{x}_1) \\ \vdots \\ m(\mathbf{x}_n)
+        \end{bmatrix}, \mathbf{K}\right)
+    \end{equation*}
+    where the $i,j$th element of $\mathbf{K}$ is $\kappa(\mathbf{x}, \mathbf{x}')$.
+    For this equation to make sense, we require $\kappa$ to generate positive semi-definite matrices.
+\end{definition}
+
+Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
+The parameter $\kappa$ describes the similarity between two points. After all, we expect the covariance between $f(\mathbf{x})$ and $f(\mathbf{x}')$
+to be high if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
+In Figure \ref{fig:gp-sample}, we use a kernel based on Euclidean distance.
+As such, we see that points close to each other have similar values (e.g. continuity).
+We will show later, this is no coincidence.
+
+Before we can move on with the performing inference with Gaussian Processes, we first have to verify that normal laws of probability hold.
+After all we have an infinite collection for random variables, but have only defined joint distributions over finite subsets of this collections.
+What is to say that, these joint distributions are consistent with each other?
+The Kolmogorov Consistency Conditions are an answer to this questions.
+%\begin{theorem}
+%    If $\kappa$ is continuous and $f \sim GP(0, \kappa)$, then $\lim_{ \mathbf{x}' \to \mathbf{x}} f(\mathbf{x'}) = f(\mathbf{x})$
+%    almost surely.
+%\end{theorem}
+
+
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{fig/gp-sample2d.png}
+         \caption{}
+         \label{subfig:2d-gp-sample}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{fig/gp-sample3d.png}
+         \caption{}
+         \label{subfig:3d-gp-sample}
+     \end{subfigure}
+     \hfill
+    \caption{Samples of a Gaussian Process using a RBF kernel with parameters $\ell^{2} = 0.2^2$ and $\sigma^{2}_f = 1 ^ 2$ with
+        $\mathcal{X} = [0, 1]$ (a) and $\mathcal{X} = [0, 1]^2$ (b).
+    }
+    \label{fig:gp-sample}
+\end{figure}
+
+\subsubsection{Posterior Inference on GP}
+
+\subsubsection{Kernels}
+
+Given that most often we set the $m$ parameter of a Gaussian Process to be 0,
+we expect 
+

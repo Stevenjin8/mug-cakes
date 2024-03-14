@@ -1,0 +1,29 @@
+Optimization is pervasive in our lives.
+Example example.
+However, these issues do not lend themselves well to standard mathematical methods.
+We cannot simply ``set the derivative to zero and solve'' because we do not have a closed form expression.
+Nor can we use gradient methods because we do not observe derivatives.
+Evolutionary algorithms are inadequate because they require too many expensive trials.
+One can only eat eggs so many times a day.
+
+More formally, there is a space $\mathcal{X}$ (most often a compact set of $\mathbb{R}^{D}$) and a continuous function $f: \mathcal{X} \to \mathbb{R}$.
+In the context of the previous examples, $\mathcal{X}$ represents ... and $f$ is ....
+The assumption the $f$ is continuous is justified because small in changes in $x$ usually result in small changes in $f(x)$.
+Our goal is to find
+\begin{equation*}
+    \argmax_{x \in \mathcal{X}} f(x)
+\end{equation*}
+in as few samples as possible.
+
+Bayesian Optimization is an iterative probabilistic method for solving such problems.
+It has two parts: an surrogate model and an acquisition function.
+The surrogate model represents our belief about $f$ and given our observations
+and the acquisition function tells us where to sample $f$ at every iteration.
+As we iterate, the hope is that we learn more and more about $f$ which will give us better estimates for its maximum.
+
+We will first review Gaussian distributions.
+Next, we will explore Gaussian Processes and how to deal with noisy and biased observations
+so that we can use them as a surrogate model.
+In section ... we will look at acquisitions functions.
+Having explore both components of Bayesian Optimization we will see how the algorithm performs in the real world example of finding the perfect mug cake.
+Finally, we will investigate how to perform inference on the biases using data from the experiment.

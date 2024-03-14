@@ -37,10 +37,10 @@ def rbf(
 
 
 def drbf(
-    x: NDArray[np.float64], Y: NDArray[np.float64], scale2, s2f
+    x: NDArray[np.float64], Y: NDArray[np.float64], scale2: float, s2f: float
 ) -> NDArray[np.float64]:
     """
-    RBF gradient wrt firstparameter.
+    RBF gradient wrt first parameter.
 
     Parameters:
         x: D

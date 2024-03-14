@@ -6,14 +6,15 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{verbatim}
+\usepackage{cite}
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{tikz}
 \usepackage{tikz-qtree}
+\usepackage{cite}
 \setlist[enumerate]{leftmargin=*, label=(\alph*)}
 
-\author{Steven Jin}
 \pdfminorversion=7
 
 % Hide page number when page is empty
@@ -86,9 +87,8 @@
 % http://tex.stackexchange.com/questions/22119/how-can-i-change-the-spacing-before-theorems-with-amsthm
 \makeatletter
 \def\thm@space@setup{%
-  \thm@preskip=\parskip \thm@postskip=0pt
+    \thm@preskip=\parskip \thm@postskip=0pt
 }
-
 
 % \lecture starts a new lecture (les in dutch)
 %
@@ -97,7 +97,6 @@
 %
 % This adds a section heading with the number / title of the lecture and a
 % margin paragraph with the date.
-
 
 % These are the fancy headers
 \usepackage{fancyhdr}
@@ -108,10 +107,10 @@
 % CE, CO: center even, center odd
 % My name for when I print my lecture notes to use for an open book exam.
 % \fancyhead[LE,RO]{Gilles Castel}
-
+%
 \setlength{\headheight}{30pt}
-\fancyhead[L]{Bayesian Statistics\\\theauthor}
-\fancyhead[R]{\thetitle\\\thedate}
+\fancyhead[L]{Bayesian Statistics\\Steven Jin}
+\fancyhead[R]{Title\\date}
 %
 \makeatother
 %
@@ -139,7 +138,6 @@
 \DeclareMathOperator{\Int}{Int}
 \DeclareMathOperator{\cif}{if\;}
 
-
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\SD}{SD}
 \DeclareMathOperator{\Cov}{Cov}
@@ -155,5 +153,7 @@
 \DeclareMathOperator{\Ber}{Ber}
 \DeclareMathOperator{\IG}{IG}
 \DeclareMathOperator{\Pb}{Pr}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 \newcommand\deq{\stackrel{\mathclap{\tiny\mbox{d}}}{=}}
 \def\bsy{\boldsymbol}

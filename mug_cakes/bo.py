@@ -249,43 +249,6 @@ def dminus_expected_diff(
     return -1.0 * (dEI[0] * dmu_dx_s + dEI[1] * dvar_dx_s)
 
 
-def optimize_x(
-    X: NDArray[np.float64],
-    y: NDArray[np.float64],
-    N_b: int,
-    B: NDArray[np.uint64],
-    var_b: float,
-    bounds: Tuple[Tuple[float, float], ...] = ((-1.0, 4.0), (-7.0, 4.0), (-7.0, 4.0)),
-    x0: Optional[NDArray[np.float64]] = None,
-    disp: bool = False,
-):
-    """Optimize kernel hyperparameters.
-
-    Parameters:
-        X: N x D
-        y: N
-        N_b: total number of observers
-        B: N which observations correspond to which observers
-        var_b: variance of biases
-        bounds: Search bounds. I really regret adding this because L-BFGS-B supports constraints which I have to add anyways for stability.
-        x0: initial guess. Defaults to zeros.
-        disp: Display L-BFSG-B progress.
-    """
-    if x0 is None:
-        x0 = np.zeros(3)
-    res = scipy.optimize.minimize(
-        _hp_target,
-        x0,
-        method="L-BFGS-B",
-        jac=_dhp_target,
-        options={"disp": disp},
-        args=(X, y, N_b, B, var_b),
-        bounds=bounds,
-    )
-    assert res.success, "Did not converge"
-    return np.exp(res.x)
-
-
 @dataclass
 class BoState:
     "Keep track of BO experiment state." ""

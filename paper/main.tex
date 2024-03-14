@@ -6,8 +6,25 @@
 \input{./preamble.tex}
 
 \usepackage{geometry}
-\usepackage{qtree}
 \geometry{letterpaper}
 
 \begin{document}
+
+\input{abstract.tex}
+\section{Introduction}
+\input{intro.tex}
+\section{Gaussians}
+\input{gaussian.tex}
+\input{gp.tex}
+
+\input{kernels.tex}
+\input{bgp.tex}
+\section{Bayesian Optimization}
+\input{acquisition.tex}
+\input{experiments.tex}
+\section{Posterior Inference of $\mathbf{z}$}
+\input{zinference.tex}
+
+\bibliography{mybib.bib}{}
+\bibliographystyle{plain}
 \end{document}

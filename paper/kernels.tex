@@ -1,0 +1,117 @@
+\subsection{Kernels}
+
+\begin{theorem}
+    The RBF kernel is a Mercer kernel.
+\end{theorem}
+%\begin{proof}
+%    Outline of the proof: We will first show that
+%    \begin{equation*}
+%        \ell^{1} = \{ \text{sequences of real numbers whose series converges absolutely} \}
+%    \end{equation*}
+%    is a vector space.
+%    Then, we will induce a inner product on $\ell_1$.
+%    Finally, we will show that there exists a $\varphi: \mathbb{R}^{K} \to \ell^{2}$ such that $\kappa(\mathbf{x}, \mathbf{y}) = \langle \varphi(\mathbf{x}), \varphi(\mathbf{y}) \rangle$.
+%
+%    For $\mathbf{x} = (x_n), \mathbf{y} = (y_n) \in \ell^{1}$ and $\alpha \in \mathbb{R}$, we define addition and scalar multiplication as usual.
+%    \begin{align*}
+%        \mathbf{x} + \mathbf{y} & = (x_n + y_n) \\
+%        \alpha \mathbf{x} & = (\alpha x_n) \\
+%    \end{align*}
+%    This is clearly a vector space.
+%
+%    We define the inner product of $\mathbf{y}, \mathbf{y}$ as
+%    \begin{equation*}
+%        \langle \mathbf{x}, \mathbf{y} \rangle
+%        = \sum\limits_{n=1}^{\infty} x_n y_n
+%    \end{equation*}
+%    We must first show that this function is well defined for any $\mathbf{x}, \mathbf{y} \in \ell^{1}$.
+%    Because $\sum y_n$ converges, we know that $(y_n) \to 0$ and there exists an $M \in \mathbb{R}$ such that $\lvert y_n \rvert < M$ for all $n$.
+%    It follows that
+%    \begin{equation*}
+%        \sum\limits_{n=1}^{\infty} \lvert x_n y_n \rvert
+%        = \sum\limits_{n=1}^{\infty} \lvert x_n \rvert \lvert y_n \rvert
+%        < \sum\limits_{n=1}^{\infty} \lvert x_n \rvert  M
+%        = M\sum\limits_{n=1}^{\infty} \lvert x_n \rvert
+%        < \infty
+%    \end{equation*}
+%    The last inequality comes from the fact that $\mathbf{x} \in \ell^{1}$.
+%
+%    Now, we show that we are working with a valid inner product using Definition 8.1 of \cite{axler2020}.
+%    Suppose that $\mathbf{f}, \mathbf{g}, \mathbf{h} \in \ell^{1}$.
+%    \begin{itemize}
+%        \item
+%            \textbf{Positivity}:
+%            \begin{align*}
+%                \langle \mathbf{f}, \mathbf{f} \rangle
+%                = \sum f_{n}^2
+%                \geq 0
+%            \end{align*}
+%            because all the terms in the sum are nonnegative.
+%
+%        \item
+%            \textbf{Definiteness}:
+%            \begin{align*}
+%                \langle \mathbf{f}, \mathbf{f} \rangle = \sum f_n^2= 0
+%                \iff f_n = 0 \quad \forall n
+%                \iff \mathbf{f} = \mathbf{0}
+%            \end{align*}
+%
+%        \item
+%            \textbf{Linearity in first slot}:
+%            \begin{align*}
+%                \langle \mathbf{f} + \mathbf{g}, \mathbf{h} \rangle
+%                = \sum (f_n + g_n)h_n
+%                = \sum (f_nh_n + g_nh_n)
+%                = \sum f_nh_n + \sum g_nh_n
+%                = \langle \mathbf{f}, \mathbf{h} \rangle + \langle \mathbf{g}, \mathbf{h} \rangle
+%            \end{align*}
+%            We can split up the sum in the second last inequality because all $\sum f_nh_n, \sum g_nh_n$ converge absolutely.
+%
+%        \item
+%            \textbf{Symmetry}:
+%            \begin{align*}
+%                \langle \mathbf{f}, \mathbf{g} \rangle
+%                = \sum f_n + g_n
+%                = \sum g_n + f_n
+%                = \langle \mathbf{g}, \mathbf{f} \rangle
+%            \end{align*}
+%            We can split up the sum in the second last inequality because all $\sum f_n, \sum g_n$ converge absolutely.
+%    \end{itemize}
+%
+%    Now, we show that RBF is a Mercer Kernel.
+%    We first consider the case where $\mathbf{x}, \mathbf{y} \in \mathbb{R}^{1}$.
+%    Since $\mathbf{x}, \mathbf{y}$ are scalars, we write them without boldface from now on.
+%    Let $\varphi: \mathbb{R}^{1} \to \ell^{1}$ be given by
+%    \begin{equation*}
+%        \varphi(x) = \left(\sigma_f \exp\{-\frac12 x^2 / \ell^2\} \frac{ x^{n} }{ \ell\sqrt{n!} }\right)_{n=0}^{\infty}
+%    \end{equation*}
+%    and we adopt the convention that $0^{0} = 1$.
+%    We know that the sum of the entries of $\varphi(x)$ converges absolutely by doing the ratio test
+%    \begin{equation*}
+%        \lim_{n \to \infty} \frac{ \sigma_f \exp\{-\frac12x^2 / \ell^2\}(x/\ell)^{n+1} / \sqrt{(n + 1)!}}
+%        { \sigma_f \exp\{-\frac12x^2 / \ell^2\}(x/\ell)^{n} / \sqrt{n!} }
+%        = \lim \frac{ x/\ell^2 }{ \sqrt{n + 1} }
+%        = 0
+%    \end{equation*}
+%    It follows that
+%    \begin{align*}
+%        \kappa(x, y) = \sigma_f^{2} \exp\left\{-\frac12 \frac{ (x - y)^2 }{ \ell^2 }\right\}
+%        &= \sigma_f \exp\{-\frac12 \frac{ x^2 }{ \ell^2 }\}
+%        \sigma_f \exp\{-\frac12 \frac{ y^2 }{ \ell^2 }\}
+%        \exp \{ \frac{ xy }{ \ell^2 } \} \\
+%        &= \sigma_f \exp\{-\frac12 \frac{ x^2 }{ \ell^2 }\}
+%        \sigma_f \exp\{-\frac12 \frac{ y^2 }{ \ell^2 }\}
+%        \sum_{n=0}^\infty \frac{ xy / \ell^2 }{ n! } \\
+%        &= \sigma_f \exp\{-\frac12 \frac{ x^2 }{ \ell^2 }\}
+%        \sigma_f \exp\{-\frac12 \frac{ y^2 }{ \ell^2 }\}
+%        \sum_{n=0}^\infty \frac{ x / \ell}{ \sqrt{n!} }\frac{ y / \ell}{ \sqrt{n!} } \\
+%        &=  \langle \varphi(x), \varphi(y) \rangle
+%    \end{align*}
+%    
+%    
+%    
+%
+%
+%
+%
+%\end{proof}
