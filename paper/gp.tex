@@ -23,8 +23,8 @@ The key to making this problem tractable is that we only consider $f$ at a finit
             m(\mathbf{x}_1) \\ \vdots \\ m(\mathbf{x}_n)
         \end{bmatrix}, \mathbf{K}\right)
     \end{equation*}
-    where the $i,j$th element of $\mathbf{K}$ is $\kappa(\mathbf{x}, \mathbf{x}')$.
-    For this equation to make sense, we require $\kappa$ to generate positive semi-definite matrices.
+    where the $i,j$th element of the Gram Matrix $\mathbf{K}$ is $\kappa(\mathbf{x}, \mathbf{x}')$.
+    For this equation to make sense, we require $\kappa$ to generate positive semi-definite Gram matrices.
 \end{definition}
 
 Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
@@ -32,16 +32,38 @@ The parameter $\kappa$ describes the similarity between two points. After all, w
 to be high if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
 In Figure \ref{fig:gp-sample}, we use a kernel based on Euclidean distance.
 As such, we see that points close to each other have similar values (e.g. continuity).
-We will show later, this is no coincidence.
+The following definiton and theorem formalizes this.
+
+\begin{definition}[Converges in Distribution]
+    A sequence of random variables $X_n$ is said to converge in distribution to $X$
+    if for any bounded continuous function $h$, then
+    \begin{equation*}
+        \lim_{n\to \infty} \mathbb{E}[h(X_n)] = \mathbb{E}[h(X)].
+    \end{equation*}
+\end{definition}
+
+\begin{theorem}
+    Let $f \sim GP(m, \kappa)$.
+    If $m$ and $\kappa$ is continuous, then for any convergent sequence $(\mathbf{x}_n) \to \mathbf{x}$,
+    the distribution $f(\mathbf{x}_n) - f(\mathbf{x})$ converges to a distribution to a degenerate distribution at 0.
+\end{theorem}
+
 
 Before we can move on with the performing inference with Gaussian Processes, we first have to verify that normal laws of probability hold.
 After all we have an infinite collection for random variables, but have only defined joint distributions over finite subsets of this collections.
 What is to say that, these joint distributions are consistent with each other?
 The Kolmogorov Consistency Conditions are an answer to this questions.
-%\begin{theorem}
-%    If $\kappa$ is continuous and $f \sim GP(0, \kappa)$, then $\lim_{ \mathbf{x}' \to \mathbf{x}} f(\mathbf{x'}) = f(\mathbf{x})$
-%    almost surely.
-%\end{theorem}
+
+\begin{theorem}[Kolmogorov Consistency Conditions]
+    
+\end{theorem}
+
+\begin{theorem}
+    Gaussian Processes are consistent
+\end{theorem}
+\begin{proof}
+    TODO
+\end{proof}
 
 
 \begin{figure}
@@ -60,7 +82,7 @@ The Kolmogorov Consistency Conditions are an answer to this questions.
          \label{subfig:3d-gp-sample}
      \end{subfigure}
      \hfill
-    \caption{Samples of a Gaussian Process using a RBF kernel with parameters $\ell^{2} = 0.2^2$ and $\sigma^{2}_f = 1 ^ 2$ with
+    \caption{Samples of a Gaussian Process using a RBF kernel with parameters $\ell^{2} = 0.1^2$ and $\sigma^{2}_f = 1 ^ 2$ with
         $\mathcal{X} = [0, 1]$ (a) and $\mathcal{X} = [0, 1]^2$ (b).
     }
     \label{fig:gp-sample}
@@ -68,8 +90,155 @@ The Kolmogorov Consistency Conditions are an answer to this questions.
 
 \subsubsection{Posterior Inference on GP}
 
-\subsubsection{Kernels}
+We now turn our attention to posterior inference.
+That is, we want to quantify our belief of $f$ given some observations.
+Suppose we observe that $f(\mathbf{x}_1) = y_1, \ldots, f(\mathbf{x}_n) = y_n$.
+Then, for some point of interest $\mathbf{x}_*$, the joint distribution of
+$(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n), f(\mathbf{x}_*))$ is
+\begin{equation*}
+    \begin{bmatrix}
+        f(\mathbf{x}_1) \\
+        \vdots \\
+        f(\mathbf{x}_n) \\
+        f(\mathbf{x}_*) \\
+    \end{bmatrix} \sim
+    \mathcal{N}\left(
+    \begin{bmatrix}
+        \mathbf{m} \\ m(\mathbf{x}_*)
+    \end{bmatrix},
+    \begin{bmatrix}
+        \mathbf{K} & \mathbf{k}_* \\
+        \mathbf{k}_*^T & \kappa(\mathbf{x}_*, \mathbf{x}_*)
+    \end{bmatrix}\right)
+\end{equation*}
+where the $i,j$th element of $\mathbf{K}$ is $\kappa(\mathbf{x}_i, \mathbf{x}_j)$, 
+$i$th element of $\mathbf{k}_*$ is $\kappa(\mathbf{x}_i, \mathbf{x}_*)$, and the $i$th element of $\mathbf{m}$ is $m(\mathbf{x}_i)$.
+It follows from Theorem ~\ref{thm:ogag}, our posterior distribution
+of $f(\mathbf{x}_*)$ our observations is Gaussian with mean
+\begin{equation} \label{eq:noisless-post-mean}
+    m(\mathbf{x_*}) + \mathbf{k}_*^T \mathbf{K}^{-1} (\mathbf{y} - \mathbf{m}), 
+\end{equation}
+and variance
+\begin{equation} \label{eq:noiseless-post-var}
+    \kappa(\mathbf{x}_*, \mathbf{x}_*) - \mathbf{k_*}^{T} \mathbf{K}^{-1} \mathbf{k}_*.
+\end{equation}
 
-Given that most often we set the $m$ parameter of a Gaussian Process to be 0,
-we expect 
 
+\subsubsection{Noisy and Biased Observations}
+
+One issue with using RBF kernels is that it assumes noiseless and unbiased observations of $f$.
+For example if we bake two cakes with the same recipe twice, it is highly unlikely that we will result in the exact same cake due to a noisy process.
+This is problematic because a GP with only an RBF kernel cannot represent data with two different observations of $f(\mathbf{x})$.
+Further, we could have biased tasters.
+As we can see in Figure ~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit.
+
+We can incorporate bias and noise by imagining that we have $N_b$ observers.
+Each observer $j$ has a bias $b_j$ and the $i$th observation is made by the $z_i$th observer.
+Then, each observation $y_i$ is
+\begin{equation*}
+    y_i = f(\mathbf{x}_i) + b_{z_i} + \epsilon_i
+\end{equation*}
+Suppose we know $\mathbf{z}$ (i.e. the observer that corresponds with each observation),
+and have the following priors
+\begin{align*}
+    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \\
+    b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2)
+\end{align*}
+then $\mathbf{y} = (y_1, \ldots, y_n)$ is a linear combination of Gaussian random variables
+and is Gaussian by Theorem ~\ref{thm:ogag}.
+
+Despite these changes, posterior inference is similar.
+Suppose $\mathbf{y} = (y_1, \ldots, y_n)$ are some noisy and biased observations $f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$.
+Our observations have the same mean of $\mathbf{m} = (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
+Assuming that $f$, $\epsilon_i$, $b_j$ are independent for all $i$ and $j$,
+the variance of $y_i$ is
+\begin{equation*}
+    \sigma_{ii} = \kappa(\mathbf{x}_i, \mathbf{x}_i) + \sigma^2_\epsilon + \sigma^2_b.
+\end{equation*}
+The covariance of $y_i$ and $f(\mathbf{x}_j)$ is
+\begin{equation*}
+    \sigma_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j) + \mathbb{I}[z_i = z_j] \sigma^2_b.
+\end{equation*}
+Finally, the covariance between $y_i$ and $f(\mathbf{x}_*)$ is
+\begin{equation*}
+    k_{i*} = \kappa(\mathbf{x}_i, \mathbf{x}_*).
+\end{equation*}
+
+Since
+\begin{equation*}
+    \begin{bmatrix}
+        y_1 \\
+        \vdots \\
+        y_n \\
+        f(\mathbf{x}_*)
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        f(\mathbf{x}_1) + b_{z_1} + \epsilon_1 \\
+        \vdots \\
+        f(\mathbf{x}_n) + b_{z_n} + \epsilon_n \\
+        f(\mathbf{x}_*)
+    \end{bmatrix}
+\end{equation*}
+is a linear function of jointly random Gaussians $f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n), f(\mathbf{x}_*), \epsilon_1, \ldots, \epsilon_n, b_1 \ldots, b_{N_b}$,
+the random vector $(y_1, \ldots, y_n, f(\mathbf{x}_*))$ is Gaussian
+\begin{equation*}
+    \begin{bmatrix}
+        y_1 \\
+        \vdots \\
+        y_n \\
+        f(\mathbf{x}_*)
+    \end{bmatrix}
+    \sim
+    \mathcal{N}\left(
+    \begin{bmatrix}
+            \mathbf{m} \\
+            m(\mathbf{x}_*)
+        \end{bmatrix}
+    ,
+    \begin{bmatrix}
+            \bsy{\Sigma} & \mathbf{k}_* \\
+            \mathbf{k}_*^T & \kappa(\mathbf{x}_*, \mathbf{x}_*)
+        \end{bmatrix}
+    \right)
+\end{equation*}
+Our posterior of $f(\mathbf{x}_*)$ given our observations is Gaussian with mean
+\begin{equation*}
+    m(\mathbf{x}_*) + \mathbf{k}_*^T \bsy{\Sigma}^{-1} (\mathbf{y} - \mathbf{m})
+\end{equation*}
+and variance
+\begin{equation*}
+    \kappa(\mathbf{x}_*, \mathbf{x}_*) - \mathbf{k}_*^T \bsy{\Sigma}^{-1} \mathbf{k}_*.
+\end{equation*}
+These equations are similar to Equations \ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig/noiseless-posterior.png}
+        \caption{}
+        \label{subfig:noiseless-post}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig/noisy-posterior.png}
+        \caption{}
+        \label{subfig:noisy-posterior}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig/biased-posterior.png}
+        \caption{}
+        \label{subfig:biased-posterior}
+    \end{subfigure}
+    \hfill
+    \caption{Posteriors of a Gaussian Process given some noisy biased data.
+        RBF kernel parameters are $\ell^{2} = 0.1^2, \sigma^{0.3}_f = 1 ^ 2, \sigma^2_b = 1$.
+        Blue points have a bias of -1 while orange points have a bias of -1.
+        Shaded area is 95\% posterior credible interval.
+    }
+    \label{fig:gp-posteriors}
+\end{figure}

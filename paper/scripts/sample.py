@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
-from matplotlib.ticker import LinearLocator
 from scipy.stats import multivariate_normal
 
 from mug_cakes.kernel import rbf
@@ -21,7 +20,7 @@ for _ in range(3):
 fig.savefig("fig/gp-sample2d.png")
 
 
-N = 35
+N = 50
 X = np.linspace(0, 1, N)
 Y = np.linspace(0, 1, N)
 X, Y = np.meshgrid(X, Y)
@@ -35,14 +34,8 @@ Z = multivariate_normal.rvs(cov=K)
 fig = plt.figure()
 ax = fig.add_subplot(projection="3d")
 
-colortuple = ("y", "b")
-colors = np.empty((N * N, N * N), dtype=str)
-for y in range(len(X)):
-    for x in range(len(Y)):
-        colors[y, x] = colortuple[(x + y) % len(colortuple)]
-
 ax.plot_surface(
     X.reshape(N, N), Y.reshape(N, N), Z.reshape(N, N), linewidth=1, cmap=cm.inferno
 )
 
-fig.savefig("fig/gp-sample3d.png", bbox_inches="tight")
+fig.savefig("fig/gp-sample3d.png", bbox_inches="tight", dpi=500)
