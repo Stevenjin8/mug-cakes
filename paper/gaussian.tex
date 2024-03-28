@@ -1,38 +1,80 @@
 \subsection{Gaussian Distributions}
 
+%Gaussian Distributions form one of the most important classes of distribution in statistics
 This section reviews important properties of Gaussian distributions that will use to make posterior inference using observed data in our Bayesian Optimization loop.
+We being by defining Gaussian random variables.
 
+\begin{definition}[Nondegenerate Gaussian]
+    The probability density of a $K$-dimensional (Multivariate) Nondegenerate Gaussian random vector $\mathbf{x} \sim \mathcal{N}_K(\bsy{\mu}, \bsy{\Sigma})$
+    is
+    \begin{equation}
+        \label{mvn-pdf}
+        \frac{ 1 }{ (2 \pi)^{K/2} \lvert \bsy{\Sigma} \rvert^{1/2} } \exp \left\{ -\frac{ (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu}) }{ 2 } \right\}
+    \end{equation}
+    where $\bsy{\mu} \in \mathbb{R}^{K}$ and $\bsy{\Sigma}$ is a $K \times K$ strictly positive definite matrix.
+    We just write $\mathcal{N}$ instead of $\mathcal{N}_K$ if $K$ is clear from context.
+\end{definition}
+
+We can also allow $\bsy{\Sigma}$ to be singular giving us a degenerate Gaussian, but these are much harder to work with because we rely on $\bsy{\Sigma}^{-1}$ in Equation~\ref{mvn-pdf}.
+
+One reason why Gaussians are popular is because they stay Gaussian under various transformations, as the next theorem shows.
 
 \begin{theorem}[Once Gaussian Always Gaussian]\label{thm:ogag}
-    Let $\mathbf{x} = (\mathbf{x}_1, \mathbf{x}_2)$ be a multivariate Gaussian with mean and variance
+    Suppose $\mathbf{x} = (\mathbf{x}_1, \mathbf{x}_2)$ be a $K$-dimensional multivariate Gaussian with mean and variance
     \begin{equation*}
-        \bsy{\mu} = \begin{pmatrix}
-            \bsy{\mu}_1 \\ \bsy{\mu}_2
-        \end{pmatrix},\quad
-        \bsy{\Sigma} = \begin{pmatrix}
-            \bsy{\Sigma}_{11} && \bsy{\Sigma}_{12} \\
-            \bsy{\Sigma}_{21} && \bsy{\Sigma}_{22} \\
+        \bsy{\mu} =
+        \begin{pmatrix}
+            \bsy{\mu}_1 \\
+            \bsy{\mu}_2
+        \end{pmatrix}
+        ,\quad
+        \bsy{\Sigma} =
+        \begin{pmatrix}
+            \bsy{\Sigma}_{11} &  & \bsy{\Sigma}_{12} \\
+            \bsy{\Sigma}_{21} &  & \bsy{\Sigma}_{22} \\
         \end{pmatrix}
     \end{equation*}
-
-    The marginal of $\mathbf{x}_1$ is
-    \begin{equation*}
-        \mathbf{x}_{1} \sim \mathcal{N}(\bsy{\mu}_1, \bsy{\Sigma}_{11})
-    \end{equation*}
-    
-    The conditional of $\mathbf{x}_1$ given $\mathbf{x}_2$ is Gaussian
+    where
     \begin{align*}
-        &\mathbf{x}_1 | \mathbf{x}_2 \sim \mathcal{N}(\bsy{\mu}_{1 | 2}, \bsy{\Sigma}_{1 | 2}) \\
-        &\bsy{\mu}_{1 | 2} = \mathcal{N}\left(\bsy{\mu}_1 + \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} (\mathbf{x}_2 - \bsy{\mu}_2)\right) \\
-        &\bsy{\Sigma}_{1|2 } = \bsy{\Sigma}_{11} - \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} \bsy{\Sigma}_{21}
+        \mathbf{x}_1, \bsy{\mu}_1 \in \mathbb{R}^{K_1};
+        \mathbf{x}_2, \bsy{\mu}_2 \in \mathbb{R}^{K_2};
+        \bsy{\Sigma}_{11} \in \mathbb{R}^{K_1 \times K_1};
+        \bsy{\Sigma}_{22} \in \mathbb{R}^{K_2 \times K_2};
+        \bsy{\Sigma}_{12} = \bsy{\Sigma}_{21}^{T} \in \mathbb{R}^{K_1 \times K_2}.
     \end{align*}
-    
-    A affine transformation of $\mathbf{x}$ is also normal
-    \begin{equation*}
-        \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}(
-        \mathbf{A} \bsy{\mu} + \mathbf{b},
-        \mathbf{A} \bsy{\Sigma} \mathbf{A}^{T}
-        )
-    \end{equation*}
-    
+
+    Then, the following are true.
+    \begin{enumerate}
+        \item
+            The marginal of $\mathbf{x}_1$ is
+            \begin{equation*}
+                \mathbf{x}_{1} \sim \mathcal{N}_{K_1}(\bsy{\mu}_1, \bsy{\Sigma}_{11}).
+            \end{equation*}
+
+        \item
+            The conditional of $\mathbf{x}_1$ given $\mathbf{x}_2$ is Gaussian
+            \begin{align*}
+                \mathbf{x}_1 | \mathbf{x}_2 &\sim \mathcal{N}_{K_1}(\bsy{\mu}_{1 | 2}, \bsy{\Sigma}_{1 | 2}) \\
+                \bsy{\mu}_{1 | 2} &= \bsy{\mu}_1 + \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} (\mathbf{x}_2 - \bsy{\mu}_2) \\
+                \bsy{\Sigma}_{1|2 } &= \bsy{\Sigma}_{11} - \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} \bsy{\Sigma}_{21}.
+            \end{align*}
+
+        \item
+            A affine transformation of $\mathbf{x}$ is normal
+            \begin{equation*}
+                \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}(
+                \mathbf{A} \bsy{\mu} + \mathbf{b},
+                \mathbf{A} \bsy{\Sigma} \mathbf{A}^{T}
+                ).
+            \end{equation*}
+
+        \item
+            If $\mathbf{y} \sim \mathcal{N}_K( \bsy{\mu}_y, \bsy{\Sigma}_{y})$ and $\mathbf{x}$ are independent, then
+            \begin{equation*}
+                \mathbf{x} + \mathbf{y} \sim \mathcal{N}_{K}\left(\bsy{\mu} + \bsy{\mu}_y, \bsy{\Sigma} + \bsy{\Sigma}_y\right).
+            \end{equation*}
+    \end{enumerate}
 \end{theorem}
+\begin{proof}
+    ?
+\end{proof}

@@ -1,17 +1,17 @@
 Optimization is pervasive in our lives.
 Example example.
 However, these issues do not lend themselves well to standard mathematical methods.
-We cannot simply ``set the derivative to zero and solve'' because we do not have a closed form expression.
+We cannot simply set the derivative to zero and solve because we do not have a closed form expression for our objective function.
 Nor can we use gradient methods because we do not observe derivatives.
 Evolutionary algorithms are inadequate because they require too many expensive trials.
-One can only eat eggs so many times a day.
+%One can only eat eggs so many times a day.
 
-More formally, there is a space $\mathcal{X}$ (most often a compact set of $\mathbb{R}^{D}$) and a continuous function $f: \mathcal{X} \to \mathbb{R}$.
+More formally, we are considering a space $\mathcal{X}$ (most often a compact set of $\mathbb{R}^{K}$) and a continuous function $f: \mathcal{X} \to \mathbb{R}$.
 In the context of the previous examples, $\mathcal{X}$ represents ... and $f$ is ....
-The assumption the $f$ is continuous is justified because small in changes in $x$ usually result in small changes in $f(x)$.
-Our goal is to find
+The assumption the $f$ is continuous is justified because small in changes in $\mathbf{x}$ usually result in small changes in $f(\mathbf{x}x)$.
+Our goal is to estimate
 \begin{equation*}
-    \argmax_{x \in \mathcal{X}} f(x)
+    \argmax_{x \in \mathcal{X}} f(\mathbf{x})
 \end{equation*}
 in as few samples as possible.
 

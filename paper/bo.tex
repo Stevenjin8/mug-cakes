@@ -1,1 +1,10 @@
-\section{Acquisition Functions}
+With a strong understanding of Gaussian Processes, we know begin our discussion of Bayesian
+Optimization.
+Bayesian Optimization is a iterative algorithm consisting of a surrogate model and an acquisition function.
+A surrogate model represents our beliefs about the objective function $f$ given our previous observations 
+$\mathcal{D}_n = (\mathbf{x}_1, \ldots, \mathbf{x}_n, y_1, \ldots, y_n, z_1, \ldots, z_n)$
+while
+an acquisition function $a( \cdot | \mathcal{D}_n) = a_n(\cdot)$.
+quantifies how much ``utility'' we get from sampling a point given our beliefs about $f$.
+The pseudocode for Bayesian optimization is as follows.
+
