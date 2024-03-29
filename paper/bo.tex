@@ -1,10 +1,33 @@
-With a strong understanding of Gaussian Processes, we know begin our discussion of Bayesian
-Optimization.
+With a strong understanding of Gaussian Processes, we know begin our discussion of Bayesian Optimization.
 Bayesian Optimization is a iterative algorithm consisting of a surrogate model and an acquisition function.
-A surrogate model represents our beliefs about the objective function $f$ given our previous observations 
-$\mathcal{D}_n = (\mathbf{x}_1, \ldots, \mathbf{x}_n, y_1, \ldots, y_n, z_1, \ldots, z_n)$
-while
-an acquisition function $a( \cdot | \mathcal{D}_n) = a_n(\cdot)$.
-quantifies how much ``utility'' we get from sampling a point given our beliefs about $f$.
+A surrogate model represents our beliefs about the objective function $f$ given our previous observations $\mathcal{D}_n = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_n, y_n, z_n))$ while an acquisition function $a( \cdot | \mathcal{D}_n) = a_n(\cdot)$.
+quantifies how much ``utility'' we think we can get from sampling a point given our beliefs about $f$.
 The pseudocode for Bayesian optimization is as follows.
+
+\begin{algorithm}
+    \begin{algorithmic}
+        \caption{Bayesian Optimization}\label{alg:bo}
+        \State $i \gets 1$
+        \State $\mathcal{D}_0 \gets \varnothing$
+        \While{stopping conditions are not met}
+        \State $\mathbf{x}_i \gets \argmax_{\mathbf{x} \in \mathcal{X}} a(\mathbf{x} | \mathcal{D}_n)$  \Comment{Inner optimization loop}
+        \State Set $z_i$ to the respective observer
+        \State Set $y_i$ to the $z_i$'s observation of $f(\mathbf{x}_*)$
+        \State $\mathcal{D}_i \gets (\mathcal{D}_{i - 1}, (\mathbf{x}_i, y_i, z_i))$
+        \State $i \gets i + 1$
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+When we finish, there are various ways to pick the estimated maximum.
+One way to do so is by maximizing the expected value of $f$ over $\mathcal{X}$ or $\{ \mathbf{x}_1, \ldots, \mathbf{x}_n \}$:
+\begin{equation*}
+    \argmax_{\mathbf{x}} \mu_n(\mathbf{x})
+\end{equation*}
+If we are feeling optimistic/pessimistic, we can also use upper/lower bounds of posterior credible intervals
+\begin{equation*}
+    \argmax_{\mathbf{x}} \mu_n(\mathbf{x}) + \alpha \sigma_n(\mathbf{x})
+\end{equation*}
+Here, $\mu_n(\mathbf{x})$ and $\sigma_n(\mathbf{x})$ are the posterior mean and standard deviation of $f(\mathbf{x})$ given $\mathcal{D}_n$
+
 

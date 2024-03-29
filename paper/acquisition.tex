@@ -1,8 +1,42 @@
 \subsection{Acquisition Functions}
-Acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation
+As we see in Algorithm~\ref{alg:bo}, dictate which point we want to sample in each iteration.
+As such, acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation
+Exploration is searching far and wide in $\mathcal{X}$ as to understand $f$'s global behavior.
+Exploitation is exploring local regions where we know $f$ is high to get more exact estimates of $f$'s peaks.
+Both are necessary.
+Too much exploration causes us to waste time by sampling regions of $\mathcal{X}$ with little potential.
+Too much exploitation causes us to waste time by sampling regions of $\mathcal{X}$ that we already understand, thereby giving us little knowledge of $f$.
+
+Unlike Gaussian Processes, acquisition functions are usually based on heuristics.
+Common acquisition functions such as Expected Improvement and Probability of Improvement take a greedy approach, while
+information-based approaches that do look into the future are often intractable \cite{shahriari2016}.
+For this paper, we will use a modified version of Expected Improvement.
+
+Suppose that after after the stopping conditions are met in our Bayesian Optimization loop (Algorithm \ref{algo:bo}),
+we return 
+\begin{equation*}
+    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \ldots, \mathbf{x}_n \}} \mu_n(\mathbf{x}).
+\end{equation*}
+Expected Improvement (EI) asks us to pretend that the current iteration will be the last iteration.
+The utility of EI is the expectation of the image of the return value:
+\begin{equation}\label{eq:ei}
+    a_{EI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \ldots, y_n\}]
+    = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\}]
+\end{equation}
+where $y_* = \max{y_1, \ldots, y_n}$.
+
+However, the usage of $y_*$ in Equation~\ref{eq:ei} makes less sense if we have noisy observations because $y_*$'s extremity could due to noise.
+It makes even less sense if we consider biased observations because $y_*$ is even less representative of the underlying function and we are not using our knowledge about each observer's bias.
+The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
 
 \begin{definition}[vEI]
+    \begin{equation*}
+        a_{vEI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \}]
+    \end{equation*}
+    where $\mathbf{x}_* = \argmax_{\mathbf{x'}} \mu_n(\mathbf{x'})$.
 \end{definition}
+
+The difference betw
 
 \begin{figure}[h]
     \centering
