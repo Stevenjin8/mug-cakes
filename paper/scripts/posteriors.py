@@ -64,4 +64,3 @@ ax.scatter(X[Z == 1], y[Z == 1])
 ax.set_ylim(-1.5, 1.5)
 
 fig.savefig("fig/biased-posterior.png", dpi=500)
-

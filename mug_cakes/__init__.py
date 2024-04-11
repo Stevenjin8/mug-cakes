@@ -1,1 +1,1 @@
-from . import bo, gp, kernel, simplex
+from . import bo, gp, kernel, simplex, utils

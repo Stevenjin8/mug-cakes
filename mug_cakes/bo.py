@@ -1,4 +1,3 @@
-import functools
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -80,8 +79,9 @@ def _hp_target(
     # FIXME should pass these as prior parameters.
     return (
         -gp.mvn_multi_log_unnormalized_pdf(y, np.array(0), vara[None])[0]
-        + 0.5 * (N * s2e**2 / 10)
-        + N * 10 * scale2
+        + s2f
+        + (s2e * N / 5)
+        + scale2 * 16
     )
 
 
@@ -114,10 +114,11 @@ def _dhp_target(
     precision = np.linalg.inv(var)
 
     # this is where we insert the prior loss.
-    dpost_ds2f = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2f)
-    dpost_dscale = gp.likelyhood_grad(y, np.array(0), precision, dvar_dscale) - 10 * N
-    dpost_ds2e = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2e) - N * s2e / 10
-    return -np.array([s2f * dpost_ds2f, scale2 * dpost_dscale, s2e * dpost_ds2e])
+    dpost_ds2f = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2f) - 1
+    dpost_ds2e = gp.likelyhood_grad(y, np.array(0), precision, dvar_ds2e) - N / 5
+    dpost_dscale = gp.likelyhood_grad(y, np.array(0), precision, dvar_dscale) - 1 * 16
+    ret = -np.array([s2f * dpost_ds2f, scale2 * dpost_dscale, s2e * dpost_ds2e])
+    return ret
 
 
 def optimize_rbf_params(
@@ -126,7 +127,7 @@ def optimize_rbf_params(
     N_b: int,
     B: NDArray[np.uint64],
     var_b: float,
-    bounds: Tuple[Tuple[float, float], ...] = ((-1.0, 4.0), (-7.0, 4.0), (-7.0, 4.0)),
+    log_hparam_bounds: Optional[Tuple[Tuple[float, float], ...]] = None,
     x0: Optional[NDArray[np.float64]] = None,
     disp: bool = False,
 ):
@@ -142,8 +143,10 @@ def optimize_rbf_params(
         x0: initial guess. Defaults to zeros.
         disp: Display L-BFSG-B progress.
     """
+    if log_hparam_bounds is None:
+        log_hparam_bounds = ((-1.0, 4.0), (-7.0, 4.0), (-7.0, 4.0))
     if x0 is None:
-        x0 = np.zeros(3)
+        x0 = np.zeros(3) + 4
     res = scipy.optimize.minimize(
         _hp_target,
         x0,
@@ -151,7 +154,7 @@ def optimize_rbf_params(
         jac=_dhp_target,
         options={"disp": disp},
         args=(X, y, N_b, B, var_b),
-        bounds=bounds,
+        bounds=log_hparam_bounds,
     )
     assert res.success, "Did not converge"
     return np.exp(res.x)
@@ -285,9 +288,25 @@ class BoState:
         self.N += 1
 
 
-def bo_iter(state: BoState, disp: bool = False):
+def bo_iter(
+    state: BoState,
+    disp: bool = False,
+    log_hparam_bounds: Optional[Tuple[Tuple[float, float], ...]] = None,
+    hparams: Optional[Tuple[float, float, float]] = None
+):
     # estimate hyperparameters and get Gram matrix
-    hparams_mle = optimize_rbf_params(state.X, state.y, state.N_b, state.B, state.var_b)
+    if hparams is None:
+        hparams_mle = optimize_rbf_params(
+            state.X,
+            state.y,
+            state.N_b,
+            state.B,
+            state.var_b,
+            log_hparam_bounds=log_hparam_bounds,
+        )
+    else:
+        assert hparams is not None
+        hparams_mle = hparams
     s2f_map, scale2_map, s2e_map = hparams_mle
     K = kernel.rbf(state.X, state.X, scale2_map, s2f_map)
 
@@ -298,7 +317,7 @@ def bo_iter(state: BoState, disp: bool = False):
     # get observation with highest observed mean
     post_obs = gp.conditional_mean(state.y, precision, K)
     x_M = state.X[post_obs.argmax()]
-    x_0 = x_M.copy()  # seed using x_M
+    x_0 = np.ones_like(x_M) / len(x_M)
     target = minus_expected_diff
     dtarget = dminus_expected_diff
 
@@ -309,15 +328,17 @@ def bo_iter(state: BoState, disp: bool = False):
         dtarget = simplex.dsimplex_wrap(dtarget)
 
     bounds = tuple((0.0000001, 0.9999999) for _ in x_0)
+    args = (x_M, state.X, state.y, precision, scale2_map, s2f_map)
     res = scipy.optimize.basinhopping(
         target,
         x_0,
         minimizer_kwargs={
             "jac": dtarget,
             "options": {"disp": False},
-            "args": (x_M, state.X, state.y, precision, scale2_map, s2f_map),
+            "args": args,
             "bounds": bounds,
         },
+        niter=50,
         disp=disp,
     )
     assert res.success

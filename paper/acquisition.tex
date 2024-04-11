@@ -1,25 +1,24 @@
 \subsection{Acquisition Functions}
 As we see in Algorithm~\ref{alg:bo}, dictate which point we want to sample in each iteration.
-As such, acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation
-Exploration is searching far and wide in $\mathcal{X}$ as to understand $f$'s global behavior.
+As such, acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation Exploration is searching far and wide in $\mathcal{X}$ as to understand $f$'s global behavior.
 Exploitation is exploring local regions where we know $f$ is high to get more exact estimates of $f$'s peaks.
 Both are necessary.
 Too much exploration causes us to waste time by sampling regions of $\mathcal{X}$ with little potential.
 Too much exploitation causes us to waste time by sampling regions of $\mathcal{X}$ that we already understand, thereby giving us little knowledge of $f$.
 
 Unlike Gaussian Processes, acquisition functions are usually based on heuristics.
-Common acquisition functions such as Expected Improvement and Probability of Improvement take a greedy approach, while
-information-based approaches that do look into the future are often intractable \cite{shahriari2016}.
+Common acquisition functions such as Expected Improvement and Probability of Improvement take a greedy approach, while information-based approaches that do look into the future are often intractable \cite{shahriari2016}.
 For this paper, we will use a modified version of Expected Improvement.
 
 Suppose that after after the stopping conditions are met in our Bayesian Optimization loop (Algorithm \ref{algo:bo}),
-we return 
+we return
 \begin{equation*}
     \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \ldots, \mathbf{x}_n \}} \mu_n(\mathbf{x}).
 \end{equation*}
 Expected Improvement (EI) asks us to pretend that the current iteration will be the last iteration.
 The utility of EI is the expectation of the image of the return value:
-\begin{equation}\label{eq:ei}
+\begin{equation}
+    \label{eq:ei}
     a_{EI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \ldots, y_n\}]
     = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\}]
 \end{equation}
@@ -30,17 +29,75 @@ It makes even less sense if we consider biased observations because $y_*$ is eve
 The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
 
 \begin{definition}[vEI]
-    \begin{equation*}
+    \begin{equation}
+        \label{eq:vei}
         a_{vEI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \}]
-    \end{equation*}
+        = f(\mathbf{x}_*) + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \}]
+    \end{equation}
     where $\mathbf{x}_* = \argmax_{\mathbf{x'}} \mu_n(\mathbf{x'})$.
 \end{definition}
 
-The difference betw
+The big difference between vEI and EI is that while $y_*$ in Equation~\ref{eq:ei} is a constant, $f(\mathbf{x}_*)$ in Equation~\ref{eq:vei} is a random variable.
+As such, we need to take into account the dependence between $f(\mathbf{x})$ and $f(\mathbf{x}_*)$.
+In practice this dependence encourages exploration because $f(\mathbf{x}) - f(\mathbf{x}_*)$ will be small when $\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei}.
+Even though our posterior maximum is at around 0.8, vEI is maximized at around 0.25 because $\mathbf{x}_* = 0.75$.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{fig/ei.png}
-    \caption{a nice plot}
+    \caption{vEI given some data some unbiased but noisy observations.
+        Dotted vertical red line represent sampled $\mathbf{x}$-value with the highest posterior mean.
+    }
     \label{fig:ei}
 \end{figure}
+
+Because all $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian, we can find vEI and its gradient in closed form.
+Let
+\begin{equation*}
+    \varphi(z) = \frac{ 1 }{ \sqrt{ 2 \pi } } \exp \left\{ -\frac12 z^2 \right\},
+    \Phi(z) = \int_{-\infty}^{z} \phi(z) dz
+\end{equation*}
+be the pdf and cdf of a standard univariate normal.
+Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}$ are jointly Gaussian
+\begin{equation*}
+    \begin{bmatrix}
+        f(\mathbf{x}) \\
+        f(\mathbf{x}_*)
+    \end{bmatrix}
+    | \mathcal{D}_n
+    \sim \mathcal{N}\left(
+    \begin{bmatrix}
+            \mu_1 \\
+            \mu_2
+        \end{bmatrix}
+    ,
+    \begin{bmatrix}
+            \sigma_{1}^2 & \sigma_{12} \\
+            \sigma_{21} & \sigma^2_2
+        \end{bmatrix}
+    \right)
+\end{equation*}
+we can write
+\begin{equation*}
+    f(\mathbf{x}) - f(\mathbf{x}_*) \sim \mathcal{N}(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2(\sigma_{12}))
+    = \mathcal{N}(\mu, \sigma^2)
+\end{equation*}
+by Theorem~\ref{thm:ogag}.
+Then,
+\begin{align*}
+    a_{vEI}(\mathbf{x} | \mathcal{D}_N)
+    & =  \mathbb{E}[f(\mathbf{x}_*) + \max \{  f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}] \\
+    & = \mu_2 + \int_{0}^\infty z \frac{ 1 }{ \sqrt{2 \pi } \sigma} \exp \left\{ -\frac12 \left(\frac{ z - \mu }{ \sigma }\right)^2 \right\} dz \\
+    & = \mu_2 + \int_{0}^\infty z \frac{ 1 }{ \sigma } \varphi\left(\frac{ z - \mu }{ \sigma }\right) dz \\
+    & = \mu_2 + \left[ \mu \Phi\left(\frac{ z - \mu }{ \sigma }\right) - \sigma \phi\left(\frac{ z - \mu }{ \sigma }\right)\right]_{0}^{\infty} \\
+    & = \mu_2 +  \mu - \mu \Phi\left(\frac{ -\mu }{ \sigma }\right) + \sigma \phi\left(\frac{ -\mu }{ \sigma }\right) \\
+    %& = \mu_2 + \mu - \mu\left( 1 - \Phi\left(\frac{ \mu }{ \sigma }\right)\right) + \sigma\phi\left(\frac{ \mu }{ \sigma }\right) \\
+    & = \mu_2 + \mu \Phi\left(\frac{ \mu }{ \sigma }\right) + \sigma \phi\left(\frac{ \mu }{ \sigma }\right).
+\end{align*}
+
+Because of the usage of, $\Phi$ its hard to maximize it analytically.
+At the same time, we can see in Figure~\ref{fig:ei}, $a_{vEI}$ has lots local maximum.
+Thus, have to rely on methods such as Basin Hopping \cite{wales1997}.
+Although this requires using a gradient, we omit the derivation because its just a messy application of the chain rule.
+
+

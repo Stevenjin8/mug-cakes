@@ -13,7 +13,7 @@ s2f = 1**2
 K = rbf(X, X, scale2, s2f)
 
 np.random.seed(42)
-fig, ax = plt.subplots(figsize=(5,5))
+fig, ax = plt.subplots(figsize=(5, 5))
 for _ in range(3):
     y = multivariate_normal.rvs(cov=K)
     ax.plot(X, y)
@@ -31,7 +31,7 @@ XX = np.hstack((X, Y))
 K = rbf(XX, XX, scale2, s2f)
 Z = multivariate_normal.rvs(cov=K)
 
-fig = plt.figure(figsize=(5,5))
+fig = plt.figure(figsize=(5, 5))
 ax = fig.add_subplot(projection="3d")
 
 ax.plot_surface(
