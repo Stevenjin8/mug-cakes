@@ -17,7 +17,7 @@ K_2star = kernel.rbf(X_star, X_star, ell2, s2f)
 post_mean = gp.conditional_mean(y, np.linalg.inv(S), K_star)
 post_var = gp.conditional_var(K_2star, np.linalg.inv(S), K_star)
 
-fig, (ax1, ax2) = plt.subplots(2, 1)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 5))
 ax1.fill_between(
     X_star.flatten(),
     post_mean - 2 * post_var**0.5,
@@ -57,4 +57,4 @@ for x in X_star:
 # ax3.set_ylim(-0.001, 0.03)
 # ax3.set_ylabel("vEI")
 
-fig.savefig("fig/ei.png", dpi=400)
+fig.savefig("fig/ei.png", dpi=400, bbox_inches="tight")

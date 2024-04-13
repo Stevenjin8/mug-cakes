@@ -7,6 +7,7 @@ from mug_cakes.kernel import rbf
 
 X = np.linspace(0, 1, 100).reshape(-1, 1)
 
+
 scale2 = 0.2**2
 s2f = 1**2
 
@@ -17,7 +18,7 @@ fig, ax = plt.subplots(figsize=(5, 5))
 for _ in range(3):
     y = multivariate_normal.rvs(cov=K)
     ax.plot(X, y)
-fig.savefig("fig/gp-sample2d.png", dpi=500)
+fig.savefig("fig/gp-sample2d.png", bbox_inches="tight", dpi=500)
 
 
 N = 50

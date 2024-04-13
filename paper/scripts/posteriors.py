@@ -41,7 +41,7 @@ ax.plot(X_star, m1)
 ax.scatter(X[Z == 0], y[Z == 0])
 ax.scatter(X[Z == 1], y[Z == 1])
 ax.set_ylim(-1.5, 1.5)
-fig.savefig("fig/noiseless-posterior.png", dpi=500)
+fig.savefig("fig/noiseless-posterior.png", dpi=500, bbox_inches="tight")
 
 m2 = gp.conditional_mean(y, np.linalg.inv(cov2), k_s.T)
 v2 = gp.conditional_var(K_2s, np.linalg.inv(cov2), k_s.T)
@@ -51,7 +51,7 @@ ax.plot(X_star, m2)
 ax.scatter(X[Z == 0], y[Z == 0])
 ax.scatter(X[Z == 1], y[Z == 1])
 ax.set_ylim(-1.5, 1.5)
-fig.savefig("fig/noisy-posterior.png", dpi=500)
+fig.savefig("fig/noisy-posterior.png", dpi=500, bbox_inches="tight")
 
 
 m3 = gp.conditional_mean(y, np.linalg.inv(cov3), k_s.T)
@@ -63,4 +63,4 @@ ax.scatter(X[Z == 0], y[Z == 0])
 ax.scatter(X[Z == 1], y[Z == 1])
 ax.set_ylim(-1.5, 1.5)
 
-fig.savefig("fig/biased-posterior.png", dpi=500)
+fig.savefig("fig/biased-posterior.png", dpi=500, bbox_inches="tight")

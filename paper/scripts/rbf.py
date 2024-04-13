@@ -17,4 +17,4 @@ ax.plot(X_star, y3, label=r"$\ell^2 = 1^2, \sigma^2_f=0.7^2$")
 ax.plot(X_star, y4, label=r"$\ell^2 = 0.7^2, \sigma^2_f=0.7^2$")
 
 ax.legend()
-fig.savefig("fig/rbf.png", dpi=400)
+fig.savefig("fig/rbf.png", dpi=500, bbox_inches="tight")
