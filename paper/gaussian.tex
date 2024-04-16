@@ -1,17 +1,16 @@
 \subsection{Gaussian Distributions}
 
-%Gaussian Distributions form one of the most important classes of distribution in statistics
 This section reviews important properties of Gaussian distributions that will use to make posterior inference using observed data in our Bayesian Optimization loop.
-We being by defining Gaussian random variables.
+We begin by defining Gaussian random variables.
 
 \begin{definition}[Nondegenerate Gaussian]
     The probability density of a $K$-dimensional (Multivariate) Nondegenerate Gaussian random vector $\mathbf{x} \sim \mathcal{N}_K(\bsy{\mu}, \bsy{\Sigma})$
     is
     \begin{equation}
         \label{mvn-pdf}
-        \frac{ 1 }{ (2 \pi)^{K/2} \lvert \bsy{\Sigma} \rvert^{1/2} } \exp \left\{ -\frac{ (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu}) }{ 2 } \right\}
+        \frac{ 1 }{ (2 \pi)^{K/2} \lvert \bsy{\Sigma} \rvert^{1/2} } \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu})  \right\}
     \end{equation}
-    where $\bsy{\mu} \in \mathbb{R}^{K}$ and $\bsy{\Sigma}$ is a $K \times K$ strictly positive definite matrix.
+    where $\bsy{\mu} \in \mathbb{R}^{K}$ is the mean vector and $\bsy{\Sigma}$ is a $K \times K$ strictly positive definite covariance matrix.
     We just write $\mathcal{N}$ instead of $\mathcal{N}_K$ if $K$ is clear from context.
 \end{definition}
 
@@ -60,18 +59,28 @@ One reason why Gaussians are popular is because they stay Gaussian under various
             \end{align*}
 
         \item
-            A affine transformation of $\mathbf{x}$ is normal
+            A affine transformation of $\mathbf{x}$ is normal.
+            If $\mathbf{A} \in \mathbb{R}^{J \times K}$ and $\mathbf{b} \in \mathbb{R}^{J}$, then
             \begin{equation*}
-                \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}(
+                \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}_J(
                 \mathbf{A} \bsy{\mu} + \mathbf{b},
                 \mathbf{A} \bsy{\Sigma} \mathbf{A}^{T}
                 ).
             \end{equation*}
 
         \item
-            If $\mathbf{y} \sim \mathcal{N}_K( \bsy{\mu}_y, \bsy{\Sigma}_{y})$ and $\mathbf{x}$ are independent, then
+            If $\mathbf{y} \sim \mathcal{N}_J( \bsy{\mu}_y, \bsy{\Sigma}_{y})$ and $\mathbf{x}$ are independent, then
             \begin{equation*}
-                \mathbf{x} + \mathbf{y} \sim \mathcal{N}_{K}\left(\bsy{\mu} + \bsy{\mu}_y, \bsy{\Sigma} + \bsy{\Sigma}_y\right).
+                \begin{bmatrix}
+                    \mathbf{x} \\ \mathbf{y}
+                \end{bmatrix} \sim \mathcal{N}_{K + J} \left(
+                \begin{bmatrix}
+                    \bsy{\mu} \\ \bsy{\mu}_{y}
+                \end{bmatrix},
+                \begin{bmatrix}
+                    \bsy{\Sigma} & \mathbf{0}_{K \times J} \\
+                    \mathbf{0}_{J \mathbf{x} K} & \bsy{\Sigma}_y
+                \end{bmatrix}\right).
             \end{equation*}
     \end{enumerate}
 \end{theorem}

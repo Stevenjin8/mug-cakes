@@ -2,21 +2,21 @@
 
 Gaussian Processes are an extension of Gaussian distributions to random continuous functions $f: \mathcal{X} \to \mathbb{R}$.
 That is, for each element $\mathbf{x} \in \mathcal{X}$, we have a random variable $f(\mathbf{x})$.
-Working with such a distribution might overwhelming, especially if $\mathcal{X}$ has infinitely many elements.
-The key to making this problem tractable is that we only consider $f$ at a finite number of points.
-
+Working with such a distribution might seem overwhelming, especially if $\mathcal{X}$ has uncountable infinitely many elements.
+As such, it might seem like we have to create a joint distribution over a possibly uncountably infinite collection of random variables.
+The key to making this problem tractable is that we only consider $f$ at a finite number of points and showing that a corresponding joint exists.
 
 \begin{definition}[Gaussian Process]\label{def:gp}
-    A Gaussian Process on $\mathcal{X}$ is a random function $f$ parameterized by
-    $m: \mathcal{X} \to \mathbb{R}$ and $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
+    A Gaussian Process on $\mathcal{X}$ is a random function $f$ parameterized by a mean function
+    $m: \mathcal{X} \to \mathbb{R}$ and covariance/kernel function $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
     such that
     \begin{align*}
         \mathbb{E}[f(\mathbf{x})] &= m(\mathbf{x}) \\
         \mathbb{E}[(f(\mathbf{x}) - m(\mathbf{x}))(f(\mathbf{x}') - m(\mathbf{x}'))] &= \kappa(\mathbf{x}, \mathbf{x}').
     \end{align*}
-    Then, for any $\mathbf{x}_1, \ldots,\mathbf{x}_n \in \mathcal{X}$,
+    Then, for any $\mathbf{x}_1, \ldots,\mathbf{x}_N \in \mathcal{X}$,
     \begin{equation*}
-        \mathbf{f} \sim \mathcal{N}\left(\mathbf{m}, \mathbf{K}\right)
+        \mathbf{f} \sim \mathcal{N}_N\left(\mathbf{m}, \mathbf{K}\right)
     \end{equation*}
     where
     \begin{equation*}
@@ -24,15 +24,25 @@ The key to making this problem tractable is that we only consider $f$ at a finit
     \end{equation*}
     
     For this equation to make sense, we require $\kappa$ to generate positive semi-definite $\mathbf{K}$.
-    We denote this as $f \sim GP(m, \kappa)$.
+    We denote this as $f \sim GP_{\mathcal{X}}(m, \kappa)$.
 \end{definition}
 
+We see that there is a one-to-one correspondence between the parameters of a Multivariate Gaussian $\mathcal{N}_{K}(\bsy{\mu}, \bsy{\Sigma})$
+and that of a Gaussian process $GP_{ \mathcal{X}}(m, \kappa)$.
+The set $\mathcal{X}$ correspondes to $K$ as they both represent the amount of random variables.
+The function $m$ corresponds with $\bsy{\mu}$ in that they both give us the means of our random variables.
+The kernel $\kappa$ corresponds with $\bsy{\Sigma}$ as they both tell us the covariance between random variables.
+They two distribution are also similar in that they have the property that marginals of a finite number of random variables is a Gaussian Distribution.
+The key difference is that with Gaussians Distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution
+while Gaussian Processes are \emph{defined} by this property.
+
 Before we can analyze GP's, we first have to make sure our definition makes sense.
-We like there to exist a joint distribution over $\mathbb{R}^{\mathcal{X}}$
+We would like there to exist a joint distribution over $\mathbb{R}^{\mathcal{X}}$ (the set of functions from $\mathcal{X}$ to $\mathbb{R}$)
 for which the marginals of finite number of random variables $\mathbf{f} = (f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$ 
-is given as in Definition~\ref{def:gp}:
+is given as in Definition~\ref{def:gp}.
+That is, we want a probability function \textcolor{red}{is this right??} such that
 \begin{equation*}
-    h_{x_1, \ldots, x_n}(E) = \int_{E} gaussian pdf d \mathbf{x}
+    P(\mathbf{f} \in E) = h_{x_1, \ldots, x_n}(E) = \int_{E} gaussian pdf d \mathbf{x}
 \end{equation*}
 where $E \subseteq \mathbb{R}^{n}$ is Borel.
 (The requirement that $E$ be Borel is only important for measure theoretic purposes and has little practical implication since ``However, any subset of $\mathbb{R}$ that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}).
@@ -60,9 +70,9 @@ After all, we expect the covariance between $f(\mathbf{x})$ and $f(\mathbf{x}')$
 to be high if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
 The parameter $m$ tells us our prior expectation of $f$.
 Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
-In Figure \ref{fig:gp-sample}, we use a kernel based on Euclidean distance.
+In Figure \ref{fig:gp-sample}, we use a kernel such $\mathbf{x}$-values yield correlated $f(\mathbf{x})$-values.
 As such, we see that points close to each other have similar values (e.g. continuity).
-We will later show that this is the case.
+We will later show that this is no coincidence.
 
 \begin{figure}
      \centering
@@ -135,49 +145,58 @@ This is solemn the case in real-world experiments.
 %This is problematic because later on we will see that a GP with an RBF kernel cannot represent data with two different observations of $f(\mathbf{x})$.
 As we can see in Figure ~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit and give us extreme results.
 
-The fact that Gaussians transform nicely (Theorem~\ref{thm:ogag}) allows us to incorporate noise and bias into our model without significant modifications.
-We can incorporate bias and noise by imagining that we have $N_b$ observers.
-The $j$th observer has a bias of $b_j$ and the $i$th observation is made by the $z_i$th observer.
-Then, each observation $y_i$ is
+To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_b$ observers, and $z_i$ indicates the observer for the $i$th sample.
+Then, we can model the $i$th observation as a sum of the underlying function, the observer bias, and some noise as follows
 \begin{equation*}
-    y_i = f(\mathbf{x}_i) + b_{z_i} + \epsilon_i
+    y_i = f(\mathbf{x}_i) + b_{z_i} + \epsilon_i.
 \end{equation*}
 If we know $\mathbf{z} = (z_1, \ldots, z_n)$ 
 and have the following priors
 \begin{align*}
-    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \\
-    b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2)
+    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \text{ for $i = 1 \ldots, N$}\\
+    b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2) \text{ for $j = 1 \ldots, N_b$}
 \end{align*}
-then $\mathbf{y} = (y_1, \ldots, y_n)$ is a linear combination of Gaussian random variables
+and assume that that $f, \epsilon_1, \ldots, \epsilon_N, b_1, \ldots, b_{N_b}$ are independent,
+then $\mathbf{y} = (y_1, \ldots, y_N)$ is a linear combination of Gaussian random variables
 and is Gaussian by Theorem~\ref{thm:ogag}.
 
 Despite these changes, posterior inference is similar.
-Suppose $\mathbf{y} = (y_1, \ldots, y_n)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$
+Suppose $\mathbf{y} = (y_1, \ldots, y_N)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$
 and we would like to perform inference on $\mathbf{f}_* = (f(\mathbf{v}_1), \ldots, f(\mathbf{v}_{N_{*}}))$.
-Our observations have the same mean of $\mathbf{m} = (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
-Assuming that $f$, $\epsilon_i$, $b_j$ are independent for all $i$ and $j$,
-the covariance of $y_i$ and $y_j$ is
-\begin{equation*}
-    \sigma_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j) + \mathbb{I}[z_i = z_j] \sigma^2_b + \mathbb{I}[i = j]\sigma^2_e
-\end{equation*}
-and the covariance of $\mathbf{y}$ is
-\begin{equation*}
-    \bsy{\Sigma} = \mathbf{K} + \sigma^{2}_e \mathbf{I} + \sigma_b^2 \begin{bmatrix}
-        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
-    \end{bmatrix}^{ T}
-     \begin{bmatrix}
-        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
-    \end{bmatrix}.
-\end{equation*}
-
-Finally, the covariance between $y_i$ and $f(\mathbf{v}_j)$ is
+Our observations have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
+the covariance of $y_i$ and $y_{j}$ is
+\begin{align*}
+    (\mathbf{\Sigma})_{ij}
+    &= \mathbb{E}[(y_i - m(\mathbf{x}_i) - 0 - 0)(y_j - m(\mathbf{x}_j - 0 - 0)] \\
+    &= \mathbb{E}[(f(\mathbf{x}_i) + b_{z_i} + \epsilon_i - m(\mathbf{x}_i))(f(\mathbf{x}_j) + b_{z_i} + \epsilon_j - m(\mathbf{x}_j)] \\
+    &= \kappa(\mathbf{x}_i, \mathbf{x}_{j}) + \mathbb{I}[z_i = z_{j}] \sigma^2_b + \mathbb{I}[i = j]\sigma^2_{ \epsilon }
+\end{align*}
+%and the covariance of $\mathbf{y}$ is
+%\begin{equation*}
+%    \bsy{\Sigma} = \mathbf{K} + \sigma^{2}_{\epsilon} \mathbf{I} + \sigma_b^2 \begin{bmatrix}
+%        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
+%    \end{bmatrix}^{ T}
+%     \begin{bmatrix}
+%        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
+%    \end{bmatrix}
+%\end{equation*}
+%where $\mathbf{e}_i \in \mathbb{R}^{N}$ is the $i$th standard Euclidean basis vector.
+The covariance between $y_i$ and $f(\mathbf{v}_j)$ is
 \begin{align*}
     (\mathbf{K}_{*})_{ij}
     &= \mathbb{E}[ (y_i - m(\mathbf{x}_i))(f(\mathbf{v}_j) - m(\mathbf{v}_j)) \\
+    &= \mathbb{E}[ (f(\mathbf{x}_i) + b_{z_i} + \epsilon_i - m(\mathbf{x}_i))(f(\mathbf{v}_j) - m(\mathbf{v}_j)) \\
     &= \mathbb{E}[ (f(\mathbf{x}_i) - m(\mathbf{x}_i))(f(\mathbf{v}_j) - m(\mathbf{v}_j)) \\
     &= \kappa(\mathbf{x}_i, \mathbf{v}_j).
 \end{align*}
-
+The covariance between $f(\mathbf{v}_i)$ and $f(\mathbf{v}_j)$ is
+\begin{equation*}
+    (\mathbf{K}_{* *})_{ij} = \kappa(\mathbf{v}_i, \mathbf{v}_j).
+\end{equation*}
+Finally, the prior mean of $\mathbf{f}_*$ is 
+\begin{equation*}
+    \mathbf{m}_* = (m(\mathbf{v}_1), \ldots, m(\mathbf{v}_{N_*})).
+\end{equation*}
 Since
 \begin{equation*}
     \begin{bmatrix}
@@ -207,7 +226,7 @@ the random vector $(\mathbf{y}, \mathbf{f}_*)$ is jointly Gaussian
 \begin{equation*}
     \begin{bmatrix}
         \mathbf{y} \\
-        f(\mathbf{x}_*)
+        \mathbf{f}_*
     \end{bmatrix}
     \sim
     \mathcal{N}\left(
@@ -220,9 +239,10 @@ the random vector $(\mathbf{y}, \mathbf{f}_*)$ is jointly Gaussian
             \bsy{\Sigma} & \mathbf{K}_* \\
             \mathbf{K}_*^T & \mathbf{K}_{* *}
         \end{bmatrix}
-    \right).
+    \right)
 \end{equation*}
-Our posterior of $\mathbf{f}_*$ given our observations is Gaussian with mean
+by Theorem~\ref{thm:ogag}.
+The posterior of $\mathbf{f}_*$ given our observations is Gaussian with mean
 \begin{equation*}
     \mathbf{m}_* + \mathbf{K}_*^T \bsy{\Sigma}^{-1} (\mathbf{y} - \mathbf{m})
 \end{equation*}
@@ -233,7 +253,7 @@ and variance
 These equations are similar to Equations \ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var},
 but replacing $\mathbf{K}$ for $\bsy{\Sigma}$.
 This difference is crucial because $\mathbf{K}$ might be singular
-while $\bsy{\Sigma}$ is will be strictly positive definite when $\sigma_e^2 > 0$ because for any nonzero $\mathbf{c}$,
+while $\bsy{\Sigma}$ is will be strictly positive definite when $\sigma_{\epsilon}^2 > 0$ because for any nonzero $\mathbf{c}$,
 \begin{align*}
     \mathbf{c}^{T} \bsy{\Sigma} \mathbf{c}
     = \mathbf{c}^{T} \mathbf{K} \mathbf{c}
