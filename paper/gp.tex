@@ -14,13 +14,13 @@ The key to making this problem tractable is that we only consider $f$ at a finit
         \mathbb{E}[f(\mathbf{x})] &= m(\mathbf{x}) \\
         \mathbb{E}[(f(\mathbf{x}) - m(\mathbf{x}))(f(\mathbf{x}') - m(\mathbf{x}'))] &= \kappa(\mathbf{x}, \mathbf{x}').
     \end{align*}
-    Then, for any $\mathbf{x}_1, \ldots,\mathbf{x}_N \in \mathcal{X}$,
+    Then, for any $\mathbf{x}_1, \dots,\mathbf{x}_N \in \mathcal{X}$,
     \begin{equation*}
         \mathbf{f} \sim \mathcal{N}_N\left(\mathbf{m}, \mathbf{K}\right)
     \end{equation*}
     where
     \begin{equation*}
-        \mathbf{f} = (f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n)), \mathbf{m} = (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_n)), (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
+        \mathbf{f} = (f(\mathbf{x}_1), \dots, f(\mathbf{x}_n)), \mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_n)), (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
     \end{equation*}
     
     For this equation to make sense, we require $\kappa$ to generate positive semi-definite $\mathbf{K}$.
@@ -43,39 +43,73 @@ For example, given random variables $X, Y, Z$, it make no sense to say that the 
     (Y, Z) = (1, 1) \text{ with probability 1}
 \end{align*}
 because then $Y$ must equal both 0 and 1.
-Similarly, given a finite collection $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$, Definition~\ref{def:gp} merely defines a function
-\begin{equation*}
-    \mu_{\mathbf{x}_1, \ldots, \mathbf{x}_n}(E) = \int \ldots
-\end{equation*}
-that measures how likely $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$ is in a Borel set $E$.
-(The requirement that $E$ be Borel is crucial theoretically, but has little practical implication since
-``any subset ... that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}).
+%Similarly, given a finite collection $(f(\mathbf{x}_1), \dots, f(\mathbf{x}_n))$, Definition~\ref{def:gp} merely defines a function
+%\begin{equation*}
+%    \mu_{\mathbf{x}_1, \dots, \mathbf{x}_n}(E) = \int \dots
+%\end{equation*}
+%that measures how likely $(f(\mathbf{x}_1), \dots, f(\mathbf{x}_n))$ is in a Borel set $E$.
+%(The requirement that $E$ be Borel is crucial theoretically, but has little practical implication since
+%``any subset ... that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}).
 For the marginals from Definition~\ref{def:gp} to be consistent, 
-we must prove the existence of a probability space that generates such marginals.
+we must prove the existence of a probability space and random variables that generates such marginals.
 The Kolmogorov Extension Theorem helps do just this
 
 \begin{theorem}[Kolmogorov Extension Theorem]\label{thm:kol-ext}
+    Suppose that for some set $\mathcal{X}$, we have an indexed collection of functions
+    \begin{equation*}
+        M = \{ \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N} : \mathcal{B}_{N} \to \mathbb{R} \;|\; N \in \mathbb{N} \text{ and } (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}\}.
+    \end{equation*}
+    such that for all $N \in \mathbb{N}, (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}$,
+    the following conditions hold:
+    \begin{enumerate}
+        \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}( \varnothing) = 0$,
+
+        \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(\mathbb{R}^{N}) = 1$,
+        \item for every disjoint sequence of sets $(E_1, E_2, \dots) \subseteq \mathcal{B}_N$,
+            \begin{equation*}
+                \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}\left(\bigcup_{i = 1}^{\infty} E\right)
+                =
+                \sum_{i = 1}^{\infty}\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i).
+            \end{equation*}
+    \end{enumerate}
+    In other words, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure on $\mathbb{R}^{N}$.
     
+    
+    There exists a probability space $(\Omega, \mathcal{F}, P)$ and random variables $\{ f(\mathbf{x} | \mathbf{x} \in \mathcal{X} \}$ such that
+    \begin{equation*}
+        P((f(\mathbf{x}_1), \dots, f(\mathbf{x}_N)) \in E) = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
+    \end{equation*}
+    %for any $N \in \mathbb{N}$, $(\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}, E \in \mathcal{B}_{N}$, 
+    if the following two conditions hold for all $N \in \mathbb{N}, (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}$:
+    \begin{enumerate}
+        \item For any permutation $\pi$ of $\{ 1, \dots, N \}$ and Borel sets $E_1, \dots, E_N$,
+            \begin{equation*}
+                \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_1 \times \dots \times E_N)
+                =\mu_{\mathbf{x}_{\pi(1)}, \dots, \mathbf{x}_{\pi(N)}}\left(E_{\pi(1)} \times \dots \times E_{\pi(N)}\right)
+            \end{equation*}
+        \item For any $x \in \mathcal{X}$,
+            \begin{equation*}
+                \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_1 \times \dots \times E_N)
+                =
+                \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N, \mathbf{x}}(E_1 \times \dots \times E_N \times \mathbb{R})
+            \end{equation*}
+    \end{enumerate}
 \end{theorem}
 
 \begin{theorem}\label{thm:gp-const}
     Gaussian Processes are consistent
 \end{theorem}
 \begin{proof}
-    TODO
+    Do proof by Bounded Convergence Theorem from \cite{axler2020}.
 \end{proof}
 
 With a solid foundation on Gaussian Processes, we can interpret the parameters of a Gaussian Process.
-The intuition behind Gaussian Processes is that if $\mathbf{x}$ and $\mathbf{x}'$ are similar, then
-$f(\mathbf{x})$ and $f(\mathbf{x}')$ should be similar.
-The parameter $\kappa$ describes this similarity by being high when $\mathbf{x}$ and $\mathbf{x}'$ are similar.
-The more similar $\mathbf{x}$ and $\mathbf{x}'$ are, the higher the value of $\kappa(\mathbf{x}, \mathbf{x}')$.
-After all, we expect the covariance between $f(\mathbf{x})$ and $f(\mathbf{x}')$
-to be high if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
-
+The kernel $\kappa(\mathbf{x}, \mathbf{x}') = \Cov(f(\mathbf{x}), f(\mathbf{x}'))$ describes the similarity between $\mathbf{x}$ and $\mathbf{x}'$
+As we expect $f(\mathbf{x})$ and $f(\mathbf{x}')$ to be \textcolor{red}{correlated} if and only if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
 The parameter $m$ tells us our prior expectation of $f$.
-Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
-In Figure \ref{fig:gp-sample}, we use a kernel such $\mathbf{x}$-values yield correlated $f(\mathbf{x})$-values.
+%Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
+
+In Figure \ref{fig:gp-sample}, we use a kernel such which bases the similarity of $\mathbf{x}$-values on their Euclidean distance.
 As such, we see that points close to each other have similar values (e.g. continuity).
 We will later show that this is no coincidence.
 
@@ -107,10 +141,10 @@ We now turn our attention to posterior inference.
 That is, we want to quantify our belief of $f$ given some observations.
 Suppose we observe that 
 \begin{equation*}
-    \mathbf{f} = (f(\mathbf{x}_1), \ldots f(\mathbf{x}_N)) = \mathbf{y} = (y_1, \ldots, y_N).
+    \mathbf{f} = (f(\mathbf{x}_1), \dots f(\mathbf{x}_N)) = \mathbf{y} = (y_1, \dots, y_N).
 \end{equation*}
 
-Then, for some points of interest $\mathbf{v}_{1}, \ldots, \mathbf{v}_{N_{*}}$, the joint distribution of $\mathbf{f}$ and $\mathbf{f}_* = (f(\mathbf{v}_1), \ldots, f(\mathbf{v}_{N_*}))$ is
+Then, for some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$, the joint distribution of $\mathbf{f}$ and $\mathbf{f}_* = (f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_*}))$ is
 \begin{equation*}
     \begin{bmatrix}
         \mathbf{f} \\
@@ -127,15 +161,15 @@ Then, for some points of interest $\mathbf{v}_{1}, \ldots, \mathbf{v}_{N_{*}}$, 
 \end{equation*}
 where 
 \begin{align*}
-    \mathbf{m} &= (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_N)), \\
-    \mathbf{m_*} &= (m(\mathbf{v}_1), \ldots, m(\mathbf{v}_{N_{*}})), \\
+    \mathbf{m} &= (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N)), \\
+    \mathbf{m_*} &= (m(\mathbf{v}_1), \dots, m(\mathbf{v}_{N_{*}})), \\
     (\mathbf{K})_{ij} &= \kappa(\mathbf{x}_i, \mathbf{x}_j), \\
     (\mathbf{K}_*)_{ij} &= \kappa(\mathbf{x}_i, \mathbf{v}_j), \\
     (\mathbf{K}_{* *})_{ij} &= \kappa(\mathbf{v}_i, \mathbf{v}_j).
 \end{align*}
 
-Since Gaussian Processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that our posterior distribution
-of $(f(\mathbf{v}_1), \ldots, f(\mathbf{v}_{N_*}))$ given our observations is Gaussian with mean
+Since Gaussian Processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that the posterior
+of $(f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_*}))$ given our observations is Gaussian with mean
 \begin{equation} \label{eq:noisless-post-mean}
     \mathbf{m}_* + \mathbf{K}_*^T \mathbf{K}^{-1} (\mathbf{y} - \mathbf{m}), 
 \end{equation}
@@ -143,33 +177,35 @@ and variance
 \begin{equation} \label{eq:noiseless-post-var}
     \mathbf{K}_{* *} - \mathbf{K_*}^{T} \mathbf{K}^{-1} \mathbf{K_*}.
 \end{equation}
+when $\mathbf{K}$ is nonsingular.
 
 One issue with applying Equations~\ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var} is that we assume noiseless and unbiased observations of $f$.
 This is solemn the case in real-world experiments.
 %For example if we bake two cakes with the same recipe twice, it is highly unlikely that we will result in the exact same cake due to a noisy process.
 %This is problematic because later on we will see that a GP with an RBF kernel cannot represent data with two different observations of $f(\mathbf{x})$.
-As we can see in Figure ~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit and give us extreme results.
+As we can see in Figure~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit and give us extreme results.
 
-To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_b$ observers, and $z_i$ indicates the observer for the $i$th sample.
+To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_b$ observers numbered 1 through $N_b$, and $z_i$ indicates the observer for the $i$th sample.
 Then, we can model the $i$th observation as a sum of the underlying function, the observer bias, and some noise as follows
 \begin{equation*}
     y_i = f(\mathbf{x}_i) + b_{z_i} + \epsilon_i.
 \end{equation*}
-If we know $\mathbf{z} = (z_1, \ldots, z_n)$ 
-and have the following priors
+If we know $\mathbf{z} = (z_1, \dots, z_n)$,
+have Gaussian priors
 \begin{align*}
-    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \text{ for $i = 1 \ldots, N$}\\
-    b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2) \text{ for $j = 1 \ldots, N_b$}
+    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \text{ for $i = 1 \dots, N$}, \\
+    b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2) \text{ for $j = 1 \dots, N_b$},
 \end{align*}
-and assume that that $f, \epsilon_1, \ldots, \epsilon_N, b_1, \ldots, b_{N_b}$ are independent,
-then $\mathbf{y} = (y_1, \ldots, y_N)$ is a linear combination of Gaussian random variables
+and assume that that $f, \epsilon_1, \dots, \epsilon_N, b_1, \dots, b_{N_b}$ are independent,
+then $\mathbf{y} = (y_1, \dots, y_N)$ is a linear combination of Gaussian random variables
 and is Gaussian by Theorem~\ref{thm:ogag}.
 
 Despite these changes, posterior inference is similar.
-Suppose $\mathbf{y} = (y_1, \ldots, y_N)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$
-and we would like to perform inference on $\mathbf{f}_* = (f(\mathbf{v}_1), \ldots, f(\mathbf{v}_{N_{*}}))$.
-Our observations have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
-the covariance of $y_i$ and $y_{j}$ is
+Suppose $\mathbf{y} = (y_1, \dots, y_N)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \dots, f(\mathbf{x}_n))$
+by observers $\mathbf{z} = (z_1, \ldots, z_N)$ respectively,
+and we would like to perform inference on $\mathbf{f}_* = (f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_{*}}))$.
+Our observations $\mathbf{y}$ have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
+The covariance of $y_i$ and $y_{j}$ is
 \begin{align*}
     (\mathbf{\Sigma})_{ij}
     &= \mathbb{E}[(y_i - m(\mathbf{x}_i) - 0 - 0)(y_j - m(\mathbf{x}_j - 0 - 0)] \\
@@ -200,7 +236,7 @@ The covariance between $f(\mathbf{v}_i)$ and $f(\mathbf{v}_j)$ is
 \end{equation*}
 Finally, the prior mean of $\mathbf{f}_*$ is 
 \begin{equation*}
-    \mathbf{m}_* = (m(\mathbf{v}_1), \ldots, m(\mathbf{v}_{N_*})).
+    \mathbf{m}_* = (m(\mathbf{v}_1), \dots, m(\mathbf{v}_{N_*})).
 \end{equation*}
 Since
 \begin{equation*}
@@ -226,8 +262,8 @@ Since
         f(\mathbf{v}_{N_{*}}) \\
     \end{bmatrix}
 \end{equation*}
-is a linear function of jointly random Gaussians $f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n), f(\mathbf{v}_1), \ldots f(\mathbf{v}_{N_*}), \epsilon_1, \ldots, \epsilon_n, b_1 \ldots, b_{N_b}$,
-the random vector $(\mathbf{y}, \mathbf{f}_*)$ is jointly Gaussian
+is a linear function of jointly Gaussian random variables $f(\mathbf{x}_1), \dots, f(\mathbf{x}_n), f(\mathbf{v}_1), \dots f(\mathbf{v}_{N_*}), \epsilon_1, \dots, \epsilon_n, b_1 \dots, b_{N_b}$,
+the random vector $(\mathbf{y}, \mathbf{f}_*)$ is Gaussian
 \begin{equation*}
     \begin{bmatrix}
         \mathbf{y} \\
@@ -257,8 +293,8 @@ and variance
 \end{equation*}
 These equations are similar to Equations \ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var},
 but replacing $\mathbf{K}$ for $\bsy{\Sigma}$.
-This difference is crucial because $\mathbf{K}$ might be singular
-while $\bsy{\Sigma}$ is will be strictly positive definite when $\sigma_{\epsilon}^2 > 0$ because for any nonzero $\mathbf{c}$,
+This difference is crucial as $\mathbf{K}$ might be singular
+while $\bsy{\Sigma}$ is will be strictly positive definite when $\sigma_{\epsilon}^2 > 0$ because
 \begin{align*}
     \mathbf{c}^{T} \bsy{\Sigma} \mathbf{c}
     = \mathbf{c}^{T} \mathbf{K} \mathbf{c}
