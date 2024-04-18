@@ -31,10 +31,10 @@ The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
 \begin{definition}[vEI]
     \begin{equation}
         \label{eq:vei}
-        a_{vEI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \}]
-        = f(\mathbf{x}_*) + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \}]
+        a_{vEI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
+        = \mathbb{E}[f(\mathbf{x}_*) | \mathcal{D}_n] + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_n]
     \end{equation}
-    where $\mathbf{x}_* = \argmax_{\mathbf{x'}} \mu_n(\mathbf{x'})$.
+    where $\mathbf{x}_* = \argmax_{\mathbf{x'}} \mathbb{E}[\mathbf{x'} | \mathcal{D}_n]$.
 \end{definition}
 
 The big difference between vEI and EI is that while $y_*$ in Equation~\ref{eq:ei} is a constant, $f(\mathbf{x}_*)$ in Equation~\ref{eq:vei} is a random variable.
@@ -54,11 +54,11 @@ Even though our posterior maximum is at around 0.8, vEI is maximized at around 0
 Because all $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian, we can find vEI and its gradient in closed form.
 Let
 \begin{equation*}
-    \varphi(z) = \frac{ 1 }{ \sqrt{ 2 \pi } } \exp \left\{ -\frac12 z^2 \right\},
-    \Phi(z) = \int_{-\infty}^{z} \phi(z) dz
+    \varphi(u) = \frac{ 1 }{ \sqrt{ 2 \pi } } \exp \left\{ -\frac12 u^2 \right\},
+    \Phi(u) = \int_{-\infty}^{u} \phi(u) du
 \end{equation*}
 be the pdf and cdf of a standard univariate normal.
-Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}$ are jointly Gaussian
+Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}_n$ are jointly Gaussian
 \begin{equation*}
     \begin{bmatrix}
         f(\mathbf{x}) \\
@@ -75,7 +75,7 @@ Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}$ are jointly Gaussian
             \sigma_{1}^2 & \sigma_{12} \\
             \sigma_{21} & \sigma^2_2
         \end{bmatrix}
-    \right)
+    \right),
 \end{equation*}
 we can write
 \begin{equation*}
@@ -87,9 +87,9 @@ Then,
 \begin{align*}
     a_{vEI}(\mathbf{x} | \mathcal{D}_N)
     & =  \mathbb{E}[f(\mathbf{x}_*) + \max \{  f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}] \\
-    & = \mu_2 + \int_{0}^\infty z \frac{ 1 }{ \sqrt{2 \pi } \sigma} \exp \left\{ -\frac12 \left(\frac{ z - \mu }{ \sigma }\right)^2 \right\} dz \\
-    & = \mu_2 + \int_{0}^\infty z \frac{ 1 }{ \sigma } \varphi\left(\frac{ z - \mu }{ \sigma }\right) dz \\
-    & = \mu_2 + \left[ \mu \Phi\left(\frac{ z - \mu }{ \sigma }\right) - \sigma \phi\left(\frac{ z - \mu }{ \sigma }\right)\right]_{0}^{\infty} \\
+    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sqrt{2 \pi } \sigma} \exp \left\{ -\frac12 \left(\frac{ u - \mu }{ \sigma }\right)^2 \right\} du \\
+    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sigma } \varphi\left(\frac{ u - \mu }{ \sigma }\right) du \\
+    & = \mu_2 + \left[ \mu \Phi\left(\frac{ u - \mu }{ \sigma }\right) - \sigma \phi\left(\frac{ u - \mu }{ \sigma }\right)\right]_{0}^{\infty} \\
     & = \mu_2 +  \mu - \mu \Phi\left(\frac{ -\mu }{ \sigma }\right) + \sigma \phi\left(\frac{ -\mu }{ \sigma }\right) \\
     %& = \mu_2 + \mu - \mu\left( 1 - \Phi\left(\frac{ \mu }{ \sigma }\right)\right) + \sigma\phi\left(\frac{ \mu }{ \sigma }\right) \\
     & = \mu_2 + \mu \Phi\left(\frac{ \mu }{ \sigma }\right) + \sigma \phi\left(\frac{ \mu }{ \sigma }\right).

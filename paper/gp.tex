@@ -36,18 +36,23 @@ They two distribution are also similar in that they have the property that margi
 The key difference is that with Gaussians Distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution
 while Gaussian Processes are \emph{defined} by this property.
 
-Before we can analyze GP's, we first have to make sure our definition makes sense.
-We would like there to exist a joint distribution over $\mathbb{R}^{\mathcal{X}}$ (the set of functions from $\mathcal{X}$ to $\mathbb{R}$)
-for which the marginals of finite number of random variables $\mathbf{f} = (f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$ 
-is given as in Definition~\ref{def:gp}.
-That is, we want a probability function \textcolor{red}{is this right??} such that
+In Definition~\ref{def:gp}, we asserted that finite marginals are Gaussian, but we still need to verify that these marginals are consistent with each other.
+For example, given random variables $X, Y, Z$, it make no sense to say that the marginals are
+\begin{align*}
+    (X, Y) = (0, 0) \text{ with probability 1} \\
+    (Y, Z) = (1, 1) \text{ with probability 1}
+\end{align*}
+because then $Y$ must equal both 0 and 1.
+Similarly, given a finite collection $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$, Definition~\ref{def:gp} merely defines a function
 \begin{equation*}
-    P(\mathbf{f} \in E) = h_{x_1, \ldots, x_n}(E) = \int_{E} gaussian pdf d \mathbf{x}
+    \mu_{\mathbf{x}_1, \ldots, \mathbf{x}_n}(E) = \int \ldots
 \end{equation*}
-where $E \subseteq \mathbb{R}^{n}$ is Borel.
-(The requirement that $E$ be Borel is only important for measure theoretic purposes and has little practical implication since ``However, any subset of $\mathbb{R}$ that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}).
-The existence of such a joint distribution allows us to apply our standard rules of probability to Gaussian Processes and Theorem~\ref{thm:ogag}.
-The Kolmogorov Extension Theorem does just this
+that measures how likely $(f(\mathbf{x}_1), \ldots, f(\mathbf{x}_n))$ is in a Borel set $E$.
+(The requirement that $E$ be Borel is crucial theoretically, but has little practical implication since
+``any subset ... that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}).
+For the marginals from Definition~\ref{def:gp} to be consistent, 
+we must prove the existence of a probability space that generates such marginals.
+The Kolmogorov Extension Theorem helps do just this
 
 \begin{theorem}[Kolmogorov Extension Theorem]\label{thm:kol-ext}
     
@@ -60,14 +65,14 @@ The Kolmogorov Extension Theorem does just this
     TODO
 \end{proof}
 
-
-With a solid foundation on Gaussian Processes, we can now interpret the parameters of Gaussian Process.
-The idea behind Gaussian Processes is that if $\mathbf{x}$ and $\mathbf{x}'$ are similar, then
+With a solid foundation on Gaussian Processes, we can interpret the parameters of a Gaussian Process.
+The intuition behind Gaussian Processes is that if $\mathbf{x}$ and $\mathbf{x}'$ are similar, then
 $f(\mathbf{x})$ and $f(\mathbf{x}')$ should be similar.
-The parameter $\kappa$ describes the similarity between two points.
+The parameter $\kappa$ describes this similarity by being high when $\mathbf{x}$ and $\mathbf{x}'$ are similar.
 The more similar $\mathbf{x}$ and $\mathbf{x}'$ are, the higher the value of $\kappa(\mathbf{x}, \mathbf{x}')$.
 After all, we expect the covariance between $f(\mathbf{x})$ and $f(\mathbf{x}')$
 to be high if $\mathbf{x}$ and $\mathbf{x}'$ are similar.
+
 The parameter $m$ tells us our prior expectation of $f$.
 Although $m$ can be useful if we have prior knowledge of $f$, it is common to set $m(\mathbf{x}) = 0$ \cite{murphy2012}.
 In Figure \ref{fig:gp-sample}, we use a kernel such $\mathbf{x}$-values yield correlated $f(\mathbf{x})$-values.
@@ -118,15 +123,15 @@ Then, for some points of interest $\mathbf{v}_{1}, \ldots, \mathbf{v}_{N_{*}}$, 
     \begin{bmatrix}
         \mathbf{K} & \mathbf{K}_* \\
         \mathbf{K}_*^T & \mathbf{K}_{* *}
-    \end{bmatrix}\right)
+    \end{bmatrix}\right),
 \end{equation*}
 where 
 \begin{align*}
-    \mathbf{m} &= (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_N)) \\
-    \mathbf{m_*} &= (m(\mathbf{v}_1), \ldots, m(\mathbf{v}_{N_{*}})) \\
-    (\mathbf{K})_{ij} &= \kappa(\mathbf{x}_i, \mathbf{x}_j) \\
-    (\mathbf{K}_*)_{ij} &= \kappa(\mathbf{x}_i, \mathbf{v}_j) \\
-    (\mathbf{K}_{* *})_{ij} &= \kappa(\mathbf{v}_i, \mathbf{v}_j)
+    \mathbf{m} &= (m(\mathbf{x}_1), \ldots, m(\mathbf{x}_N)), \\
+    \mathbf{m_*} &= (m(\mathbf{v}_1), \ldots, m(\mathbf{v}_{N_{*}})), \\
+    (\mathbf{K})_{ij} &= \kappa(\mathbf{x}_i, \mathbf{x}_j), \\
+    (\mathbf{K}_*)_{ij} &= \kappa(\mathbf{x}_i, \mathbf{v}_j), \\
+    (\mathbf{K}_{* *})_{ij} &= \kappa(\mathbf{v}_i, \mathbf{v}_j).
 \end{align*}
 
 Since Gaussian Processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that our posterior distribution
