@@ -1,10 +1,10 @@
 \subsection{Acquisition Functions}
-As we see in Algorithm~\ref{alg:bo}, dictate which point we want to sample in each iteration.
+As we see in Algorithm~\ref{alg:bo}, acquisition functions dictate which point we sample in each iteration.
 As such, acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation Exploration is searching far and wide in $\mathcal{X}$ as to understand $f$'s global behavior.
 Exploitation is exploring local regions where we know $f$ is high to get more exact estimates of $f$'s peaks.
 Both are necessary.
 Too much exploration causes us to waste time by sampling regions of $\mathcal{X}$ with little potential.
-Too much exploitation causes us to waste time by sampling regions of $\mathcal{X}$ that we already understand, thereby giving us little knowledge of $f$.
+Too much exploitation causes us to waste time by sampling regions of $\mathcal{X}$ that we already understand, thereby giving us little additional knowledge of $f$.
 
 Unlike Gaussian Processes, acquisition functions are usually based on heuristics.
 Common acquisition functions such as Expected Improvement and Probability of Improvement take a greedy approach, while information-based approaches that do look into the future are often intractable \cite{shahriari2016}.
@@ -13,7 +13,7 @@ For this paper, we will use a modified version of Expected Improvement.
 Suppose that after after the stopping conditions are met in our Bayesian Optimization loop (Algorithm \ref{algo:bo}),
 we return
 \begin{equation*}
-    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \ldots, \mathbf{x}_n \}} \mu_n(\mathbf{x}).
+    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \ldots, \mathbf{x}_N \}} \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
 \end{equation*}
 Expected Improvement (EI) asks us to pretend that the current iteration will be the last iteration.
 The utility of EI is the expectation of the image of the return value:
@@ -31,14 +31,14 @@ The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
 \begin{definition}[vEI]
     \begin{equation}
         \label{eq:vei}
-        a_{vEI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
-        = \mathbb{E}[f(\mathbf{x}_*) | \mathcal{D}_n] + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_n]
+        a_{vEI}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
+        = \mathbb{E}[f(\mathbf{x}_*) | \mathcal{D}_N] + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_N]
     \end{equation}
-    where $\mathbf{x}_* = \argmax_{\mathbf{x'}} \mathbb{E}[\mathbf{x'} | \mathcal{D}_n]$.
+    where $\mathbf{x}_* = \argmax_{\mathbf{x'} \in (\mathbf{x}_1, \ldots, \mathbf{x}_N)} \mathbb{E}[\mathbf{x'} | \mathcal{D}_N]$.
 \end{definition}
 
 The big difference between vEI and EI is that while $y_*$ in Equation~\ref{eq:ei} is a constant, $f(\mathbf{x}_*)$ in Equation~\ref{eq:vei} is a random variable.
-As such, we need to take into account the dependence between $f(\mathbf{x})$ and $f(\mathbf{x}_*)$.
+Thus, we need to take into account the dependence between $f(\mathbf{x})$ and $f(\mathbf{x}_*)$.
 In practice this dependence encourages exploration because $f(\mathbf{x}) - f(\mathbf{x}_*)$ will be small when $\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei}.
 Even though our posterior maximum is at around 0.8, vEI is maximized at around 0.25 because $\mathbf{x}_* = 0.75$.
 
@@ -51,7 +51,7 @@ Even though our posterior maximum is at around 0.8, vEI is maximized at around 0
     \label{fig:ei}
 \end{figure}
 
-Because all $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian, we can find vEI and its gradient in closed form.
+Because $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}$, we can find vEI and its gradient in closed form.
 Let
 \begin{equation*}
     \varphi(u) = \frac{ 1 }{ \sqrt{ 2 \pi } } \exp \left\{ -\frac12 u^2 \right\},
@@ -95,7 +95,7 @@ Then,
     & = \mu_2 + \mu \Phi\left(\frac{ \mu }{ \sigma }\right) + \sigma \phi\left(\frac{ \mu }{ \sigma }\right).
 \end{align*}
 
-Because of the usage of, $\Phi$ its hard to maximize it analytically.
+Because of the usage of $\Phi$ its hard to maximize $a_{vEI}$ it analytically.
 At the same time, we can see in Figure~\ref{fig:ei}, $a_{vEI}$ has lots local maximum.
 Thus, have to rely on methods such as Basin Hopping \cite{wales1997}.
 Although this requires using a gradient, we omit the derivation because its just a messy application of the chain rule.

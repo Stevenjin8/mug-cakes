@@ -21,7 +21,7 @@ The pseudocode for Bayesian optimization is as follows.
     \end{algorithmic}
 \end{algorithm}
 
-When we finish after $n$ iterations, our estimate for the $\argmax_{\mathbf{x}}f(\mathbf{x})$ is
+When we finish after $n$ iterations, our estimate for $\argmax_{\mathbf{x} \in \mathcal{X}}f(\mathbf{x})$ is
 \begin{equation*}
     \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \ldots, \mathbf{x}_n \} } \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_n]
 \end{equation*}
