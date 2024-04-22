@@ -14,7 +14,8 @@ We begin by defining Gaussian random variables.
     We just write $\mathcal{N}$ instead of $\mathcal{N}_K$ if $K$ is clear from context.
 \end{definition}
 
-We can also allow $\bsy{\Sigma}$ to be singular giving us a degenerate Gaussian, but these are much harder to work with because we rely on $\bsy{\Sigma}^{-1}$ in Equation~\ref{mvn-pdf}.
+We can also allow $\bsy{\Sigma}$ to be positive semi-definite giving us a possibly degenerate Gaussian,
+but these are much harder to work with because we rely on $\bsy{\Sigma}^{-1}$ in Equation~\ref{mvn-pdf}.
 
 One reason why Gaussians are popular is because they stay Gaussian under various transformations, as the next theorem shows.
 
@@ -41,7 +42,6 @@ One reason why Gaussians are popular is because they stay Gaussian under various
         \bsy{\Sigma}_{22} \in \mathbb{R}^{K_2 \times K_2};
         \bsy{\Sigma}_{12} = \bsy{\Sigma}_{21}^{T} \in \mathbb{R}^{K_1 \times K_2}.
     \end{align*}
-
     Then, the following are true.
     \begin{enumerate}
         \item

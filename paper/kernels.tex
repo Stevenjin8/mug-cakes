@@ -10,19 +10,19 @@ Strictly speaking, a kernel is just a function $\kappa: \mathcal{X} \times \math
 For this paper, we will exclusive work with RBF kernels.
 
 \begin{definition}[Radial Basis Function]
-    A radial basis function $\kappa: \mathbb{R}^{k} \times \mathbb{R}^{k} \to \mathbb{R}$
+    A radial basis function $\kappa_{\rbf}: \mathbb{R}^{k} \times \mathbb{R}^{k} \to \mathbb{R}$
     is given by
     \begin{equation*}
-        \kappa(\mathbf{x}, \mathbf{x}'; \sigma_f^2, \ell^2)
-        = \sigma_f^{2} \exp \left\{ - \frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2 \ell^2 }\right\}.
+        \kappa_{\rbf}(\mathbf{x}, \mathbf{x}'; \sigma_f^2, \ell^2)
+        = \sigma_f^{2} \exp \left\{ - \frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2 \ell^2 }\right\}
     \end{equation*}
     for $\sigma_f^2 > 0$ and $\ell^2 > 0$.
     
-    If the parameters are clear from context or not relevant, we omit them and write $\kappa(\mathbf{x}, \mathbf{x}')$ instead.
+    If the parameters are clear from context or not relevant, we omit them and write $\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')$ instead.
 \end{definition}
 In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal variance of $f(\mathbf{x})$ for all $\mathbf{x}$ because
 \begin{equation*}
-    \Var(f(\mathbf{x}) = \Cov(f(\mathbf{x}), f(\mathbf{x})) = \kappa(f(\mathbf{x}), f(\mathbf{x})) = \sigma_f^2.
+    \Var(f(\mathbf{x})) = \Cov(f(\mathbf{x}), f(\mathbf{x})) = \kappa_{\rbf}(f(\mathbf{x}), f(\mathbf{x})) = \sigma_f^2.
 \end{equation*}
 The parameter $\ell^2$ scales the domain by dividing $\lVert \mathbf{x} - \mathbf{x}' \rVert$.
 Large values of $\ell^2$ shrink the domain while small values of $\ell^2$ expand the domain.
@@ -34,37 +34,37 @@ We will use this definition to show prove necessary and desirable properties of 
 \begin{definition}[Mercer Kernel]
     A kernel $\kappa: \mathbb{R}^{K} \times \mathbb{R}^{K} \to \mathbb{R}$
     is said to be a Mercer Kernel if there exists an inner product space
-    $V$ and mapping $\varphi: \mathbb{R}^{K} \to V$ such that
+    $V$ and mapping $\gamma : \mathbb{R}^{K} \to V$ such that
     \begin{equation*}
-        \kappa(\mathbf{x}, \mathbf{x}') = \langle \varphi(\mathbf{x}), \varphi(\mathbf{x}') \rangle.
+        \kappa(\mathbf{x}, \mathbf{x}') = \langle \gamma(\mathbf{x}), \gamma(\mathbf{x}') \rangle.
     \end{equation*}
 \end{definition}
 
-It might be surprising that RBF kernels are Mercer kernels because that the canonical inner product, dot product, has a sum in its formula, but the RBF kernel does not.
+It might be surprising that RBF kernels are Mercer kernels because that the canonical inner product, the dot product, has a sum in its formula, but the RBF kernel does not.
 The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $e^{x}$ to show that the RBF kernels is a Mercer kernel.
 
 \begin{definition}[$L^1$]
     The set $L^1$ is the set of sequences of $\mathbb{R}$ whose infinite sum converges absolutely.
     That is
     \begin{equation*}
-        L^1 = \left\{ (x_n)_{n=0}^{\infty} \in \mathbb{R}^{\omega} \middle| \sum_{n=0}^{\infty} \lvert x_n \rvert < \infty \right\}.
+        L^1 = \left\{ (f_n)_{n=1}^{\infty} \in \mathbb{R}^{\omega} \middle| \sum_{n=1}^{\infty} \lvert f_n \rvert < \infty \right\}.
     \end{equation*}
     For any two $\mathbf{f} = (f_n), \mathbf{g} = (g_n) \in L^1$, their inner product is
     \begin{equation*}
-        \langle \mathbf{f}, \mathbf{g} \rangle = \sum\limits_{n=0}^{\infty} f_ng_n.
+        \langle \mathbf{f}, \mathbf{g} \rangle = \sum\limits_{n=1}^{\infty} f_ng_n.
     \end{equation*}
 \end{definition}
 \begin{proposition}
-    The set $L^1$ is an inner product space.
+    $L^1$ is an inner product space.
 \end{proposition}
 \begin{proof}
     We need to show that $L^1$ is a vector space and $\langle \cdot, \cdot \rangle$ is an inner product.
 
     The set $\mathbb{R}^{\omega}$ is a vector space by Example 6.29 of \cite{axler2020}.
-    So to show that $\ell_1 \subseteq \mathbb{R}^{\omega}$ is a vector space, we just need to show that it is a subspace of $\mathbb{R}^{\omega}$.
+    So to show that $L^1 \subseteq \mathbb{R}^{\omega}$ is a vector space, we just need to show that it is a subspace of $\mathbb{R}^{\omega}$.
     \begin{itemize}
         \item \textbf{additive identity}\\
-            $\mathbf{0} = (0, 0, \ldots)$ is an element of $\ell_1$ because
+            $\mathbf{0} = (0, 0, \dots)$ is an element of $L^1$ because
             $\sum\limits_{i=1}^{\infty} \lvert 0 \rvert = 0 < \infty$.
         \item \textbf{closed under addition} \\
             Let $\mathbf{f}, \mathbf{g} \in L^1$.
@@ -86,7 +86,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             \end{equation*}
             meaning that $\alpha \mathbf{f} \in L^1$.
     \end{itemize}
-    Thus, $\ell_1$ is a vector space.
+    Thus, $L_1$ is a vector space.
 
     Now, we show that $\langle \cdot , \cdot \rangle$ is an inner product by Definition 8.1 of \cite{axler2020}.
     \begin{itemize}
@@ -146,55 +146,54 @@ The next few results utilize infinite dimensional vector spaces and a clever use
 \begin{proof}
     This proof is inspired by \cite{shashua2009}.
     For notational simplicity, we only consider the case where $\mathbf{x} \in \mathbb{R}^{1}$.
-    Let $\varphi: \mathbb{R}^{1} \to L^1$ be
+    Let $\gamma : \mathbb{R}^{1} \to L^1$ be
     \begin{equation*}
-        \varphi(\mathbf{x}) = \sigma_f \exp\left\{-\frac12 \mathbf{x}^2 / \ell^2\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
+        \gamma(\mathbf{x}) = \sigma_f \exp\left\{-\frac12 \mathbf{x}^2 / \ell^2\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
     \end{equation*}
-    We can check that the absolute sum of the elements of $\varphi(\mathbf{x})$ converges using the ratio test, which we omit.
-
+    We can check that the absolute sum of the elements of $\gamma(\mathbf{x})$ converges using the ratio test, which we omit.
     Then, for $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^{1}$,
-    \begin{align}
-        \langle \varphi(\mathbf{x}), \varphi(\mathbf{x'}) \rangle
+    \begin{align*}
+        \langle \gamma(\mathbf{x}), \gamma(\mathbf{x'}) \rangle
         & = \sigma_f^2
         \exp \left\{ -\frac{\mathbf{x}^2}{2\ell^2} \right\}
-        \exp \left\{ -\frac{ \mathbf{x'}^2}{\ell^2} \right\}
+        \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
         \sum\limits_{i=1}^{\infty}
-        \frac{ (\frac{\mathbf{x}}{\ell})^{n - 1} (\frac{\mathbf{x'}}{\ell})^{n - 1}}{ (n - 1)! } \\
+        \frac{ (\mathbf{x}/\ell)^{i - 1} (\mathbf{x'}/\ell)^{i - 1}}{ (i - 1)! } \\
         & = \sigma_f^2
-        \exp \left\{ -\frac{ \mathbf{x}^2}{\ell^2} \right\}
-        \exp \left\{ -\frac{ \mathbf{x'}^2}{\ell^2} \right\}
-        \exp \{ \frac{\mathbf{x} \mathbf{x'}}{ \ell} \} \\
+        \exp \left\{ -\frac{ \mathbf{x}^2}{2\ell^2} \right\}
+        \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
+        \exp \left\{ \frac{\mathbf{x} \mathbf{x'}}{ \ell} \right\} \\
         & = \sigma_f^2 \exp \left\{ -\frac12 \frac{ \lVert \mathbf{x} - \mathbf{x'} \rVert^2 }{ \ell^2 } \right\} \\
-        & = \kappa(\mathbf{x}, \mathbf{x'}).
-    \end{align}
+        & = \kappa_{\rbf}(\mathbf{x}, \mathbf{x'}).
+    \end{align*}
 
-    The proof becomes more laborious when considering $\mathbb{R}^{N}$ because of the multinomial expansion of $\lVert \mathbf{x} - \mathbf{y} \rVert^2$.
+    The proof becomes more laborious when considering $\mathcal{X} \subseteq \mathbb{R}^{N}$ because of the multinomial expansion of $\lVert \mathbf{x} - \mathbf{y} \rVert^2$.
     For a complete proof, see Section 4.3.3 of \cite{shashua2009}.
 \end{proof}
 
-Using the fact that the RBF kernel is a Mercer Kernel, we can show that it generates positive semi definite Gram matrices.
+Using the fact that the RBF kernel is a Mercer Kernel, we can show that it generates positive semi definite covariance matrices.
 
 \begin{lemma}
     Mercer Kernels are positive semi-definite.
 \end{lemma}
 \begin{proof}
     Suppose that $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a Mercer Kernel.
-    Then, there exists a inner product space $V$ and function $\varphi: \mathcal{X} \to V$ such that $\kappa(\mathbf{x}, \mathbf{y}) = \langle\varphi(\mathbf{x}), \varphi(\mathbf{y})\rangle$.
+    Then, there exists a inner product space $V$ and function $\gamma: \mathcal{X} \to V$ such that $\kappa(\mathbf{x}, \mathbf{y}) = \langle\gamma(\mathbf{x}), \gamma(\mathbf{y})\rangle$.
 
-    Now, let $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathcal{X}$, $\mathbf{c} \in \mathbb{R}^{N}$, and
+    Now, let $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$, $\mathbf{c} \in \mathbb{R}^{N}$, and
     \begin{equation*}
         \mathbf{K} =
         \begin{bmatrix}
-            \kappa(\mathbf{x}_1, \mathbf{x}_1) & \ldots & \kappa(\mathbf{x}_1, \mathbf{x}_N) \\
+            \kappa(\mathbf{x}_1, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_1, \mathbf{x}_N) \\
             \vdots & \ddots & \vdots \\
-            \kappa(\mathbf{x}_N, \mathbf{x}_1) & \ldots & \kappa(\mathbf{x}_N, \mathbf{x}_N) \\
+            \kappa(\mathbf{x}_N, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_N, \mathbf{x}_N) \\
         \end{bmatrix}
         .
     \end{equation*}
     Then,
     \begin{align*}
         \mathbf{c}^{T} \mathbf{K} \mathbf{c}
-        & = \langle c_1 \varphi(\mathbf{x}_1) + \ldots + c_N \varphi(\mathbf{x}_N), c_1 \varphi(\mathbf{x}_1) + \ldots + c_N \varphi(\mathbf{x}_N) \rangle
+        & = \langle c_1 \gamma(\mathbf{x}_1) + \dots + c_N \gamma(\mathbf{x}_N), c_1 \gamma(\mathbf{x}_1) + \dots + c_N \gamma(\mathbf{x}_N) \rangle
         \geq 0
     \end{align*}
     by the positivity of inner products.
@@ -205,82 +204,81 @@ Using the fact that the RBF kernel is a Mercer Kernel, we can show that it gener
     The RBF kernel is positive semi-definite.
 \end{corollary}
 
-In fact, if $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
-Thus, the distribution of $(f(\mathbf{x}_1), \ldots f(\mathbf{x}_n))$ will be nondegenerate which allows that allows $f(\mathbf{x}_i)$ to take on any value for all $i$.
-This property is important because we want to model continuous function and for any distinct $\mathbf{x}_1, \ldots, \mathbf{x}_n$ and $y_1, \ldots, y_n$ there exists continuous functions that maps $\mathbf{x}_1, \ldots, \mathbf{x}_n$ to $y_1, \ldots, y_n$ respectively.
+In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_n$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
+Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_n))$ will be nondegenerate which allows that allows $f(\mathbf{x}_i)$ to take on any value for all $i$.
+This property is important because we want to model continuous function and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_n$ and $y_1, \dots, y_n$ there exists continuous functions that maps $\mathbf{x}_1, \dots, \mathbf{x}_n$ to $y_1, \dots, y_n$ respectively.
 
 \begin{lemma}
     \label{lem:rbf-pd}
-    If $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are distinct, then the Gram matrix generated by an RBF kernel will be strictly positive definite.
+    If $\mathbf{x}_1, \dots, \mathbf{x}_n$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel will be strictly positive definite.
 \end{lemma}
 \begin{proof}
     Once again, we only consider the case where $\mathcal{X} \subseteq \mathbb{R}^{1}$.
     Without loss of generality, assume that $\sigma_f^2 = \ell^2 = 1$.
-    We can write $\kappa(\mathbf{x}, \mathbf{y}) = \langle \varphi(\mathbf{x}), \varphi(\mathbf{y}) \rangle$
-    where $\varphi: \mathcal{X} \to L^{1}$ is given by
+    We can write $\kappa_{\rbf}(\mathbf{x}, \mathbf{y}) = \langle \gamma(\mathbf{x}), \gamma(\mathbf{y}) \rangle$
+    where $\gamma \mathcal{X} \to L^{1}$ is given by
     \begin{equation*}
-        \varphi(\mathbf{x}) = \exp\left\{-\frac12 \mathbf{x}^2 \right\} \left(\frac{ \mathbf{x}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
+        \gamma(\mathbf{x}) = \exp\left\{-\frac12 \mathbf{x}^2 \right\} \left(\frac{ \mathbf{x}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
     \end{equation*}
     as in the proof for Theorem~\ref{thm:rbf-mercer}.
 
-    First, we show that if $\mathbf{x}_1, \ldots, \mathbf{x}_N$ are distinct, $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_N)$ are linearly independent.
-    For contradiction, assume that $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_N)$ are linearly dependent.
-    Then, there exists an $M$ such that $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_M)$
-    are linearly independent and for some weights $w_1, \ldots, w_M \in \mathbb{R}$,
+    First, we show that if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent.
+    For contradiction, assume that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly dependent.
+    Then, there exists an $M$ such that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$
+    are linearly independent and for some weights $w_1, \dots, w_M \in \mathbb{R}$,
     \begin{equation}
         \label{eq:dep}
-        w_1 \varphi(\mathbf{x}_1) + \ldots + w_M \varphi(\mathbf{x}_M) = \varphi(\mathbf{x}_{M + 1}).
+        w_1 \gamma(\mathbf{x}_1) + \dots + w_M \gamma(\mathbf{x}_M) = \gamma(\mathbf{x}_{M + 1}).
     \end{equation}
-    Since $\varphi$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$.
+    Since $\gamma$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$.
 
-    Expanding out Equation~\ref{eq:dep}, we see that
+    Expanding out Equation~\ref{eq:dep}, we see that for all $q \in \mathbb{N}, q \geq 0$,
     \begin{align*}
-        \sum\limits_{i = 1}^{M} w_i \exp \{ -\frac12 \mathbf{x_i}^2 \} \mathbf{x_i}^{p}
-        = \exp \{ -\frac12 x_{M + 1}^2 \} \mathbf{x}_{M+1}^{p}
+        \sum\limits_{i = 1}^{M} w_i \exp \left\{ -\frac12 \mathbf{x}_i^2 \right\} \mathbf{x}_i^{q}
+        = \exp \left\{ -\frac12 \mathbf{x}_{M + 1}^2 \right\} \mathbf{x}_{M+1}^{q}
     \end{align*}
     implying that
     \begin{equation*}
-        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \varphi(\mathbf{x}_i)  = \mathbf{x}_{M + 1} \varphi(\mathbf{x}_{M + 1})
+        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i)  = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
     \end{equation*}
 
     In the case that $\mathbf{x}_{M + 1} = 0$,
     \begin{equation*}
-        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \varphi(\mathbf{x}_i) = \mathbf{0}.
+        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i) = \mathbf{0}.
     \end{equation*}
     We know that $\mathbf{x}_k w_k \neq 0$ because $w_k \neq 0$ and $\mathbf{x}_k \neq \mathbf{x}_M = 0$. 
-    As such, we have a found a linear combination of $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_M)$ are linearly independent.
+    As such, we have a found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
 
     In the case that $\mathbf{x}_{M + 1} \neq 0$, 
     \begin{equation}\label{eq:other-dep}
-        \sum\limits_{i=1}^{M} \frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} w_i \varphi(\mathbf{x}_i) = \varphi(\mathbf{x}_{M + 1})
+        \sum\limits_{i=1}^{M} \frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} w_i \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}).
     \end{equation}
     Subtracting Equations \ref{eq:dep} and \ref{eq:other-dep},
     \begin{equation*}
-        \sum\limits_{i=1}^{M} w_i \left(\frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} - 1\right) \varphi(\mathbf{x}_i) = \varphi(\mathbf{x}_{M + 1}) = \mathbf{0}.
+        \sum\limits_{i=1}^{M} w_i \left(\frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} - 1\right) \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}) = \mathbf{0}.
     \end{equation*}
-    Since $\mathbf{x}_k \neq \mathbf{x}_{M + 1}$, we conclude that
+    Since $\mathbf{x}_p \neq \mathbf{x}_{M + 1}$, we conclude that
     \begin{equation*}
-        w_k\frac{ \mathbf{x}_k }{ \mathbf{x}_{M + 1} } - 1 \neq 0.
+        w_p\left(\frac{ \mathbf{x}_p }{ \mathbf{x}_{M + 1} } - 1\right) \neq 0.
     \end{equation*}
-    Once again, we have found a linear combination of $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_M)$ with some nonzero weights that equals $\mathbf{0}$ which also contradicts the assumption that $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_M)$ is linearly independent.
-    Since we get a contradiction in both cases, we conclude that $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_N)$ are linearly independent.
+    Once again, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weights that equals $\mathbf{0}$ which also contradicts the assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ is linearly independent.
+    Since we get a contradiction in both cases, we conclude that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent.
 
-    Now, we use the independence of $\mathbf{x}_1, \ldots, \mathbf{x}_N$ to show that $\mathbf{K}$ is strictly positive definite.
+    Now, we use the independence of $\mathbf{x}_1, \dots, \mathbf{x}_N$ to show that $\mathbf{K}$ is strictly positive definite.
     Let $\mathbf{c} \in \mathbb{R}^{N}$ be nonzero.
-    Since $\varphi(\mathbf{x}_1), \ldots, \varphi(\mathbf{x}_N)$ are linearly independent,
+    Since $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent,
     \begin{equation*}
-        \sum\limits_{i = 1}^{N} c_i \varphi(\mathbf{x}_i) \neq \mathbf{0}.
+        \sum\limits_{i = 1}^{N} c_i \gamma(\mathbf{x}_i) \neq \mathbf{0}.
     \end{equation*}
     It follows that
     \begin{align*}
         \mathbf{c}^{T} \mathbf{K} \mathbf{c}
-        = \left\langle \sum\limits_{i}^{N} c_i \varphi(\mathbf{x}_i), \sum\limits_{i}^{N} c_i \varphi(\mathbf{x}_i) \right\rangle
+        = \left\langle \sum\limits_{i}^{N} c_i \gamma(\mathbf{x}_i), \sum\limits_{i}^{N} c_i \gamma(\mathbf{x}_i) \right\rangle
         > 0
     \end{align*}
     by the definiteness property of inner products
-    Thus, the RBF kernel generates strictly positive definite $\mathbf{K}$ when $\mathbf{x}_1, \ldots, \mathbf{x}_N$
+    Thus, the RBF kernel generates strictly positive definite $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$
     are distinct.
 \end{proof}
 
-The following definiton and theorem formalizes this.
 

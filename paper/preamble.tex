@@ -15,12 +15,12 @@
 \usepackage{tikz}
 \usepackage{tikz-qtree}
 \usepackage{cite}
+\usepackage[indent,skip=0pt]{parskip}
 \setlist[enumerate]{leftmargin=*, label=(\alph*)}
 
 \pdfminorversion=7
 
 % Hide page number when page is empty
-\usepackage{emptypage}
 \usepackage{subcaption}
 \usepackage{multicol}
 \usepackage{xcolor}
@@ -57,13 +57,13 @@
 
 % Environments
 \makeatother
-% For box around Definition, Theorem, \ldots
+% For box around Definition, Theorem, \dots
 \usepackage[innertopmargin=4pt, innerleftmargin=4pt, innerrightmargin=4pt]{mdframed}
-\mdfsetup{skipabove=1em,skipbelow=0em}
+\mdfsetup{skipabove=1em,skipbelow=1em}
 \theoremstyle{definition}
-\newmdtheoremenv[nobreak=true]{definition}{Definition}
-\newmdtheoremenv[nobreak=true]{lemma}{Lemma}
-\newmdtheoremenv[nobreak=true]{proposition}{Proposition}
+\newmdtheoremenv[nobreak=false]{definition}{Definition}
+\newmdtheoremenv[nobreak=false]{lemma}{Lemma}
+\newmdtheoremenv[nobreak=false]{proposition}{Proposition}
 
 \newtheorem{eg}{Example}
 \newtheorem*{notation}{Notation}
@@ -74,9 +74,9 @@
 \newtheorem*{observe}{Observe}
 \newtheorem*{property}{Property}
 \newtheorem*{intuition}{Intuition}
-\newmdtheoremenv[nobreak=true]{prop}{Proposition}
-\newmdtheoremenv[nobreak=true]{theorem}{Theorem}
-\newmdtheoremenv[nobreak=true]{corollary}{Corollary}
+\newmdtheoremenv[nobreak=false]{prop}{Proposition}
+\newmdtheoremenv[nobreak=false]{theorem}{Theorem}
+\newmdtheoremenv[nobreak=false]{corollary}{Corollary}
 
 % End example and intermezzo environments with a small diamond (just like proof
 % environments end with a small square)
@@ -89,7 +89,7 @@
 % http://tex.stackexchange.com/questions/22119/how-can-i-change-the-spacing-before-theorems-with-amsthm
 \makeatletter
 \def\thm@space@setup{%
-    \thm@preskip=\parskip \thm@postskip=0pt
+    \thm@preskip=0pt \thm@postskip=100pt
 }
 
 % \lecture starts a new lecture (les in dutch)
@@ -159,3 +159,5 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \newcommand\deq{\stackrel{\mathclap{\tiny\mbox{d}}}{=}}
 \def\bsy{\boldsymbol}
+\def\rbf{\text{rbf}}
+\def\dd{\mathrm{d}}
