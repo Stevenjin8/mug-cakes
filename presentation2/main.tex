@@ -1,0 +1,85 @@
+\documentclass[draft]{beamer}
+%\usetheme{Boadilla}
+
+\title{Bayesian Optimization}
+\author{Steven}
+\input{preamble.tex}
+
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Motivation}
+    \begin{centering}
+        ``Why not the best?'' --Jimmy Carter
+    \end{centering}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Optimization: Review}
+    How to maximize differentiable $f:[a, b] \to \mathbb{R}$?
+    \begin{enumerate}
+        \item solve $f'(c) = 0$
+            \pause
+        \item check $f''(c) \leq 0$.
+            \pause
+        \item evaluate $f$ at $a$, $b$, and local maxes.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Model Problem: Baking}
+    \begin{itemize}
+        \item Unknown underlying behavior
+            \pause
+        \item Smooth underlying behavior
+            \pause
+        \item Expensive trials
+            \pause
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Algorithm: Overview}
+    Given function unknown $F: \mathcal{X} \subseteq \mathbb{R}^{K} \to \mathbb{R}$.
+    \begin{enumerate}
+        \item Given our observations about $F$, pick the ``best'' point to sample $\mathbf{x} \in \mathcal{X}$.
+            \pause
+        \item Sample $F(\mathbf{x})$
+            \pause
+        \item Update our observations
+            \pause
+        \item Repeat
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Algorithm: Components}
+    \begin{itemize}
+        \item Model to represent belief of $F$ given observations
+            \pause
+        \item Method of picking the ``best'' point to sample
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Algorithm: Components}
+    \begin{itemize}
+        \item Model to represent belief of $F$ given observations $F(\mathbf{x}_1) = y_1, \dots, F(\mathbf{x}_N) = y_N$.
+            \pause
+        \item Method of picking the ``best'' point to sample
+    \end{itemize}
+\end{frame}
+
+\
+\begin{frame}
+    \frametitle{Attempt 1: Linear Regression}
+    \begin{equation*}
+        F(x) = \beta_1 x + \beta_0.
+    \end{equation*}
+\end{frame}
+\end{document}

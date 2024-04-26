@@ -17,7 +17,7 @@ For this paper, we will exclusive work with RBF kernels.
         = \sigma_f^{2} \exp \left\{ - \frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2 \ell^2 }\right\}
     \end{equation*}
     for $\sigma_f^2 > 0$ and $\ell^2 > 0$.
-    
+
     If the parameters are clear from context or not relevant, we omit them and write $\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')$ instead.
 \end{definition}
 In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal variance of $f(\mathbf{x})$ for all $\mathbf{x}$ because
@@ -140,7 +140,8 @@ The next few results utilize infinite dimensional vector spaces and a clever use
     \end{itemize}
 \end{proof}
 
-\begin{theorem}\label{thm:rbf-mercer}
+\begin{theorem}
+    \label{thm:rbf-mercer}
     The RBF kernel is a Mercer kernel.
 \end{theorem}
 \begin{proof}
@@ -148,7 +149,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
     For notational simplicity, we only consider the case where $\mathbf{x} \in \mathbb{R}^{1}$.
     Let $\gamma : \mathbb{R}^{1} \to L^1$ be
     \begin{equation*}
-        \gamma(\mathbf{x}) = \sigma_f \exp\left\{-\frac12 \mathbf{x}^2 / \ell^2\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
+        \gamma(\mathbf{x}) = \sigma_f \exp\left\{- \frac{\mathbf{x}^2}{2\ell^2}\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
     \end{equation*}
     We can check that the absolute sum of the elements of $\gamma(\mathbf{x})$ converges using the ratio test, which we omit.
     Then, for $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^{1}$,
@@ -163,7 +164,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
         \exp \left\{ -\frac{ \mathbf{x}^2}{2\ell^2} \right\}
         \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
         \exp \left\{ \frac{\mathbf{x} \mathbf{x'}}{ \ell} \right\} \\
-        & = \sigma_f^2 \exp \left\{ -\frac12 \frac{ \lVert \mathbf{x} - \mathbf{x'} \rVert^2 }{ \ell^2 } \right\} \\
+        & = \sigma_f^2 \exp \left\{ -\frac{ \lVert \mathbf{x} - \mathbf{x'} \rVert^2 }{ 2\ell^2 } \right\} \\
         & = \kappa_{\rbf}(\mathbf{x}, \mathbf{x'}).
     \end{align*}
 
@@ -216,23 +217,23 @@ This property is important because we want to model continuous function and for 
     Once again, we only consider the case where $\mathcal{X} \subseteq \mathbb{R}^{1}$.
     Without loss of generality, assume that $\sigma_f^2 = \ell^2 = 1$.
     We can write $\kappa_{\rbf}(\mathbf{x}, \mathbf{y}) = \langle \gamma(\mathbf{x}), \gamma(\mathbf{y}) \rangle$
-    where $\gamma \mathcal{X} \to L^{1}$ is given by
+    where $\gamma: \mathcal{X} \to L^{1}$ is given by
     \begin{equation*}
-        \gamma(\mathbf{x}) = \exp\left\{-\frac12 \mathbf{x}^2 \right\} \left(\frac{ \mathbf{x}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
+        \gamma(\mathbf{x}) = \exp\left\{-\frac{\mathbf{x}^2}2 \right\} \left(\frac{ \mathbf{x}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
     \end{equation*}
     as in the proof for Theorem~\ref{thm:rbf-mercer}.
 
     First, we show that if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent.
     For contradiction, assume that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly dependent.
-    Then, there exists an $M$ such that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$
+    Then, there exists an $M \in \mathbb{N}, 0 < M < N$ such that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$
     are linearly independent and for some weights $w_1, \dots, w_M \in \mathbb{R}$,
     \begin{equation}
         \label{eq:dep}
         w_1 \gamma(\mathbf{x}_1) + \dots + w_M \gamma(\mathbf{x}_M) = \gamma(\mathbf{x}_{M + 1}).
     \end{equation}
-    Since $\gamma$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$.
+    Since $\gamma$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$, $p \in \mathbb{N}$, $0 < p \leq M$.
 
-    Expanding out Equation~\ref{eq:dep}, we see that for all $q \in \mathbb{N}, q \geq 0$,
+    Looking at Equation~\ref{eq:dep} element-wise, we see that for all $q \in \mathbb{N}, q \geq 0$,
     \begin{align*}
         \sum\limits_{i = 1}^{M} w_i \exp \left\{ -\frac12 \mathbf{x}_i^2 \right\} \mathbf{x}_i^{q}
         = \exp \left\{ -\frac12 \mathbf{x}_{M + 1}^2 \right\} \mathbf{x}_{M+1}^{q}
@@ -246,16 +247,17 @@ This property is important because we want to model continuous function and for 
     \begin{equation*}
         \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i) = \mathbf{0}.
     \end{equation*}
-    We know that $\mathbf{x}_k w_k \neq 0$ because $w_k \neq 0$ and $\mathbf{x}_k \neq \mathbf{x}_M = 0$. 
+    We know that $\mathbf{x}_p w_p \neq 0$ because $w_p \neq 0$ and $\mathbf{x}_p \neq \mathbf{x}_M = 0$.
     As such, we have a found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
 
-    In the case that $\mathbf{x}_{M + 1} \neq 0$, 
-    \begin{equation}\label{eq:other-dep}
-        \sum\limits_{i=1}^{M} \frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} w_i \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}).
-    \end{equation}
+    In the case that $\mathbf{x}_{M + 1} \neq 0$,
+    \begin{align}
+        &\sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
+        \implies &\sum\limits_{i=1}^{M} \frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} w_i \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
+    \end{align}
     Subtracting Equations \ref{eq:dep} and \ref{eq:other-dep},
     \begin{equation*}
-        \sum\limits_{i=1}^{M} w_i \left(\frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} - 1\right) \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}) = \mathbf{0}.
+        \sum\limits_{i=1}^{M} w_i \left(\frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} - 1\right) \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}) - \gamma(\mathbf{x}_{M + 1}) = \mathbf{0}.
     \end{equation*}
     Since $\mathbf{x}_p \neq \mathbf{x}_{M + 1}$, we conclude that
     \begin{equation*}
@@ -277,8 +279,6 @@ This property is important because we want to model continuous function and for 
         > 0
     \end{align*}
     by the definiteness property of inner products
-    Thus, the RBF kernel generates strictly positive definite $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$
+    Thus, the RBF kernel generates strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$
     are distinct.
 \end{proof}
-
-

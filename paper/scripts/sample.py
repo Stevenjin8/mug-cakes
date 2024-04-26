@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import cm
+from matplotlib import colormaps as cm
 from scipy.stats import multivariate_normal
 
 from mug_cakes.kernel import rbf
@@ -17,7 +17,7 @@ np.random.seed(42)
 fig, ax = plt.subplots(figsize=(5, 5))
 for _ in range(3):
     y = multivariate_normal.rvs(cov=K)
-    ax.plot(X, y)
+    ax.plot(X, y, "k")
 fig.savefig("fig/gp-sample2d.png", bbox_inches="tight", dpi=500)
 
 
@@ -36,7 +36,7 @@ fig = plt.figure(figsize=(5, 5))
 ax = fig.add_subplot(projection="3d")
 
 ax.plot_surface(
-    X.reshape(N, N), Y.reshape(N, N), Z.reshape(N, N), linewidth=1, cmap=cm.inferno
+    X.reshape(N, N), Y.reshape(N, N), Z.reshape(N, N), linewidth=1, cmap=cm["bone"]
 )
 
 fig.savefig("fig/gp-sample3d.png", bbox_inches="tight", dpi=500)

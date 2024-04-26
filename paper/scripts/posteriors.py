@@ -7,7 +7,7 @@ from mug_cakes import bo, gp, kernel
 BLUE = "#1f77b4"
 ORANGE = "#ff7f0e"
 
-np.random.seed(42)
+np.random.seed(43)
 N = 10
 X = np.random.rand(N).reshape(-1, 1)
 X[:5] *= 0.7
@@ -75,4 +75,3 @@ ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
 ax.set_ylim(-1.5, 1.5)
 
 fig.savefig("fig/biased-posterior.png", dpi=500, bbox_inches="tight")
-plt.show()

@@ -15,14 +15,16 @@ For this paper, we will use a modified version of Expected Improvement.
 %\begin{equation*}
 %    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \}} \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
 %\end{equation*}
-Under EI, the utility of a point $\mathbf{x}$ is what we expect the maximum $y$-value,
-across all samples, to be after this iteration.
+Under EI, the utility of observing $f(\mathbf{x})$ is what we expect the maximum $y$-value,
+across all samples to be after this iteration.
 \begin{equation}
     \label{eq:ei}
-    a_{EI}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_n\}]
+    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_n\}]
     = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\}]
 \end{equation}
-where $y_* = \max{y_1, \dots, y_n}$.
+where $y_* = \max\{y_1, \dots, y_n\}$.
+
+\textcolor{red}{how does this relate to exploration vs exploitation?}
 
 However, the usage of $y_*$ in Equation~\ref{eq:ei} makes less sense if we have noisy observations because $y_*$'s extremity could due to noise.
 It makes less sense if we consider biased observations because $y_*$ is even less representative of the underlying function and we are not using our knowledge about each observer's bias.
@@ -31,7 +33,7 @@ The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
 \begin{definition}[vEI]
     \begin{equation}
         \label{eq:vei}
-        a_{vEI}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
+        a_{\vei}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
         = \mathbb{E}[f(\mathbf{x}_*) | \mathcal{D}_N] + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_N]
     \end{equation}
     where $\mathbf{x}_* = \argmax_{\mathbf{x'} \in (\mathbf{x}_1, \dots, \mathbf{x}_N)} \mathbb{E}[\mathbf{x'} | \mathcal{D}_N]$.
@@ -49,17 +51,18 @@ Even though our posterior maximum is at around 0.8, vEI is maximized at around 0
         Dotted vertical red line represent sampled $\mathbf{x}$-value with the highest posterior mean.
     }
     \label{fig:ei}
+
 \end{figure}
 
 Because $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}$, we can find vEI and its gradient in closed form.
-Let $\varphi$ and $\Phi$ be the pdf and cdf of a standard univariate normal respectively. 
-Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}_n$ are jointly Gaussian
+Let $\varphi$ and $\Phi$ be the pdf and cdf of the standard univariate normal respectively. 
+Since 
 \begin{equation*}
     \begin{bmatrix}
         f(\mathbf{x}) \\
         f(\mathbf{x}_*)
     \end{bmatrix}
-    | \mathcal{D}_n
+    \bigg| \mathcal{D}_n
     \sim \mathcal{N}\left(
     \begin{bmatrix}
             \mu_1 \\
@@ -74,23 +77,23 @@ Since $f(\mathbf{x}), f(\mathbf{x}_*) | \mathcal{D}_n$ are jointly Gaussian
 \end{equation*}
 we can write
 \begin{equation*}
-    f(\mathbf{x}) - f(\mathbf{x}_*) \sim \mathcal{N}(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2(\sigma_{12}))
-    = \mathcal{N}(\mu, \sigma^2)
+    f(\mathbf{x}) - f\left(\mathbf{x}_*\right) \sim \mathcal{N}(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2\sigma_{12})
+    = \mathcal{N}\left(\mu, \sigma^2\right)
 \end{equation*}
 by Theorem~\ref{thm:ogag}.
 Then,
 \begin{align*}
-    a_{vEI}(\mathbf{x} | \mathcal{D}_N)
+    a_{\vei}(\mathbf{x} | \mathcal{D}_N)
     & =  \mathbb{E}[f(\mathbf{x}_*) + \max \{  f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_N] \\
-    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sqrt{2 \pi } \sigma} \exp \left\{ -\frac12 \left(\frac{ u - \mu }{ \sigma }\right)^2 \right\} du \\
-    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sigma } \varphi\left(\frac{ u - \mu }{ \sigma }\right) du \\
+    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sqrt{2 \pi } \sigma} \exp \left\{ -\frac12 \left(\frac{ u - \mu }{ \sigma }\right)^2 \right\} \dd u \\
+    & = \mu_2 + \int_{0}^\infty u \frac{ 1 }{ \sigma } \varphi\left(\frac{ u - \mu }{ \sigma }\right) \dd u \\
     & = \mu_2 + \left[ \mu \Phi\left(\frac{ u - \mu }{ \sigma }\right) - \sigma \varphi\left(\frac{ u - \mu }{ \sigma }\right)\right]_{0}^{\infty} \\
     & = \mu_2 +  \mu - \mu \Phi\left(\frac{ -\mu }{ \sigma }\right) + \sigma \varphi\left(\frac{ -\mu }{ \sigma }\right) \\
     %& = \mu_2 + \mu - \mu\left( 1 - \Phi\left(\frac{ \mu }{ \sigma }\right)\right) + \sigma\varphi\left(\frac{ \mu }{ \sigma }\right) \\
     & = \mu_2 + \mu \Phi\left(\frac{ \mu }{ \sigma }\right) + \sigma \varphi\left(\frac{ \mu }{ \sigma }\right).
 \end{align*}
 
-Because of the usage of $\Phi$, it is hard to maximize $a_{vEI}$ it analytically.
-At the same time, we can see in Figure~\ref{fig:ei}, $a_{vEI}$ has lots local maximum.
+Because of the usage of $\Phi$, it is hard to maximize $a_{\vei}$ it analytically.
+At the same time, we can see in Figure~\ref{fig:ei}, $a_{\vei}$ has lots local maximum.
 Thus, have to rely on methods such as Basin Hopping \cite{wales1997}.
 Although this requires using a gradient, we omit the derivation because its just a messy application of the chain rule.

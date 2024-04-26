@@ -22,10 +22,10 @@ ax1.fill_between(
     X_star.flatten(),
     post_mean - 2 * post_var**0.5,
     post_mean + 2 * post_var**0.5,
-    color="lightblue",
+    color="lightgrey",
 )
 ax1.set_ylim(-0.4, 1.6)
-ax1.plot(X_star, post_mean)
+ax1.plot(X_star, post_mean, "k--")
 ax1.set_ylabel("$f(x)$")
 
 x_M = np.array([0.75])
@@ -42,9 +42,9 @@ ax1.scatter(X[4:], y[4:], c="#1f77b4")
 eis = []
 for x in X_star:
     eis.append(-bo.minus_expected_diff(x, x_M, X, y, np.linalg.inv(S), ell2, s2f))
-ax2.plot(X_star, eis)
+ax2.plot(X_star, eis, "#006400")
 ax2.set_ylim(-0.001, 0.03)
-ax2.set_ylabel("vEI")
+ax2.set_ylabel("$a_{vEI}$")
 
 
 eis = []

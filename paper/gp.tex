@@ -81,6 +81,9 @@ The Kolmogorov Extension Theorem does just this.
             \end{equation*}
     \end{enumerate}
 \end{theorem}
+\begin{proof}
+    See Chapter 3 Section 4 of \cite{kolmogorov1933}.
+\end{proof}
 
 \begin{theorem}
     \label{thm:gp-const}
@@ -308,8 +311,11 @@ With this definition in place, we can show that as $\mathbf{x}_n$ approaches $\m
     That is, $f(\mathbf{x}_n) - f(\mathbf{x})$ converges to a degenerate distribution at 0.
 \end{proof}
 
-\subsubsection{Posterior Inference}
+\textcolor{red}{Talk about how this is different than saying that samples all continuous everywhere.}
 
+\subsubsection{Posterior Inference}\label{sssec:post-inf}
+
+\textcolor{red}{Maybe more interpretation of Gaussian, like how our similar $\mathbf{x}$ take on similar $f$, and the more we sample around a point, the more confident we are}
 We now turn our attention to posterior inference.
 That is, we want to quantify our belief of $f \sim \mathcal{GP}(m, \kappa)$ given some observations
 \begin{equation*}
@@ -359,6 +365,9 @@ and variance
 
 One issue with applying Equations~\ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var} is that we assume noiseless and unbiased observations of $f$.
 This is solemn the case with empirical observation.
+
+\textcolor{red}{emphasize what is special about working with bias and how most papers ignore it and when it might be useful }.
+
 As we can see in Figure~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit and give us extreme results.
 
 To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_b$ observers numbered 1 through $N_b$, and $z_i$ indicates the observer for the $i$th sample.
