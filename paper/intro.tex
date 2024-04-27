@@ -1,32 +1,22 @@
-Optimization is pervasive in our lives.
-Example example.
-However, these issues do not lend themselves well to standard mathematical methods.
-We cannot simply set the derivative to zero and solve because we do not have a closed form expression for our objective function.
-Nor can we use gradient methods because we do not observe derivatives.
-Evolutionary algorithms are inadequate because they require too many expensive trials.
-%One can only eat eggs so many times a day.
+Optimization problems come in various flavors that require specific solutions.
+In this paper, we study Bayesian optimization applied to black-box sample-efficient optimization problems.
+That is, problems for which the only way we can access the underlying behavior is through expensive trials.
+For example, we might be trying to find the best location for wildlife sensors or (as we will see later) the proportion of ingredients to make the best mug cakes.
 
-More formally, we are considering a space $\mathcal{X}$ (most often a compact set of $\mathbb{R}^{K}$) and a continuous function $f: \mathcal{X} \to \mathbb{R}$.
-In the context of the previous examples, $\mathcal{X}$ represents ... and $f$ is ....
-The assumption the $f$ is continuous is justified because small in changes in $\mathbf{x}$ usually result in small changes in $f(\mathbf{x})$.
+More formally, we are considering a space $\mathcal{X}$ (most often a compact subset of $\mathbb{R}^{K}$) and an unknown continuous function $f: \mathcal{X} \to \mathbb{R}$.
+The only structure we require of $f$ is that it be continuous so that we can learn about $f$'s global behavior by evaluating it at a finite number of points.
 Our goal is to estimate
-\begin{equation*}
-    \argmax_{x \in \mathcal{X}} f(\mathbf{x})
-\end{equation*}
-in as few samples as possible because obtaining such samples might be expensive. (Note that the maximum exists because $f$ is continuous and $\mathcal{X}$ is compact).
-
-Bayesian Optimization is an iterative probabilistic method for solving such problems.
-It has two parts: a surrogate model and an acquisition function.
-The surrogate model represents our beliefs about $f$ given our observations
-and the acquisition function tells us where to sample $f$ at every iteration given our surrogate model and observations.
-As we iterate, the hope is that we learn more and more about $f$ which will give us better estimates for its maximum.
-
-Bayesian Optimization is sample efficient because it allows us to incorporate our previous beliefs and observations about $f$ into our surrogate model.
-\textcolor{red}{Something about exploration vs exploitation.}
+\begin{equation}\label{eq:obj}
+    \argmax_{\mathbf{x} \in \mathcal{X}} f(\mathbf{x})
+\end{equation}
+in as few samples as possible 
+(Note that the maximum exists because $f$ is continuous and $\mathcal{X}$ is compact).
+In the context of baking, $\mathcal{X}$ is a set of recipes and $f$ gives the quality of a recipe after baking.
+Further, baking satisfies the continuity requirement because small changes in a recipe have small changes in the quality of the resulting cake.
 
 We will first review Gaussian distributions.
 Next, we will explore Gaussian Processes and how to deal with noisy and biased observations
 so that we can use them as a surrogate model.
-In section ... we will look at acquisitions functions.
-Having explore both components of Bayesian Optimization we will see how the algorithm performs in the real world example of finding the perfect mug cake.
+In section ... we will look at acquisition functions.
+Having explored both components of Bayesian Optimization we will see how the algorithm performs in the real-world example of finding the perfect mug cake.
 Finally, we will investigate how to perform inference on the biases using data from the experiment.

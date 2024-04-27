@@ -1,13 +1,9 @@
 \subsection{Kernels}
 
-Then central idea of Gaussian Processes is that if $\mathbf{x}$ and $\mathbf{x}'$ are similar, then $f(\mathbf{x})$ and $f(\mathbf{x}')$ should be similar.
-Kernels give us a way to quantify the similarity between two points by telling us the covariance between $f(\mathbf{x})$ and $f(\mathbf{x}')$.
-The more similar $\mathbf{x}$ and $\mathbf{x}'$, the higher $\kappa(\mathbf{x}, \mathbf{x}') = \Cov(f(\mathbf{x}), f(\mathbf{x}')$.
-(Note that this is different from the kernel of a functions, the kernel of a distribution, and the kernel of an operating system.)
-In this section we explore the Radial Basis Function (RBF) kernel and derive some theoretical results that solidify our analysis from the previous section.
-
-Strictly speaking, a kernel is just a function $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$, but it is also usually nonnegative and symmetric \cite{murphy2012}.
-For this paper, we will exclusive work with RBF kernels.
+The central idea of Bayesian Optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points.
+Gaussian Processes implement this idea with a kernel which gives the covariance of $f(\mathbf{x})$ and $f(\mathbf{x}')$
+as a function of $\mathbf{x}$ and $\mathbf{x}'$.
+In this section, we will study the Radial Basis Function and show some results that make it a good kernel.
 
 \begin{definition}[Radial Basis Function]
     A radial basis function $\kappa_{\rbf}: \mathbb{R}^{k} \times \mathbb{R}^{k} \to \mathbb{R}$
@@ -27,21 +23,33 @@ In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal v
 The parameter $\ell^2$ scales the domain by dividing $\lVert \mathbf{x} - \mathbf{x}' \rVert$.
 Large values of $\ell^2$ shrink the domain while small values of $\ell^2$ expand the domain.
 
-An important class of kernel are Mercer kernels.
+We see that RBF uses Euclidean distance as a measure of similarity.
+If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is large, then the correlation between $f(\mathbf{x})$ and $f(\mathbf{x}')$ small:
+\[
+    \frac{\Cov(f(\mathbf{x}, f(\mathbf{x}')}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}_0)])}}
+    = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 0.
+\]
+However, if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, then almost correlation is large:
+\begin{equation*}
+    \frac{\Cov(f(\mathbf{x}, f(\mathbf{x}')}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}_0)])}}
+    = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 1.
+\end{equation*}
+
+An important class of kernel is Mercer kernels.
 Such kernels allow us to implicitly map our data to a higher (potentially infinite) dimensional inner product space, and work in that potentially infinite dimensional space with a finite amount of computation.
-We will use this definition to show prove necessary and desirable properties of RBF kernels which will make them good kernels for Gaussian Processes.
+We will use this definition to prove necessary and desirable properties of RBF kernels which will make them suitable kernels for Gaussian Processes.
 
 \begin{definition}[Mercer Kernel]
     A kernel $\kappa: \mathbb{R}^{K} \times \mathbb{R}^{K} \to \mathbb{R}$
-    is said to be a Mercer Kernel if there exists an inner product space
+    a Mercer Kernel if there exists an inner product space
     $V$ and mapping $\gamma : \mathbb{R}^{K} \to V$ such that
     \begin{equation*}
         \kappa(\mathbf{x}, \mathbf{x}') = \langle \gamma(\mathbf{x}), \gamma(\mathbf{x}') \rangle.
     \end{equation*}
 \end{definition}
 
-It might be surprising that RBF kernels are Mercer kernels because that the canonical inner product, the dot product, has a sum in its formula, but the RBF kernel does not.
-The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $e^{x}$ to show that the RBF kernels is a Mercer kernel.
+It might be surprising that RBF kernels are Mercer kernels because there is no sum in its formula.
+The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $e^{x}$ to show that RBF kernels are Mercer kernel.
 
 \begin{definition}[$L^1$]
     The set $L^1$ is the set of sequences of $\mathbb{R}$ whose infinite sum converges absolutely.
@@ -142,7 +150,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
 
 \begin{theorem}
     \label{thm:rbf-mercer}
-    The RBF kernel is a Mercer kernel.
+    RBF kernels are a Mercer kernel.
 \end{theorem}
 \begin{proof}
     This proof is inspired by \cite{shashua2009}.
@@ -172,7 +180,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
     For a complete proof, see Section 4.3.3 of \cite{shashua2009}.
 \end{proof}
 
-Using the fact that the RBF kernel is a Mercer Kernel, we can show that it generates positive semi definite covariance matrices.
+Using the fact that RBF kernels are Mercer Kernels, we can show that it generates positive semi-definite covariance matrices.
 
 \begin{lemma}
     Mercer Kernels are positive semi-definite.
@@ -202,12 +210,12 @@ Using the fact that the RBF kernel is a Mercer Kernel, we can show that it gener
 
 \begin{corollary}
     \label{corr:rbf-psd}
-    The RBF kernel is positive semi-definite.
+    RBF kernels are positive semi-definite.
 \end{corollary}
 
 In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_n$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
-Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_n))$ will be nondegenerate which allows that allows $f(\mathbf{x}_i)$ to take on any value for all $i$.
-This property is important because we want to model continuous function and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_n$ and $y_1, \dots, y_n$ there exists continuous functions that maps $\mathbf{x}_1, \dots, \mathbf{x}_n$ to $y_1, \dots, y_n$ respectively.
+Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_n))$ will be nondegenerate which allows $f(\mathbf{x}_i)$ to take on any value for all $i$.
+This property is important because we want to model continuous functions, and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_n$ and $y_1, \dots, y_n$ there exist continuous functions that map $\mathbf{x}_1, \dots, \mathbf{x}_n$ to $y_1, \dots, y_n$ respectively.
 
 \begin{lemma}
     \label{lem:rbf-pd}

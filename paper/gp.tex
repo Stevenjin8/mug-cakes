@@ -1,15 +1,15 @@
 \subsection{Gaussian Processes}
 
-Gaussian Processes are an extension of Gaussian distributions to random continuous functions $f: \mathcal{X} \to \mathbb{R}$.
+Gaussian Processes extend Gaussian distributions to random continuous functions $f: \mathcal{X} \to \mathbb{R}$.
 That is, for each element $\mathbf{x} \in \mathcal{X}$, we have a random variable $f(\mathbf{x})$.
-If $\mathcal{X}$ is infinitely, working with Gaussian Processes seems overwhelming because we might try to create a joint distribution over all our random variables.
+Working with Gaussian Processes seems overwhelming if we try to create a joint distribution over all our infinitely many random variables.
 The key to making this problem tractable is to $f$ at a finite number of points.
 
 \begin{definition}[Gaussian Process]\label{def:gp}
     A Gaussian Process on $\mathcal{X}$ is a random function $f$ parameterized by a mean function
     $m: \mathcal{X} \to \mathbb{R}$ and covariance/kernel function $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
     such that
-    for any ($\mathbf{x}_1, \dots,\mathbf{x}_N) \subset \mathcal{X}$,
+    for any $\mathbf{x}_1, \dots,\mathbf{x}_N \in \mathcal{X}$,
     \begin{equation*}
         \mathbf{f} \sim \mathcal{N}_N\left(\mathbf{m}, \mathbf{K}\right)
     \end{equation*}
@@ -23,22 +23,54 @@ The key to making this problem tractable is to $f$ at a finite number of points.
 \end{definition}
 
 We see that there is a one-to-one correspondence between the parameters of a Multivariate Gaussian $\mathcal{N}_{K}(\bsy{\mu}, \bsy{\Sigma})$ and that of a Gaussian Process $\mathcal{GP}_{ \mathcal{X}}(m, \kappa)$.
-The set $\mathcal{X}$ correspondes to $K$ as they both represent the amount of random variables.
+The set $\mathcal{X}$ corresponds to $K$ as they both represent the amount of random variables.
 The function $m$ corresponds with $\bsy{\mu}$ in that they both give us the means of our random variables.
 The kernel $\kappa$ corresponds with $\bsy{\Sigma}$ as they both tell us the covariance between random variables.
-They two distribution are also similar in that they have the property that marginals of a finite number of random variables is a Gaussian Distribution.
-The key difference is that with Gaussians Distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution while Gaussian Processes are \emph{defined} by this property.
+The two distributions are also similar in that they have the property that the marginals of a finite number of random variables is a Gaussian distribution.
+The key difference is that with Gaussians distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution while Gaussian Processes are \emph{defined} by this property.
+
+Figure~\ref{fig:gp-sample} shows some samples from a Gaussian Process with 1 and 2-dimensional domains with a constant mean function $m = 0$ and continuous $\kappa$.
+It is no coincidence that all these samples are also continuous because for any $\mathbf{x}_0 \in \mathcal{X}$
+\begin{align*}
+    \lim_{\mathbf{x} \to \mathbf{x}_0 }\mathbb{E}[f(\mathbf{x}) - f(\mathbf{x}_0)] = 0 \\
+    \lim_{\mathbf{x} \to \mathbf{x}_0 }\Var[f(\mathbf{x}) - f(\mathbf{x}_0)] =
+    \lim_{\mathbf{x} \to \mathbf{x}_0} \kappa(\mathbf{x}, \mathbf{x}) + \kappa(\mathbf{x}_0, \mathbf{x}_0) - 2\kappa(\mathbf{x}, \mathbf{x}_0)
+    = 0
+\end{align*}
+meaning that $f$ is continuous at any given point almost surely which is consistent with our assumptions about $f$ for Bayesian Optimization.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig/gp-sample2d.png}
+        \caption{}
+        \label{subfig:2d-gp-sample}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{fig/gp-sample3d.png}
+        \caption{}
+        \label{subfig:3d-gp-sample}
+    \end{subfigure}
+    \hfill
+    \caption{Samples of a Gaussian Process using an RBF kernel with parameters $\ell^{2} = 0.1^2$ and $\sigma^{2}_f = 1 ^ 2$ with
+    $\mathcal{X} = [0, 1]$ (a) and $\mathcal{X} = [0, 1]^2$ (b).
+    }
+    \label{fig:gp-sample}
+\end{figure}
 
 \subsubsection{Consistency of Gaussian Processes}
 
 In Definition~\ref{def:gp}, we asserted that finite marginals of a Gaussian Process are Gaussian, but we still need to verify that these marginals are consistent with each other.
-For example, given random variables $X, Y, Z$, it make no sense to say that the marginals are
+For example, given random variables $X, Y, Z$, it makes no sense to say that the marginals are
 \begin{align*}
     (X, Y) = (0, 0) \text{ with probability 1} \\
     (Y, Z) = (1, 1) \text{ with probability 1}
 \end{align*}
 because then $Y$ must equal both 0 and 1 with probability 1.
-For the marginals from Definition~\ref{def:gp} to be consistent, we must prove the existence of a probability space and corresponding random variables that generates such marginals.
+For the marginals in Definition~\ref{def:gp} to be consistent, we must prove the existence of a probability space and corresponding random variables that generate such marginals.
 The Kolmogorov Extension Theorem does just this.
 
 \begin{theorem}[Kolmogorov Extension Theorem]\label{thm:kol-ext}
@@ -46,11 +78,10 @@ The Kolmogorov Extension Theorem does just this.
     \begin{equation*}
         \{ \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N} : \mathcal{B}_{N} \to \mathbb{R} \;|\; N \in \mathbb{N} \text{ and } (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}\}.
     \end{equation*}
-    such that for all $N \in \mathbb{N}, (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}$,
+    such that for all $N \in \mathbb{Z}^{+}, \mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$,
     the following conditions hold:
     \begin{enumerate}
         \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}( \varnothing) = 0$,
-
         \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(\mathbb{R}^{N}) = 1$,
         \item for every disjoint sequence of sets $(E_1, E_2, \dots) \subseteq \mathcal{B}_N$,
             \begin{equation*}
@@ -60,7 +91,7 @@ The Kolmogorov Extension Theorem does just this.
     \end{enumerate}
     In other words, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure on $\mathbb{R}^{N}$.
 
-    There exists a probability space and random variables $\{ f(\mathbf{x}) | \mathbf{x} \in \mathcal{X} \}$ 
+    Then, there exists a probability space and random variables $\{ f(\mathbf{x}) | \mathbf{x} \in \mathcal{X} \}$ 
     on the probability space such that
     \begin{equation*}
         P((f(\mathbf{x}_1), \dots, f(\mathbf{x}_N)) \in E) = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
@@ -85,30 +116,29 @@ The Kolmogorov Extension Theorem does just this.
     See Chapter 3 Section 4 of \cite{kolmogorov1933}.
 \end{proof}
 
+Note that the requirement that we work with Borel sets only has theoretical implications since 
+``any subset of R that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}.
+
 \begin{theorem}
     \label{thm:gp-const}
     Gaussian Processes are consistent.
 \end{theorem}
 \begin{proof}
-    Let $\mathcal{N}( \cdot | \mathbf{m}, \mathbf{K})$
-    be the pdf of a Gaussian Distribution with mean $\mathbf{m}$ and covariance $\mathbf{K}$ as in Definition~\ref{def:gp}.
-    Then, we would like the marginals of our Gaussian Process to be
+    We would like the marginals of our Gaussian Process to be
     \begin{equation*}
         \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
-        = \int_{E} \mathcal{N}( \mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y})
+        = \int_{E} \mathcal{N}( \mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y}
     \end{equation*}
-    where $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N))$,
-    $(\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$, and
-    $\lambda_N$ is the Lebesgue measure on $\mathbb{R}^{N}$ (Definition 5.40 of \cite{axler2020}).
+    where $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N))$, and $(\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$.
 
     First, we show that $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure.
     Since $\varnothing$ has measure 0,
     \begin{equation*}
-        \int_{\varnothing} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y}) = 0.
+        \int_{\varnothing} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} = 0.
     \end{equation*}
     Further, because $\mathcal{N}( \cdot | \mathbf{m}, \mathbf{K})$ is a valid density function,
     \begin{equation*}
-        \int_{\mathbb{R}^{N}} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y}) = 1.
+        \int_{\mathbb{R}^{N}} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} = 1.
     \end{equation*}
 
     Now, let $(E_1, E_2, \dots) \subseteq \mathcal{B}_{N}$ be a sequence of disjoint sets, $E = E_1 \cup E_2 \cup \dots$, and
@@ -141,8 +171,8 @@ The Kolmogorov Extension Theorem does just this.
     This bound allows us to apply the Monotone Convergence Theorem,
     \begin{align*}
         \sum_{i = 1}^{\infty} \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i)
-        & = \lim_{K \to \infty}\int_{\mathbb{R}^{N}} \chi_{E_1 \cup \dots \cup E_K}(\mathbf{y})\mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y}) \\
-        & = \int_{\mathbb{R}^{N}} \chi_{E}(\mathbf{y})\mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y}) \\
+        & = \lim_{K \to \infty}\int_{\mathbb{R}^{N}} \chi_{E_1 \cup \dots \cup E_K}(\mathbf{y})\mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
+        & = \int_{\mathbb{R}^{N}} \chi_{E}(\mathbf{y})\mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
         & = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E).
     \end{align*}
     Thus, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_n}$ is a probability measure.
@@ -152,176 +182,155 @@ The Kolmogorov Extension Theorem does just this.
     Then,
     \begin{equation*}
         \mu_{\mathbf{x}_{\pi(1)}, \dots, \mathbf{x}_{\pi(N)}}(E) =
-        \int_{E} \mathcal{N}(\mathbf{y} | \mathbf{Pm}, \mathbf{P} \mathbf{K} \mathbf{P}^{T}) \dd \lambda_N(\mathbf{y}).
+        \int_{E} \mathcal{N}(\mathbf{y} | \mathbf{Pm}, \mathbf{P} \mathbf{K} \mathbf{P}^{T}) \dd \mathbf{y}.
     \end{equation*}
     If $E_1, \dots, E_N$ are Borel, then using a change of variables $\mathbf{w} = \mathbf{Py}$
     \begin{align*}
         & \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_1 \times \dots \times E_N) \\
-        & = \int_{E_1 \times \dots \times E_N} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \lambda_N(\mathbf{y}) \\
+        & = \int_{E_1 \times \dots \times E_N} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
         & = \int_{E_1 \times \dots \times E_N}
         \frac{ 1 }{ (2 \pi)^{N/2} \lvert \mathbf{K} \rvert^{1/2} }
         \exp \{ (\mathbf{y} - \mathbf{m})^{T} \mathbf{K}^{-1} (\mathbf{y} - \mathbf{m}) \}
-        \lambda_N(\mathbf{y}) \\
+        \dd \mathbf{y} \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
         \frac{ 1 }{ (2 \pi)^{N/2} \lvert \mathbf{PKP^T} \rvert^{1/2} }
         \exp \{ (\mathbf{P^Tw} - \mathbf{m})^{T} \mathbf{K}^{-1} (\mathbf{P}^{T}\mathbf{y} - \mathbf{m}) \}
-        \lvert \mathbf{P}^{T} \rvert \lambda_N(\mathbf{w}) \\
+        \lvert \mathbf{P}^{T} \rvert \dd \lambda_N(\mathbf{w}) \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
         \frac{ 1 }{ (2 \pi)^{N/2} \lvert \mathbf{PKP}^T \rvert^{1/2} }
-        \exp \{ (\mathbf{y} - \mathbf{Pm})^{T} (\mathbf{P}\mathbf{K} \mathbf{P})^{-1} (\mathbf{y} - \mathbf{P}\mathbf{m}) \} \lambda_N(\mathbf{w}) \\
+        \exp \{ (\mathbf{y} - \mathbf{Pm})^{T} (\mathbf{P}\mathbf{K} \mathbf{P})^{-1} (\mathbf{y} - \mathbf{P}\mathbf{m}) \} \dd \lambda_N(\mathbf{w}) \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
         \mathcal{N}(\mathbf{w} | \mathbf{Pm}, \mathbf{P} \mathbf{K} \mathbf{P}^{T}) \dd \lambda(\mathbf{w}) \\
         &= \mu_{\mathbf{x}_{\pi(1)}, \dots, \mathbf{x}_{\pi(N)}}(E).
     \end{align*}
     Note that $\mathbf{P}^{T} = \mathbf{P}^{-1}$ and $\lvert \mathbf{P} \rvert = 1$.
 
-    The second consistency condition follows directly from (a) of \ref{thm:ogag}.
-    Since both conditions are met, Gaussian Processes are consistent.
+    The second consistency condition follows directly from (a) of Equation \ref{thm:ogag}.
+    Since both conditions are met, Gaussian Processes follow the normal rules of probability and are therefore consistent.
 \end{proof}
 
-\begin{figure}
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig/gp-sample2d.png}
-        \caption{}
-        \label{subfig:2d-gp-sample}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{fig/gp-sample3d.png}
-        \caption{}
-        \label{subfig:3d-gp-sample}
-    \end{subfigure}
-    \hfill
-    \caption{Samples of a Gaussian Process using a RBF kernel with parameters $\ell^{2} = 0.1^2$ and $\sigma^{2}_f = 1 ^ 2$ with
-    $\mathcal{X} = [0, 1]$ (a) and $\mathcal{X} = [0, 1]^2$ (b).
-    }
-    \label{fig:gp-sample}
-\end{figure}
 
-\subsubsection{Continuity of Gaussian Processes}
 
-Figure \ref{fig:gp-sample} demonstrates samples from Gaussian Processes where $\mathcal{X}$ is 1 or 2-dimensional.
-In both cases we use a kernel such based on Euclidean distance and see that $f(\mathbf{x})$ and $f(\mathbf{x}')$ are close when $\mathbf{x}$ and $\mathbf{x}'$ are close.
-In other words, samples of $f$ are continuous.
-But because $f$ is a collection of random variables, we first need to formalize what it means for distribution to converge.
-
-\begin{definition}[Converges in Distribution]\label{def:cvg-dst}
-    A sequence of random variables $(X_n)$ is said to converge in distribution to $X$
-    if for any bounded continuous function $h$,
-    \begin{equation*}
-        \lim_{n\to \infty} \mathbb{E}[h(X_n)] = \mathbb{E}[h(X)].
-    \end{equation*}
-\end{definition}
-
-With this definition in place, we can show that as $\mathbf{x}_n$ approaches $\mathbf{x}$, $f(\mathbf{x}) - f(\mathbf{x}')$ will approach 0 in distribution.
-\begin{theorem}
-    Let $f \sim \mathcal{GP}(m, \kappa)$.
-    If $m$ and $\kappa$ are continuous, then for any convergent sequence $(\mathbf{x}_n) \to \mathbf{x}$, $(f(\mathbf{x}_n) - f(\mathbf{x}))$ converges to a distribution to a degenerate distribution at 0.
-\end{theorem}
-\begin{proof}
-    Suppose that $(\mathbf{x}_n) \to \mathbf{x}$, and that $m, \kappa$ are continuous functions.
-    Let the mean and variance $f(\mathbf{x}_n) - f(\mathbf{x})$ be
-    \begin{align*}
-        \mu_n & = m(\mathbf{x}_n) - m(\mathbf{x}), \\
-        \sigma_n^2 & = \kappa(\mathbf{x}, \mathbf{x}) + \kappa(\mathbf{x}_n, \mathbf{x}_n) - 2\kappa(\mathbf{x}, \mathbf{x}_n).
-    \end{align*}
-    It follows that $f(\mathbf{x}_n) -f(\mathbf{x}) \sim \mathcal{N}(\mu_n, \sigma^2_n)$.
-    Also, let $Y$ be a random variable that always equals 0.
-    We need to show that
-    \begin{equation*}
-        \lim_{n \to \infty}\mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma^2)}[h(X)] = \mathbb{E}[h(Y)] = h(0)
-    \end{equation*}
-    which is equivalent to showing that
-    \begin{equation*}
-        \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert = 0.
-    \end{equation*}
-    First, we reparametrizations the left hand side to make it easier to work with.
-    Let $U \sim \mathcal{N}(0, 1)$.
-    Then,
-    \begin{align*}
-        & \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert \\
-        & =
-        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(0)] \rvert \\
-        & \leq
-        \lim_{n \to \infty}
-        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-        +
-        \lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert.
-    \end{align*}
-
-    First, we consider the term
-    \begin{align*}
-        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-        & \leq
-        \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u.
-    \end{align*}
-    Because $h$ and $\varphi$ are continuous, we know that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert$ converges to the 0 function pointwise as a function $u$.
-    Further, because $h$ and $\varphi$ are bounded, there exists an $M'$ such that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \phi(u) < M$ for all $u$ and $n$.
-    Thus, by the Monotone Convergence Theorem (Theorem 3.11 of \cite{axler2020}),
-    \begin{align*}
-        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
-        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
-        & =  \int_{\mathbb{R}} 0 \dd u
-         = 0.
-    \end{align*}
-
-    Now, let $\epsilon > 0$, and $\Phi$ be the cdf of $U$.
-    Because $h$ is continuous, there exists a $\delta > 0$ such that
-    $ \lvert v - 0 \rvert < \delta $ implies $\lvert h(v) - h(0)\rvert \leq \epsilon / 2$.
-    It follows that
-    \begin{align*}
-        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
-        & \leq
-        \int_{\mathbb{R}} \lvert h(\sigma_n u) - h(0) \varphi(u) \lvert \dd u \\
-        %&= \int_{(-\delta / \sigma_n, \delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
-        %+ \int_{(-\infty, -\delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
-        %+ \int_{(\delta / \sigma_n, \infty)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u \\
-        & \leq
-        \int_{-\delta / \sigma_n}^{\delta / \sigma_n} \lvert h(\sigma_n u) - h(0) \rvert \varphi(u) \dd u
-        + \int_{-\infty}^{-\delta / \sigma_n}
-        M \varphi(u) \dd u +
-        \int_{\delta / \sigma_n}^{\infty}
-        M \varphi(u) \dd u \\
-        & \leq \int_{-\delta / \sigma_n}^{\delta / \sigma_n}
-         \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
-        & \leq \int_{\mathbb{R}}  \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
-        & \leq \frac\epsilon2 + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right).
-    \end{align*}
-    Becuase $\Phi$ is continuous, and $\lim_{u \to -\infty}\Phi(u) = 0$, there exists an $N$ such that for all $n > N$, $\Phi(\delta/\sigma_n) < \epsilon / (4M)$.
-    Thus for $n > N$,
-    \begin{align*}
-        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
-        & \leq \frac\epsilon2
-        + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right)
-        \leq \epsilon
-    \end{align*}
-    meaning that $\lim_{n \to \infty} \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert = 0.$
-    Since both $(\lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert)$ and $(\lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert$ approach 0 as $n$ approaches $\infty$,
-    \begin{equation*}
-        \lim_{n \to \infty}  \mathbb{E}[h(f(\mathbf{x}_n) - f(\mathbf{x})) - h(0)]  = 0
-    \end{equation*}
-    and
-    \begin{equation*}
-        \lim_{n \to \infty}  \mathbb{E}[h(\sigma_n U)]  = h(0) = \mathbb{E}[h(Y)].
-    \end{equation*}
-    That is, $f(\mathbf{x}_n) - f(\mathbf{x})$ converges to a degenerate distribution at 0.
-\end{proof}
-
-\textcolor{red}{Talk about how this is different than saying that samples all continuous everywhere.}
+%\subsubsection{Continuity of Gaussian Processes}
+%
+%Figure \ref{fig:gp-sample} demonstrates samples from Gaussian Processes where $\mathcal{X}$ is $[0, 1]$ or $[0, 1]^2$
+%In both cases we use a kernel such based on Euclidean distance so that if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, $f(\mathbf{x})$ and $f(\mathbf{x}')$ are correlated.
+%and see that $f(\mathbf{x})$ and $f(\mathbf{x}')$ are close when $\mathbf{x}$ and $\mathbf{x}'$ are close.
+%In other words, samples of $f$ are continuous.
+%But because $f$ is a collection of random variables, we first need to formalize what it means for distribution to converge.
+%
+%\begin{definition}[Converges in distribution]\label{def:cvg-dst}
+%    A sequence of random variables $(X_n)$ is said to converge in distribution to $X$
+%    if for any bounded continuous function $h$,
+%    \begin{equation*}
+%        \lim_{n\to \infty} \mathbb{E}[h(X_n)] = \mathbb{E}[h(X)].
+%    \end{equation*}
+%\end{definition}
+%
+%With this definition in place, we can show that as $\mathbf{x}_n$ approaches $\mathbf{x}$, $f(\mathbf{x}) - f(\mathbf{x}')$ will approach 0 in distribution.
+%\begin{theorem}
+%    Let $f \sim \mathcal{GP}(m, \kappa)$.
+%    If $m$ and $\kappa$ are continuous, then for any convergent sequence $(\mathbf{x}_n) \to \mathbf{x}$, $(f(\mathbf{x}_n) - f(\mathbf{x}))$ converges to a distribution to a degenerate distribution at 0.
+%\end{theorem}
+%\begin{proof}
+%    Suppose that $(\mathbf{x}_n) \to \mathbf{x}$, and that $m, \kappa$ are continuous functions.
+%    Let the mean and variance $f(\mathbf{x}_n) - f(\mathbf{x})$ be
+%    \begin{align*}
+%        \mu_n & = m(\mathbf{x}_n) - m(\mathbf{x}), \\
+%        \sigma_n^2 & = \kappa(\mathbf{x}, \mathbf{x}) + \kappa(\mathbf{x}_n, \mathbf{x}_n) - 2\kappa(\mathbf{x}, \mathbf{x}_n).
+%    \end{align*}
+%    It follows that $f(\mathbf{x}_n) -f(\mathbf{x}) \sim \mathcal{N}(\mu_n, \sigma^2_n)$.
+%    Also, let $Y$ be a random variable that always equals 0.
+%    We need to show that
+%    \begin{equation*}
+%        \lim_{n \to \infty}\mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma^2)}[h(X)] = \mathbb{E}[h(Y)] = h(0)
+%    \end{equation*}
+%    which is equivalent to showing that
+%    \begin{equation*}
+%        \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert = 0.
+%    \end{equation*}
+%    First, we reparametrizations the left hand side to make it easier to work with.
+%    Let $U \sim \mathcal{N}(0, 1)$.
+%    Then,
+%    \begin{align*}
+%        & \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert \\
+%        & =
+%        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(0)] \rvert \\
+%        & \leq
+%        \lim_{n \to \infty}
+%        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
+%        +
+%        \lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert.
+%    \end{align*}
+%
+%    First, we consider the term
+%    \begin{align*}
+%        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
+%        & \leq
+%        \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u.
+%    \end{align*}
+%    Because $h$ and $\varphi$ are continuous, we know that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert$ converges to the 0 function pointwise as a function $u$.
+%    Further, because $h$ and $\varphi$ are bounded, there exists an $M'$ such that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \phi(u) < M$ for all $u$ and $n$.
+%    Thus, by the Monotone Convergence Theorem (Theorem 3.11 of \cite{axler2020}),
+%    \begin{align*}
+%        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
+%        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
+%        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
+%        & =  \int_{\mathbb{R}} 0 \dd u
+%         = 0.
+%    \end{align*}
+%
+%    Now, let $\epsilon > 0$, and $\Phi$ be the cdf of $U$.
+%    Because $h$ is continuous, there exists a $\delta > 0$ such that
+%    $ \lvert v - 0 \rvert < \delta $ implies $\lvert h(v) - h(0)\rvert \leq \epsilon / 2$.
+%    It follows that
+%    \begin{align*}
+%        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
+%        & \leq
+%        \int_{\mathbb{R}} \lvert h(\sigma_n u) - h(0) \varphi(u) \lvert \dd u \\
+%        %&= \int_{(-\delta / \sigma_n, \delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
+%        %+ \int_{(-\infty, -\delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
+%        %+ \int_{(\delta / \sigma_n, \infty)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u \\
+%        & \leq
+%        \int_{-\delta / \sigma_n}^{\delta / \sigma_n} \lvert h(\sigma_n u) - h(0) \rvert \varphi(u) \dd u
+%        + \int_{-\infty}^{-\delta / \sigma_n}
+%        M \varphi(u) \dd u +
+%        \int_{\delta / \sigma_n}^{\infty}
+%        M \varphi(u) \dd u \\
+%        & \leq \int_{-\delta / \sigma_n}^{\delta / \sigma_n}
+%         \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
+%        & \leq \int_{\mathbb{R}}  \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
+%        & \leq \frac\epsilon2 + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right).
+%    \end{align*}
+%    Becuase $\Phi$ is continuous, and $\lim_{u \to -\infty}\Phi(u) = 0$, there exists an $N$ such that for all $n > N$, $\Phi(\delta/\sigma_n) < \epsilon / (4M)$.
+%    Thus for $n > N$,
+%    \begin{align*}
+%        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
+%        & \leq \frac\epsilon2
+%        + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right)
+%        \leq \epsilon
+%    \end{align*}
+%    meaning that $\lim_{n \to \infty} \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert = 0.$
+%    Since both $(\lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert)$ and $(\lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert$ approach 0 as $n$ approaches $\infty$,
+%    \begin{equation*}
+%        \lim_{n \to \infty}  \mathbb{E}[h(f(\mathbf{x}_n) - f(\mathbf{x})) - h(0)]  = 0
+%    \end{equation*}
+%    and
+%    \begin{equation*}
+%        \lim_{n \to \infty}  \mathbb{E}[h(\sigma_n U)]  = h(0) = \mathbb{E}[h(Y)].
+%    \end{equation*}
+%    That is, $f(\mathbf{x}_n) - f(\mathbf{x})$ converges to a degenerate distribution at 0.
+%\end{proof}
+%
+%\textcolor{red}{Talk about how this is different than saying that samples all continuous everywhere.}
 
 \subsubsection{Posterior Inference}\label{sssec:post-inf}
 
-\textcolor{red}{Maybe more interpretation of Gaussian, like how our similar $\mathbf{x}$ take on similar $f$, and the more we sample around a point, the more confident we are}
-We now turn our attention to posterior inference.
+Now that we know that Gaussian Processes follow the laws of probability, we turn our attention to posterior inference.
 That is, we want to quantify our belief of $f \sim \mathcal{GP}(m, \kappa)$ given some observations
 \begin{equation*}
     \mathbf{f} = (f(\mathbf{x}_1), \dots, f(\mathbf{x}_N)) = \mathbf{y} = (y_1, \dots, y_N).
 \end{equation*}
-
 Then, for some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$, the joint distribution of $\mathbf{f}$ and $\mathbf{f}_* = (f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_*}))$ is
 \begin{equation*}
     \begin{bmatrix}
@@ -361,15 +370,10 @@ and variance
     \label{eq:noiseless-post-var}
     \mathbf{K}_{* *} - \mathbf{K_*}^{T} \mathbf{K}^{-1} \mathbf{K_*}.
 \end{equation}
-(when $\mathbf{K}$ is nonsingular/strictly positive definite).
+(when $\mathbf{K}$ is strictly positive definite).
 
-One issue with applying Equations~\ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var} is that we assume noiseless and unbiased observations of $f$.
-This is solemn the case with empirical observation.
-
-\textcolor{red}{emphasize what is special about working with bias and how most papers ignore it and when it might be useful }.
-
-As we can see in Figure~\ref{subfig:noiseless-post}, not accounting for these factors can cause our model to overfit and give us extreme results.
-
+One issue with applying Equations~\ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var} is that we assume exact observations of $f$, when we only have access to noisy and biased observation.
+As we can see in Figure~\ref{subfig:noiseless-post}, ignoring for these factors can cause our model to overfit and give us extreme results.
 To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_b$ observers numbered 1 through $N_b$, and $z_i$ indicates the observer for the $i$th sample.
 Then, we can model the $i$th observation as a sum of the underlying function, the observer bias, and some noise
 \begin{equation*}
@@ -416,7 +420,7 @@ The covariance between $f(\mathbf{v}_i)$ and $f(\mathbf{v}_j)$ is
 \begin{equation*}
     (\mathbf{K}_{* *})_{ij} = \kappa(\mathbf{v}_i, \mathbf{v}_j).
 \end{equation*}
-Finally, the prior mean of $\mathbf{f}_*$ is
+Finally, let the prior mean of $\mathbf{f}_*$ is
 \begin{equation*}
     \mathbf{m}_* = (m(\mathbf{v}_1), \dots, m(\mathbf{v}_{N_*})).
 \end{equation*}
@@ -491,7 +495,7 @@ Figure~\ref{fig:gp-posteriors} shows the effect of incorporating noisy and biase
 Without considering noise and bias, we see our model overfits with extreme curves as in Figure~\ref{subfig:noiseless-post}.
 Incorporating noise gives us less us a smoother posterior(Figure~\ref{subfig:noisy-posterior}),
 but our posterior credible intervals still do not correspond with the true values of $f$ as the true values do not fall in the posterior credible interval.
-Finally, we see that incorporating noise and bias (Figure~\ref{subfig:biased-posterior}) gives as a posterior that
+Finally, we see that incorporating noise and bias (Figure~\ref{subfig:biased-posterior}) gives a posterior that
 contains the true values of $f$.
 
 
@@ -521,8 +525,8 @@ contains the true values of $f$.
     \caption{Posteriors of a Gaussian Process given some noisy biased data.
     RBF kernel parameters are $\ell^{2}  = \sigma^2_{\epsilon} = 0.1^2, \sigma^2_{f} = 0.3 ^ 2, \sigma^2_b = 1^2$.
     Blue circles have a bias of -1 while orange points have a bias of +1.
-    Black crosses are true values of $f$.
-    The dotted black line is posterior mean and shaded area is 95\% posterior credible interval.
+    Black crosses are the true values of $f$.
+    The dotted black line is posterior the mean and the shaded area is the 95\% posterior credible interval.
     }
     \label{fig:gp-posteriors}
 \end{figure}

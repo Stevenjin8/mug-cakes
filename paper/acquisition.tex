@@ -1,11 +1,6 @@
 \subsection{Acquisition Functions}
-As we see in Algorithm~\ref{alg:bo}, acquisition functions dictate which point we sample in each iteration.
-As such, acquisition functions balance two competing interests in Bayesian Optimization: exploration and exploitation.
-Exploration is searching far and wide in $\mathcal{X}$ as to understand $f$'s global behavior.
-Exploitation is exploring local regions where we know $f$ is high to get more exact estimates of $f$'s peaks.
-Too much exploration causes us to waste time by sampling regions of $\mathcal{X}$ with little potential.
-Too much exploitation causes us to waste time by sampling regions of $\mathcal{X}$ that we already understand, thereby giving us little additional knowledge of $f$.
 
+With a probabilistic surrogate model of $f$, we discuss acquisition functions, the second component of Bayesian Optimization.
 Unlike Gaussian Processes, acquisition functions are usually based on heuristics.
 Common acquisition functions such as Expected Improvement and Probability of Improvement take a greedy approach, while information-based approaches that do look into the future are often intractable \cite{shahriari2016}.
 For this paper, we will use a modified version of Expected Improvement.
@@ -15,48 +10,48 @@ For this paper, we will use a modified version of Expected Improvement.
 %\begin{equation*}
 %    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \}} \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
 %\end{equation*}
-Under EI, the utility of observing $f(\mathbf{x})$ is what we expect the maximum $y$-value,
-across all samples to be after this iteration.
+Under EI, the utility of observing $f(\mathbf{x})$ is what we expect the maximum sampled $y$-value to be after this iteration.
 \begin{equation}
     \label{eq:ei}
-    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_n\}]
-    = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\}]
+    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_n\} | \mathcal{D}_N]
+    = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\} |\mathcal{D}_N]
+    = y_* + \mathbb{E}[f(\mathbf{x}) - y_* | f(\mathbf{x}) > y_*, \mathcal{D}_N]p(f(\mathbf{x}) > y_* | \mathcal{D}_N)
 \end{equation}
 where $y_* = \max\{y_1, \dots, y_n\}$.
+EI encourage both exploitation and exploration because $f(\mathbf{x})$ will probably be greater than $y_*$
+only if we are very uncertain about $f(\mathbf{x})$ or we think $f(\mathbf{x})$ is near $y_*$.
 
-\textcolor{red}{how does this relate to exploration vs exploitation?}
-
-However, the usage of $y_*$ in Equation~\ref{eq:ei} makes less sense if we have noisy observations because $y_*$'s extremity could due to noise.
+That being said, the usage of $y_*$ in Equation~\ref{eq:ei} makes less sense if we have noisy observations because $y_*$'s extremity could be due to noise.
 It makes less sense if we consider biased observations because $y_*$ is even less representative of the underlying function and we are not using our knowledge about each observer's bias.
-The following definition addresses this issues by replacing $y_*$ with $f(x_*)$.
+The following definition addresses this issue by replacing $y_*$ with $f(x_*)$.
 
 \begin{definition}[vEI]
     \begin{equation}
         \label{eq:vei}
-        a_{\vei}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_n]
+        a_{\vei}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max \{ f(\mathbf{x}), f(\mathbf{x}_*) \} | \mathcal{D}_N]
         = \mathbb{E}[f(\mathbf{x}_*) | \mathcal{D}_N] + \mathbb{E}[\max \{ f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_N]
     \end{equation}
-    where $\mathbf{x}_* = \argmax_{\mathbf{x'} \in (\mathbf{x}_1, \dots, \mathbf{x}_N)} \mathbb{E}[\mathbf{x'} | \mathcal{D}_N]$.
+    where $\mathbf{x}_* = \argmax_{\mathbf{x'} \in (\mathbf{x}_1, \dots, \mathbf{x}_N)} \mathbb{E}[f(\mathbf{x'}) | \mathcal{D}_N]$.
 \end{definition}
 
 The big difference between vEI and EI is that while $y_*$ in Equation~\ref{eq:ei} is a constant, $f(\mathbf{x}_*)$ in Equation~\ref{eq:vei} is a random variable.
 Thus, we need to take into account the dependence between $f(\mathbf{x})$ and $f(\mathbf{x}_*)$.
 In practice this dependence encourages exploration because $f(\mathbf{x}) - f(\mathbf{x}_*)$ will be small when $\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei}.
-Even though our posterior maximum is at around 0.8, vEI is maximized at around 0.25 because 0.25 is further away from $\mathbf{x}_* = 0.75$ than 0.8.
+Even though our posterior mean is maximized at 0.8, vEI is maximized at 0.25 because 0.25 is further away from $\mathbf{x}_* = 0.75$ than 0.8.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.5\textwidth]{fig/ei.png}
     \caption{vEI given some data some unbiased but noisy observations.
-        Dotted vertical red line represent sampled $\mathbf{x}$-value with the highest posterior mean.
+        The dotted vertical red line represents sampled $\mathbf{x}$-value with the highest posterior mean.
     }
     \label{fig:ei}
 
 \end{figure}
 
-Because $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}$, we can find vEI and its gradient in closed form.
+Because $f(\mathbf{x})$ and $f(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}$, we can find vEI in closed form.
 Let $\varphi$ and $\Phi$ be the pdf and cdf of the standard univariate normal respectively. 
-Since 
+Because $f$ is a Gaussian Process,
 \begin{equation*}
     \begin{bmatrix}
         f(\mathbf{x}) \\
@@ -75,13 +70,14 @@ Since
         \end{bmatrix}
     \right),
 \end{equation*}
-we can write
+For some $\mu_1, \mu_2, \sigma_1, \sigma_2, \sigma_{12}, \sigma_{21} \in \mathbb{R}$.
+Then
 \begin{equation*}
     f(\mathbf{x}) - f\left(\mathbf{x}_*\right) \sim \mathcal{N}(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2\sigma_{12})
     = \mathcal{N}\left(\mu, \sigma^2\right)
 \end{equation*}
 by Theorem~\ref{thm:ogag}.
-Then,
+It follows that
 \begin{align*}
     a_{\vei}(\mathbf{x} | \mathcal{D}_N)
     & =  \mathbb{E}[f(\mathbf{x}_*) + \max \{  f(\mathbf{x}) - f(\mathbf{x}_*), 0 \} | \mathcal{D}_N] \\
@@ -94,6 +90,5 @@ Then,
 \end{align*}
 
 Because of the usage of $\Phi$, it is hard to maximize $a_{\vei}$ it analytically.
-At the same time, we can see in Figure~\ref{fig:ei}, $a_{\vei}$ has lots local maximum.
+At the same time, we can see in Figure~\ref{fig:ei}, $a_{\vei}$ has many local maxima.
 Thus, have to rely on methods such as Basin Hopping \cite{wales1997}.
-Although this requires using a gradient, we omit the derivation because its just a messy application of the chain rule.

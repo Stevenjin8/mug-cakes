@@ -1,38 +1,39 @@
-
-To show that the methods discussed so far work in the real world, we do a quick case study optimizing mug cakes involving human judges.
-Baking is an ideal candidate for Bayesian Optimization because trials take a long time since one has to measure, mix, and bake the ingredients.
-
-Gaussian Processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the recipe as they bake and how they are perceived.
-Despite these subtle interactions, we still expect that small in changes in recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Gaussian Processes.
-
-Additionally, we can incorporate our analysis of noisy and biased observations.
+To show that Bayesian Optimization with biased observers, Gaussian Processes, and the $a_{\vei}$ acquisition function works,
+we do a small case study optimizing mug cakes involving multiple human judges.
+As mentioned in the introduction
+baking is an ideal candidate for Bayesian Optimization because
+trials take a long time since one has to measure, mix, and bake the ingredients.
+Gaussian Processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the recipes as they bake and how they are perceived.
+Despite these subtle interactions, we still expect that small in changes in the recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Gaussian Processes.
+We can incorporate our analysis of biased observations by having multiple judges.
 Observations are noisy because the whole baking process, from measuring to baking to tasting, is noisy.
 Further, human judges have unique preferences and standards that can bias their results.
 
 \subsection{Recipe and Parameters}
 
-We use a recipe based on \cite{mugcake}, but we vanilla and salt, and have milk be the only wet ingredient.
-As such, our five ingredients are flour, sugar, cocoa, and milk.
+We use a recipe based on \cite{mugcake}, but we omit vanilla and salt, and have milk be the only wet ingredient.
+As such, our five ingredients are baking soda, flour, sugar, cocoa, and milk.
 
-Our tunable parameters are the volume proportion of flour $x_\ff$, sugar $x_\ss$, cocoa $x_\cc$, and milk $x_\mm$.
-We require these proportions to add be positive and sum to 1.
+Our tunable parameters are the volumetric proportion of flour $x_\ff$, sugar $x_\ss$, cocoa $x_\cc$, and milk $x_\mm$.
+In other words, we require these parameters to be positive and sum to 1.
 As such, our tunable parameters can be represented by a vector $\mathbf{x} = (x_\ff, x_\ss, x_\cc,x_\mm)$ in a 3-dimensional simplex.
-We fix the amount of baking soda to 1/3 teaspoons.
-Given parameters, our recipe consists of
+We fix the amount of baking soda to 1/4 teaspoons to reduce the number of parameters.
+Given some parameters, our recipe consists of
 \begin{itemize}
-    \item $24x_\ff$ teaspoons of all purpose flour
+    \item $24x_\ff$ teaspoons of all-purpose flour
     \item $24x_\ss$ teaspoons of sugar
     \item $24x_\cc$ teaspoons of cocoa powder
     \item $24x_\mm$ teaspoons milk
-    \item 1/4 teaspoons of baking soda
+    \item 1/4 teaspoon of baking soda
 \end{itemize}
 To bake the cakes,
 \begin{enumerate}
-    \item Mix dry ingredients in a \textcolor{red}{fixme} mug
+    \item Mix dry ingredients in a large ceramic mug.
     \item Add milk and mix until homogeneous
     \item Place mug on the edge of a 700 Watt microwave and microwave on high for 2 minutes and 15 seconds.
     \item Allow cake to cool for 1 minute.
 \end{enumerate}
+Figure~\ref{fig:cake} shows a sample cake
 
 \begin{figure}[h]
     \centering
@@ -44,9 +45,12 @@ To bake the cakes,
 \subsection{Setup}
 
 To perform Bayesian Optimization, we use a Gaussian Process surrogate model and $vEI$ as the acquisition function.
-For the Gaussian Process, our domain $\mathcal{X}$ was a 3-dimensional simplex, we used mean function was $m(\mathbf{x}) = 3$ for all $\mathbf{x}$, and we used a RBF kernel with parameters $\ell^2 = 0.08^2, \sigma^2_f = 1 ^ 2$.
-We incorporated noise and bias as outlined in Section \ref{sssec:post-inf} with a observation noise of $\sigma^2_{\epsilon} = 0.3 ^ 2$ and observer bias variance of $\sigma_b^2 = 0.2$ There were $N_b = 2$ observers.
-\textcolor{red}{justify $m$ and $\kappa$ and $\kappa$ params}
+For the Gaussian Process, our domain $\mathcal{X}$ was a 3-dimensional simplex.
+We used a mean function of $m(\mathbf{x}) = 3$ and $\sigma^2_f = 1 ^ 2$ because I thought that most recipes would not taste great, but still be manageable given that sugar, milk, and cocoa powder are pleasant on their own.
+We found $\ell^2 = 0.08^2$ to be a reasonable value with some simulations.
+To account for noisy and biased observations noise, we had an observation noise of $\sigma^2_{\epsilon} = 0.3 ^ 2$ and observer bias variance of $\sigma_b^2 = 0.2$.
+There were $N_b = 2$ observers.
+
 \subsection{Procedure}
 
 We follow Algorithm~\ref{alg:bo}.
@@ -59,12 +63,12 @@ We conducted 6 more trials with alternating observers.
 
 \subsection{Inner Optimization Loop}
 
-One practical issues came when executing the inner optimization loop (line 5 of Algorithm~\ref{alg:bo}).
-Scipy's Basin Hopping \cite{scipy, wales1997}, uses SciPy's implementation of L-BFGS-B under the hood by default.
+One practical issue came when executing the inner optimization loop (line 5 of Algorithm~\ref{alg:bo}).
+Scipy's Basin Hopping \cite{scipy, wales1997}, uses SciPy's implementation of L-BFGS-B by default.
 However, this implementation of L-BFGS-B only supports domains that are rectangles in the form
 \begin{equation*}[a_1, b_1] \times \ldots \times [a_N, b_N]
 \end{equation*}
-which does not match the form of our domain $\mathcal{X}$ which is a 3-dimensional simplex.
+which does not match our domain $\mathcal{X}$ which is a 3-dimensional simplex.
 As such, we use surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$:
 \begin{equation*}
     g(\mathbf{r}) =
@@ -76,7 +80,7 @@ As such, we use surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$:
     \end{bmatrix}
 \end{equation*}
 to reparametrize $\mathcal{X}$.
-Since $g$ has a domain of a rectangle, we can optimize $a_{\vei}(g(\cdot) | \mathcal{D}_n)$ using Scipy's implementation Basin Hopping.
+Since $g$ has a domain of a rectangle, we can optimize $a_{\vei}(g(\cdot) | \mathcal{D}_n)$ using Scipy's implementation of Basin Hopping.
 Thus, we can implement the inner optimization loop as
 \begin{equation*}
     \argmax_{\mathbf{x} \in \mathcal{X}} a_{\vei}(\mathbf{x} | \mathcal{D}_N)
@@ -89,13 +93,13 @@ Thus, we can implement the inner optimization loop as
 Figure~\ref{fig:exp-res} shows the result of our experiments.
 In Figure \ref{subfig:exp:progression} we see that our algorithm first explores the domain by sampling the corners 4 corners $\mathcal{X}$ and the center.
 Once it sees that $\mathbf{x}_5$ did better than the other samples, our algorithm exploits this knowledge by sampling around $\mathbf{x}_5$.
-It does not stop exploiting this knowledge because it gets generally increasingly results.
-Ultimate, the best recipe was $\mathbf{x}_7$.
+It does not stop exploiting this knowledge because it gets generally increasing results.
+Ultimately, the best recipe was $\mathbf{x}_7$.
 
 With only 10 trials and no prior knowledge, our algorithm was able to find an acceptable recipe validating our method.
 One taster described it as ``a bit bland but nothing that destroys your soul or taste buds''.
-Further, Figure~\ref{subfig:exp:bias-diff} shows that 0 was no in the 95\% credible interval of $b_1 - b_2$
-suggesting that our model for observer bias is effective and can help our optimization algorithms converge faster.
+Further, Figure~\ref{subfig:exp:bias-diff} shows that 0 was not in the 95\% credible interval of $b_1 - b_2$
+suggesting that our model for observer bias detected a difference and can help our optimization algorithms converge faster.
 
 \begin{figure}
     \centering
