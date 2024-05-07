@@ -3,7 +3,7 @@
 Gaussian Processes extend Gaussian distributions to random continuous functions $f: \mathcal{X} \to \mathbb{R}$.
 That is, for each element $\mathbf{x} \in \mathcal{X}$, we have a random variable $f(\mathbf{x})$.
 Working with Gaussian Processes seems overwhelming if we try to create a joint distribution over all our infinitely many random variables.
-The key to making this problem tractable is to $f$ at a finite number of points.
+The key to making this problem tractable is to consider $f$ at a finite number of points.
 
 \begin{definition}[Gaussian Process]\label{def:gp}
     A Gaussian Process on $\mathcal{X}$ is a random function $f$ parameterized by a mean function
@@ -15,7 +15,7 @@ The key to making this problem tractable is to $f$ at a finite number of points.
     \end{equation*}
     where
     \begin{equation*}
-        \mathbf{f} = (f(\mathbf{x}_1), \dots, f(\mathbf{x}_n)), \mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_n)), (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
+        \mathbf{f} = (f(\mathbf{x}_1), \dots, f(\mathbf{x}_N)), \mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N)), (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
     \end{equation*}
 
     For this equation to make sense, we require $\kappa$ to generate positive semi-definite $\mathbf{K}$.
@@ -175,7 +175,7 @@ Note that the requirement that we work with Borel sets only has theoretical impl
         & = \int_{\mathbb{R}^{N}} \chi_{E}(\mathbf{y})\mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
         & = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E).
     \end{align*}
-    Thus, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_n}$ is a probability measure.
+    Thus, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure.
 
     Now, we show that the consistency conditions from Theorem~\ref{thm:kol-ext} hold.
     Let $\pi$ be a permutation of $\{ 1, \dots, N \}$ and $\mathbf{P} \in \mathbb{R}^{N \times N}$ be the corresponding permutation matrix.
@@ -209,120 +209,6 @@ Note that the requirement that we work with Borel sets only has theoretical impl
     Since both conditions are met, Gaussian Processes follow the normal rules of probability and are therefore consistent.
 \end{proof}
 
-
-
-%\subsubsection{Continuity of Gaussian Processes}
-%
-%Figure \ref{fig:gp-sample} demonstrates samples from Gaussian Processes where $\mathcal{X}$ is $[0, 1]$ or $[0, 1]^2$
-%In both cases we use a kernel such based on Euclidean distance so that if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, $f(\mathbf{x})$ and $f(\mathbf{x}')$ are correlated.
-%and see that $f(\mathbf{x})$ and $f(\mathbf{x}')$ are close when $\mathbf{x}$ and $\mathbf{x}'$ are close.
-%In other words, samples of $f$ are continuous.
-%But because $f$ is a collection of random variables, we first need to formalize what it means for distribution to converge.
-%
-%\begin{definition}[Converges in distribution]\label{def:cvg-dst}
-%    A sequence of random variables $(X_n)$ is said to converge in distribution to $X$
-%    if for any bounded continuous function $h$,
-%    \begin{equation*}
-%        \lim_{n\to \infty} \mathbb{E}[h(X_n)] = \mathbb{E}[h(X)].
-%    \end{equation*}
-%\end{definition}
-%
-%With this definition in place, we can show that as $\mathbf{x}_n$ approaches $\mathbf{x}$, $f(\mathbf{x}) - f(\mathbf{x}')$ will approach 0 in distribution.
-%\begin{theorem}
-%    Let $f \sim \mathcal{GP}(m, \kappa)$.
-%    If $m$ and $\kappa$ are continuous, then for any convergent sequence $(\mathbf{x}_n) \to \mathbf{x}$, $(f(\mathbf{x}_n) - f(\mathbf{x}))$ converges to a distribution to a degenerate distribution at 0.
-%\end{theorem}
-%\begin{proof}
-%    Suppose that $(\mathbf{x}_n) \to \mathbf{x}$, and that $m, \kappa$ are continuous functions.
-%    Let the mean and variance $f(\mathbf{x}_n) - f(\mathbf{x})$ be
-%    \begin{align*}
-%        \mu_n & = m(\mathbf{x}_n) - m(\mathbf{x}), \\
-%        \sigma_n^2 & = \kappa(\mathbf{x}, \mathbf{x}) + \kappa(\mathbf{x}_n, \mathbf{x}_n) - 2\kappa(\mathbf{x}, \mathbf{x}_n).
-%    \end{align*}
-%    It follows that $f(\mathbf{x}_n) -f(\mathbf{x}) \sim \mathcal{N}(\mu_n, \sigma^2_n)$.
-%    Also, let $Y$ be a random variable that always equals 0.
-%    We need to show that
-%    \begin{equation*}
-%        \lim_{n \to \infty}\mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma^2)}[h(X)] = \mathbb{E}[h(Y)] = h(0)
-%    \end{equation*}
-%    which is equivalent to showing that
-%    \begin{equation*}
-%        \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert = 0.
-%    \end{equation*}
-%    First, we reparametrizations the left hand side to make it easier to work with.
-%    Let $U \sim \mathcal{N}(0, 1)$.
-%    Then,
-%    \begin{align*}
-%        & \lim_{n \to \infty} \lvert \mathbb{E}_{X \sim \mathcal{N}(\mu_n, \sigma_n^2)}[h(X) - h(0)] \rvert \\
-%        & =
-%        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(0)] \rvert \\
-%        & \leq
-%        \lim_{n \to \infty}
-%        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-%        +
-%        \lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert.
-%    \end{align*}
-%
-%    First, we consider the term
-%    \begin{align*}
-%        \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-%        & \leq
-%        \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u.
-%    \end{align*}
-%    Because $h$ and $\varphi$ are continuous, we know that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert$ converges to the 0 function pointwise as a function $u$.
-%    Further, because $h$ and $\varphi$ are bounded, there exists an $M'$ such that $\lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \phi(u) < M$ for all $u$ and $n$.
-%    Thus, by the Monotone Convergence Theorem (Theorem 3.11 of \cite{axler2020}),
-%    \begin{align*}
-%        \lim_{n \to \infty} \lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert
-%        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
-%        & = \lim_{n\to\infty} \int_{\mathbb{R}} \lvert h(\mu_n + \sigma_n u) - h(\sigma_n u) \rvert \varphi(u) \dd u \\
-%        & =  \int_{\mathbb{R}} 0 \dd u
-%         = 0.
-%    \end{align*}
-%
-%    Now, let $\epsilon > 0$, and $\Phi$ be the cdf of $U$.
-%    Because $h$ is continuous, there exists a $\delta > 0$ such that
-%    $ \lvert v - 0 \rvert < \delta $ implies $\lvert h(v) - h(0)\rvert \leq \epsilon / 2$.
-%    It follows that
-%    \begin{align*}
-%        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
-%        & \leq
-%        \int_{\mathbb{R}} \lvert h(\sigma_n u) - h(0) \varphi(u) \lvert \dd u \\
-%        %&= \int_{(-\delta / \sigma_n, \delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
-%        %+ \int_{(-\infty, -\delta / \sigma_n)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u
-%        %+ \int_{(\delta / \sigma_n, \infty)} \lvert h(\sigma_n u) - h(0) \lvert \varphi(u) \dd u \\
-%        & \leq
-%        \int_{-\delta / \sigma_n}^{\delta / \sigma_n} \lvert h(\sigma_n u) - h(0) \rvert \varphi(u) \dd u
-%        + \int_{-\infty}^{-\delta / \sigma_n}
-%        M \varphi(u) \dd u +
-%        \int_{\delta / \sigma_n}^{\infty}
-%        M \varphi(u) \dd u \\
-%        & \leq \int_{-\delta / \sigma_n}^{\delta / \sigma_n}
-%         \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
-%        & \leq \int_{\mathbb{R}}  \frac{\epsilon}2 \varphi(u) \dd u + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right) \\
-%        & \leq \frac\epsilon2 + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right).
-%    \end{align*}
-%    Becuase $\Phi$ is continuous, and $\lim_{u \to -\infty}\Phi(u) = 0$, there exists an $N$ such that for all $n > N$, $\Phi(\delta/\sigma_n) < \epsilon / (4M)$.
-%    Thus for $n > N$,
-%    \begin{align*}
-%        \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert
-%        & \leq \frac\epsilon2
-%        + 2M \Phi\left(-\frac{ \delta }{ \sigma_n }\right)
-%        \leq \epsilon
-%    \end{align*}
-%    meaning that $\lim_{n \to \infty} \lvert \mathbb{E}[h(\sigma_n U) - h(0)] \rvert = 0.$
-%    Since both $(\lvert \mathbb{E}[h(\mu_n + \sigma_n U) - h(\sigma_n U)] \rvert)$ and $(\lvert \mathbb{E}[h(\sigma_nU) - h(0)] \rvert$ approach 0 as $n$ approaches $\infty$,
-%    \begin{equation*}
-%        \lim_{n \to \infty}  \mathbb{E}[h(f(\mathbf{x}_n) - f(\mathbf{x})) - h(0)]  = 0
-%    \end{equation*}
-%    and
-%    \begin{equation*}
-%        \lim_{n \to \infty}  \mathbb{E}[h(\sigma_n U)]  = h(0) = \mathbb{E}[h(Y)].
-%    \end{equation*}
-%    That is, $f(\mathbf{x}_n) - f(\mathbf{x})$ converges to a degenerate distribution at 0.
-%\end{proof}
-%
-%\textcolor{red}{Talk about how this is different than saying that samples all continuous everywhere.}
 
 \subsubsection{Posterior Inference}\label{sssec:post-inf}
 
@@ -379,7 +265,7 @@ Then, we can model the $i$th observation as a sum of the underlying function, th
 \begin{equation*}
     y_i = f(\mathbf{x}_i) + b_{z_i} + \epsilon_i.
 \end{equation*}
-If we know $\mathbf{z} = (z_1, \dots, z_n)$, and have Gaussian priors
+If we know $\mathbf{z} = (z_1, \dots, z_N)$, and have Gaussian priors
 \begin{align*}
     \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \text{ for $i = 1, \dots, N$}, \\
     b_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2) \text{ for $j = 1, \dots, N_b$},
@@ -389,8 +275,8 @@ then $\mathbf{y} = (y_1, \dots, y_N)$ is a linear combination of Gaussian random
 and is Gaussian by Theorem~\ref{thm:ogag}.
 
 Despite these changes, posterior inference is similar.
-Suppose $\mathbf{y} = (y_1, \dots, y_N)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \dots, f(\mathbf{x}_n))$ by observers $\mathbf{z} = (z_1, \dots, z_N)$ respectively, and we would like to perform inference on $\mathbf{f}_* = (f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_{*}}))$.
-Our observations $\mathbf{y}$ have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_n))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
+Suppose $\mathbf{y} = (y_1, \dots, y_N)$ are some noisy and biased observations of $(f(\mathbf{x}_1), \dots, f(\mathbf{x}_N))$ by observers $\mathbf{z} = (z_1, \dots, z_N)$ respectively, and we would like to perform inference on $\mathbf{f}_* = (f(\mathbf{v}_1), \dots, f(\mathbf{v}_{N_{*}}))$.
+Our observations $\mathbf{y}$ have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N))$ as before because $\epsilon_i$ and $b_j$ have mean 0 for all $i$ and $j$.
 The covariance of $y_i$ and $y_{j}$ is
 \begin{align*}
     (\bsy{\Sigma})_{ij}
@@ -398,16 +284,6 @@ The covariance of $y_i$ and $y_{j}$ is
     & = \mathbb{E}[(f(\mathbf{x}_i) + b_{z_i} + \epsilon_i - m(\mathbf{x}_i))(f(\mathbf{x}_j) + b_{z_i} + \epsilon_j - m(\mathbf{x}_j)] \\
     & = \kappa(\mathbf{x}_i, \mathbf{x}_{j}) + \mathbb{I}[z_i = z_{j}] \sigma^2_b + \mathbb{I}[i = j]\sigma^2_{ \epsilon }.
 \end{align*}
-%and the covariance of $\mathbf{y}$ is
-%\begin{equation*}
-%    \bsy{\Sigma} = \mathbf{K} + \sigma^{2}_{\epsilon} \mathbf{I} + \sigma_b^2 \begin{bmatrix}
-%        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
-%    \end{bmatrix}^{ T}
-%     \begin{bmatrix}
-%        \mathbf{e}_{z_1} & \hdots & \mathbf{e}_{z_n}
-%    \end{bmatrix}
-%\end{equation*}
-%where $\mathbf{e}_i \in \mathbb{R}^{N}$ is the $i$th standard Euclidean basis vector.
 The covariance between $y_i$ and $f(\mathbf{v}_j)$ is
 \begin{align*}
     (\mathbf{K}_{*})_{ij}
@@ -434,7 +310,7 @@ Since
     \begin{bmatrix}
         y_1 \\
         \vdots \\
-        y_n \\
+        y_N \\
         f(\mathbf{v}_1) \\
         \vdots \\
         f(\mathbf{v}_{N_{*}}) \\
@@ -443,7 +319,7 @@ Since
     \begin{bmatrix}
         f(\mathbf{x}_1) + b_{z_1} + \epsilon_1 \\
         \vdots \\
-        f(\mathbf{x}_n) + b_{z_n} + \epsilon_n \\
+        f(\mathbf{x}_N) + b_{z_N} + \epsilon_N \\
         f(\mathbf{x}_*) \\
         \vdots \\
         f(\mathbf{v}_{N_{*}}) \\
@@ -451,7 +327,7 @@ Since
 \end{equation*}
 is a linear function of jointly Gaussian random variables
 \begin{equation*}
-    f(\mathbf{x}_1), \dots, f(\mathbf{x}_n), f(\mathbf{v}_1), \dots f(\mathbf{v}_{N_*}), \epsilon_1, \dots, \epsilon_n, b_1 \dots, b_{N_b},
+    f(\mathbf{x}_1), \dots, f(\mathbf{x}_N), f(\mathbf{v}_1), \dots f(\mathbf{v}_{N_*}), \epsilon_1, \dots, \epsilon_N, b_1 \dots, b_{N_b},
 \end{equation*}
 the random vector $(\mathbf{y}, \mathbf{f}_*)$ is Gaussian
 \begin{equation*}

@@ -25,20 +25,22 @@ dist = {
 
 fig, ax = plt.subplots(figsize=(5, 5))
 ax.bar(range(1, X.shape[0] + 1), X[:, 3] + X[:, 2] + X[:, 1] + X[:, 0], label="Milk", color="lightgrey")
-ax.bar(range(1, X.shape[0] + 1), X[:, 2] + X[:, 1] + X[:, 0], label="Cocoa Powder", color="Chocolate")
+ax.bar(range(1, X.shape[0] + 1), X[:, 2] + X[:, 1] + X[:, 0], label="Cocoa", color="Chocolate")
 ax.bar(range(1, X.shape[0] + 1), X[:, 1] + X[:, 0], label="Sugar", color="LightBlue")
 ax.bar(range(1, X.shape[0] + 1), X[:, 0], label="Flour", color="BurlyWood")
 
 ax.set_xlabel("Iteration")
 ax.set_ylabel("Proportion")
-ax.legend(loc="upper left")
+ax.legend(bbox_to_anchor=(0.3, 1.27))
 
 fig.savefig("fig/progression.png", dpi=500, bbox_inches="tight")
 
 fig, ax = plt.subplots(figsize=(5, 5))
-for i in range(int(B.max() + 1)):
-    xs = np.arange(B.shape[0])
-    ax.scatter(xs[B == i] + 1, y[B == i], label=f"Observer {i + 1}")
+xs = np.arange(B.shape[0])
+# for i in range(int(B.max() + 1)):
+#     xs = np.arange(B.shape[0])
+#     ax.scatter(xs[B == i] + 1, y[B == i], label=f"Observer {i + 1}")
+ax.scatter(xs + 1, y)
 ax.legend(loc="upper left")
 
 ax.set_xlabel("Iteration")

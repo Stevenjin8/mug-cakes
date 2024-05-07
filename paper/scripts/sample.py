@@ -18,6 +18,8 @@ fig, ax = plt.subplots(figsize=(5, 5))
 for _ in range(3):
     y = multivariate_normal.rvs(cov=K)
     ax.plot(X, y, "k")
+
+ax.set(xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/gp-sample2d.png", bbox_inches="tight", dpi=500)
 
 

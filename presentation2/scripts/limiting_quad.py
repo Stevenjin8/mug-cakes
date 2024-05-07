@@ -44,7 +44,7 @@ def update(_):
 
     ax.clear()
     ax.plot(dom, dom * dom * w[2] + dom * w[1] + w[0], color="red", label="True value")
-    ax.plot(dom, expected, "k--", alpha=0.7, label="Expected value")
+    ax.plot(dom, expected, "k--", alpha=0.7, label="Expected")
     ax.fill_between(
         dom,
         expected - 2 * var**0.5,

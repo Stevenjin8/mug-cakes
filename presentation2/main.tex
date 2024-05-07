@@ -2,7 +2,7 @@
 %\usetheme{Boadilla}
 
 \title{Bayesian Optimization}
-\author{Steven}
+\author{Steven Jin}
 \input{preamble.tex}
 
 
@@ -13,133 +13,131 @@
 
 \begin{frame}
     \frametitle{Motivation}
-    \begin{centering}
-        ``Why not the best?'' --Jimmy Carter
-    \end{centering}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            ``Why not the best?'' --Jimmy Carter
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \includegraphics[width=\textwidth]{fig/JimmyCarterPortrait2.jpg}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Optimization: Review}
+    \frametitle{Motivation}
     How to maximize differentiable $f:[a, b] \to \mathbb{R}$?
-    \begin{enumerate}
-        \item solve $f'(c) = 0$
-            \pause
-        \item check $f''(c) \leq 0$.
-            \pause
-        \item evaluate $f$ at $a$, $b$, and local maxes.
-    \end{enumerate}
+
+
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \begin{enumerate}
+                \pause
+                \item solve $f'(c) = 0$.
+                    \pause
+                \item check $f''(c) \leq 0$.
+                    \pause
+                \item evaluate $f$ at $a$, $b$, and local maxes.
+            \end{enumerate}
+        \end{column}
+        \pause
+        \begin{column}{0.4\textwidth}
+            \vspace{15pt}
+
+            \includegraphics[width=0.85\textwidth]{./fig/image-asset.jpeg}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
     \frametitle{Model Problem: Baking}
     \begin{itemize}
-        \item Unknown underlying behavior
+        \item Unknown underlying function $F$ %off top of head
             \pause
-        \item Smooth underlying behavior
+        \item Evaluating $F$ is expensive.
             \pause
-        \item Expensive trials
+        \item $F$ is smooth
             \pause
     \end{itemize}
-    Solution: Iteratively sample $F$.
+    Solution: Iteratively evaluate $F$.
 \end{frame}
 
 \begin{frame}
     \frametitle{Algorithm: Overview}
-    Given function unknown $F: \mathcal{X} \subseteq \mathbb{R}^{K} \to \mathbb{R}$, do the following loop
+    Given unknown function $F: \mathcal{X} \subseteq \mathbb{R}^{N} \to \mathbb{R}$, do the following loop
     \begin{enumerate}
-        \item Given our observations about $F$, pic $\mathbf{x} \in \mathcal{X}$ with the most ``utility''.
+        \item Given our beliefs about $F$, pick $\mathbf{x} \in \mathcal{X}$ with the most ``utility''.
             \pause
-        \item Sample $F(\mathbf{x})$
+        \item Evaluate $F(\mathbf{x})$
             \pause
-        \item Update our observations
+        \item Update our beliefs about $F$
             \pause
         \item Repeat
+            \pause
     \end{enumerate}
-\end{frame}
 
-\begin{frame}
-    \frametitle{Algorithm: Components}
+    Our Bayesian optimization parameters are
+    \pause
     \begin{itemize}
-        \item Regression model to represent belief of $F$ given observations $F(\mathbf{x}_1) = y_1, \dots, F(\mathbf{x}_N) = y_N$.
+        \item Regression model to represent belief of $F$ given noisy observations $F(\mathbf{x}_1) \approx y_1, \dots, F(\mathbf{x}_N) \approx y_N$.
             \pause
         \item Measure of utility
     \end{itemize}
 \end{frame}
-
 \begin{frame}
-    \frametitle{Attempt 1: Linear Regression}
-    \begin{equation*}
-        F(x) = \beta_1 x + \beta_0.
-    \end{equation*}
-    \pause
-    For linear functions, max will always be on the boundary.
-    \begin{center}
-        \includegraphics[width=0.5\textwidth]{fig/linear.png}
-    \end{center}
+    \frametitle{Parametric Regression}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                Linear Regression
+                \begin{equation*}
+                    F(x) = \beta_1 x + \beta_0
+                \end{equation*}
+
+                \includegraphics[width=\textwidth]{fig/linear.png}
+            \end{center}
+        \end{column}
+        \pause
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                Quadratic Regression
+                \begin{equation*}
+                    F(x) = \beta_2 x^2 + \beta_1 x + \beta_0
+                \end{equation*}
+                \includegraphics[width=\textwidth]{fig/quadratic.png}
+            \end{center}
+        \end{column}
+    \end{columns}
+\end{frame}
+\begin{frame}
+    \frametitle{Parametric Regression Doesn't Work}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                Linear Regression
+                \begin{equation*}
+                    F(x) \neq  \beta_1 x + \beta_0
+                \end{equation*}
+                \includegraphics[width=\textwidth]{fig/linear-over.png}
+            \end{center}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                Quadratic Regression
+                \begin{equation*}
+                    F(x) \neq \beta_2 x^2 + \beta_1 x + \beta_0
+                \end{equation*}
+                \includegraphics[width=\textwidth]{fig/quadratic-over.png}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Attempt 2: Quadratic Regression}
-    \begin{equation*}
-        F(x) = \beta_2 x^2 + \beta_1 x + \beta_0.
-    \end{equation*}
-    \pause
-    \begin{itemize}
-        \item  \movie[externalviewer]{Parametric Regression Converges}{../fig/quad-limiting.gif}
-            \pause
-        \item \movie[externalviewer]{But not always to correctly}{../fig/nonquad-limiting.gif}
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Parametric Forms}
-    \begin{equation*}
-        \begin{bmatrix}
-            F(\mathbf{x}_1) \\
-            \vdots \\
-            F(\mathbf{x}_N) \\
-        \end{bmatrix}
-        =
-        \begin{bmatrix}
-            y_1 \\
-            \vdots \\
-            y_N
-        \end{bmatrix}
-        \implies
-        \begin{bmatrix}
-            \beta_0 \\
-            \beta_1 \\
-            \beta_2
-        \end{bmatrix}
-        \implies F
-    \end{equation*}
-    \pause
-    Parametric forms make unjustified assumptions $F$.
-\end{frame}
-
-\begin{frame}
-    \frametitle{Nonparametric Forms}
-    \begin{equation*}
-        \begin{bmatrix}
-            F(\mathbf{x}_1) \\
-            \vdots \\
-            F(\mathbf{x}_N) \\
-        \end{bmatrix}
-        =
-        \begin{bmatrix}
-            y_1 \\
-            \vdots \\
-            y_N
-        \end{bmatrix}
-        \implies F
-    \end{equation*}
-    \pause
+    \frametitle{Nonparametric Regression}
     \begin{enumerate}
-        \item The more we sample $F$ ``near'' $\mathbf{x}$, the more confident we are about $F(\mathbf{x})$.
+        \item Small changes in $\mathbf{x}$ probably cause small changes in $F(\mathbf{x})$.
             \pause
-        \item If $\mathbf{x}, \mathbf{x}'$ are ``similar'', then $F(\mathbf{x}), F(\mathbf{x}')$ are probably ``similar''.
-            \pause
-        \item $F$ is smooth.
+        \item The more we evaluate $F$ ``near'' $\mathbf{x}$, the more confident we are about $F(\mathbf{x})$.
     \end{enumerate}
 \end{frame}
 
@@ -162,26 +160,100 @@
             \begin{bmatrix}
                 F(\mathbf{x}_1) \\
                 \vdots \\
-                F(\mathbf{x}_K) \\
+                F(\mathbf{x}_N) \\
             \end{bmatrix}
             \sim
-            \mathcal{N}_{K}
+            \mathcal{N}_{N}
             \left(
             \begin{bmatrix}
                     m(\mathbf{x}_1) \\
                     \vdots \\
-                    m(\mathbf{x}_K) \\
+                    m(\mathbf{x}_N) \\
                 \end{bmatrix}
             ,
             \begin{bmatrix}
-                    \kappa(\mathbf{x}_1, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_1, \mathbf{x}_K) \\
+                    \kappa(\mathbf{x}_1, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_1, \mathbf{x}_N) \\
                     \vdots & \ddots & \vdots \\
-                    \kappa(\mathbf{x}_K, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_K, \mathbf{x}_K) \\
+                    \kappa(\mathbf{x}_N, \mathbf{x}_1) & \dots & \kappa(\mathbf{x}_N, \mathbf{x}_N) \\
                 \end{bmatrix}
             \right).
         \end{equation*}
     \end{definition}
 \end{frame}
 
+\begin{frame}
+    \frametitle{Radial Basis Function}
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{./fig/rbf}
+    \end{center}
+    \begin{equation*}
+        \kappa_{\rbf}(\mathbf{x}, \mathbf{x}'; \sigma^2_f, \ell^2)
+        = 
+        \sigma^2_f \exp \left\{ - \frac{\lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2 \ell^2 } \right\}
+    \end{equation*}
+\end{frame}
 
+\begin{frame}
+    %interpret axis univariate GP y on (e.g. only ary amount of flour).
+    % at this point, these are our belief.
+    \includegraphics[width=\textwidth]{fig/sample_4.png}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Acquisition Functions}
+    Given $\mathbf{x}$, how much ``utility'' do we get from evaluate $F(\mathbf{x})$?
+    % reminder of what the goal is
+    \begin{itemize}
+        \item \textbf{Exploration}: want to know where the peaks are.
+        \item \textbf{Exploitation}: want to understand how known peaks behave.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{definition}[PI]
+        For some large $t^{*} \in \mathbb{R}$,
+        \begin{align*}
+            a_{\ppi}(\mathbf{x} | \mathcal{D}_N) & =
+            P(F(\mathbf{x}) > t^{*} | \mathcal{D}_N) \\
+            & = \Phi\left( \frac{ \mathbb{E}[F(\mathbf{x}) | \mathcal{D}_N] - t^{*} }{ \sqrt{\Var[F(\mathbf{x}) | \mathcal{D}_N] }}\right)
+        \end{align*}
+        where $\Phi$ is Gaussian CDF and $\mathcal{D}_N$ are the first $N$ observations.
+        % pick the one to maximize
+    \end{definition}
+    \pause
+    Then,
+    \begin{equation*}
+        \mathbf{x}_{N + 1} = \argmax_{\mathbf{x} \in \mathcal{X}} a_{\ppi}(\mathbf{x} | \mathcal{D}_{N})
+    \end{equation*}
+\end{frame}
+\begin{frame}
+    % and teh next place where we evaluate F.
+    \includegraphics[width=\textwidth]{fig/sample_ei.png}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{fig/cake.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+
+    \includegraphics[width=0.47\textwidth]{fig/ys.png}
+    \includegraphics[width=0.48\textwidth]{fig/progression.png}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    Bayesian Optimization can help us find ``the best,'' even when the function is unknown.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Acknowledgements}
+    \begin{itemize}
+        \item Professor Tang
+        \item My suitemates Ran, Megan, and Alex.
+    \end{itemize}
+\end{frame}
 \end{document}

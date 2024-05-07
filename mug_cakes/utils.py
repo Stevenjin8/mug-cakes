@@ -62,3 +62,12 @@ def format_ingredients(m: NDArray[np.uint64], ingredients: List[str]) -> str:
     tio.write("\n")
     tio.seek(0)
     return tio.read()
+
+# Hide X and Y axes label marks
+def clear_tick(ax):
+    ax.xaxis.set_tick_params(labelbottom=False)
+    ax.yaxis.set_tick_params(labelleft=False)
+    # Hide X and Y axes tick marks
+    ax.set_xticks([])
+    ax.set_yticks([])
+

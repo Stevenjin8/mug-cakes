@@ -10,14 +10,14 @@ For this paper, we will use a modified version of Expected Improvement.
 %\begin{equation*}
 %    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \}} \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
 %\end{equation*}
-Under EI, the utility of observing $f(\mathbf{x})$ is what we expect the maximum sampled $y$-value to be after this iteration.
+Under EI, the utility of observing $f(\mathbf{x})$ is what we expect the maximum sampled $y$-value to be after the $N$th iteration.
 \begin{equation}
     \label{eq:ei}
-    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_n) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_n\} | \mathcal{D}_N]
+    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_N) = \mathbb{E}[\max\{f(\mathbf{x}), y_1, \dots, y_N\} | \mathcal{D}_N]
     = y_* + \mathbb{E}[\max\{f(\mathbf{x}) - y_*, 0\} |\mathcal{D}_N]
     = y_* + \mathbb{E}[f(\mathbf{x}) - y_* | f(\mathbf{x}) > y_*, \mathcal{D}_N]p(f(\mathbf{x}) > y_* | \mathcal{D}_N)
 \end{equation}
-where $y_* = \max\{y_1, \dots, y_n\}$.
+where $y_* = \max\{y_1, \dots, y_N\}$.
 EI encourage both exploitation and exploration because $f(\mathbf{x})$ will probably be greater than $y_*$
 only if we are very uncertain about $f(\mathbf{x})$ or we think $f(\mathbf{x})$ is near $y_*$.
 
@@ -57,7 +57,7 @@ Because $f$ is a Gaussian Process,
         f(\mathbf{x}) \\
         f(\mathbf{x}_*)
     \end{bmatrix}
-    \bigg| \mathcal{D}_n
+    \bigg| \mathcal{D}_N
     \sim \mathcal{N}\left(
     \begin{bmatrix}
             \mu_1 \\

@@ -1,35 +1,35 @@
 Bayesian Optimization is an iterative probabilistic method for solving black-box optimization problems with expensive sampling.
 It has two parts: a surrogate model and an acquisition function.
 The surrogate model is a probabilistic model that represents our beliefs about $f$ given our observations.
-The acquisition function $a( \cdot | \mathcal{D}_n)$ quantifies how much ``utility'' we think we can get from sampling a point given our beliefs about $f$ and our previous observations $\mathcal{D}_n$.
+The acquisition function $a( \cdot | \mathcal{D}_N)$ quantifies how much ``utility'' we think we can get from sampling a point given our beliefs about $f$ and our previous observations $\mathcal{D}_N$.
 As we iterate, we make noisy observations of $f$ in the hope is that we learn more and more about $f$'s peaks giving us better estimates for its maximum.
 We also consider the case where we have multiple biased observers.
 This could occur if we are modeling food and we have different judges with different biases and standards.
 However, we could also represent other grouping structures.
 For example, we might believe that the day of the week biases observations, so all tastings done on a day of the week belong to one observer.
-Generally, we have $N_b$ observers numbered 1 to $N_b$ and let $z_i$ indicate the observer for the $i$th observation.
-As such, the first $n$ observations consist of $\mathcal{D}_n = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_n, y_n, z_n))$.
+Generally, we have $N_b$ observers numbered 1 to $N_b$ and let $z_n$ indicate the observer for the $n$th observation.
+As such, the first $N$ observations consist of $\mathcal{D}_N = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_N, y_N, z_N))$.
 
 The pseudocode for Bayesian optimization is as follows.
 \begin{algorithm}
     \begin{algorithmic}
         \caption{Bayesian Optimization}
         \label{alg:bo}
-        \State $i \gets 1$
+        \State $n \gets 1$
         \State $\mathcal{D}_0 \gets \varnothing$
         \While{stopping conditions are not met}
-        \State $\mathbf{x}_i \gets \argmax_{\mathbf{x} \in \mathcal{X}} a(\mathbf{x} | \mathcal{D}_i)$  \Comment{Inner optimization loop}
-        \State Set $z_i$ to the respective observer
-        \State Set $y_i$ to the $z_i$'s observation of $f(\mathbf{x}_i)$
-        \State $\mathcal{D}_i \gets (\mathcal{D}_{i - 1}, (\mathbf{x}_i, y_i, z_i))$
-        \State $i \gets i + 1$
+        \State $\mathbf{x}_n \gets \argmax_{\mathbf{x} \in \mathcal{X}} a(\mathbf{x} | \mathcal{D}_n)$  \Comment{Inner optimization loop}
+        \State Set $z_n$ to the respective observer
+        \State Set $y_n$ to the $z_n$'s observation of $f(\mathbf{x}_n)$
+        \State $\mathcal{D}_n \gets (\mathcal{D}_{n - 1}, (\mathbf{x}_n, y_n, z_n))$
+        \State $n \gets n + 1$
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
 When we finish after $N$ iterations, our estimate for $\argmax_{\mathbf{x} \in \mathcal{X}}f(\mathbf{x})$ is
 the $\mathbf{x}$-value we have sampled (in expectation) given our observations
 \begin{equation*}
-    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_n \} } \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_n].
+    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \} } \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
 \end{equation*}
 
 The hope is that as we iterate, we get a better and better understanding of $f$'s peaks so that we can get better estimates of our objective (Equation \ref{eq:obj}).

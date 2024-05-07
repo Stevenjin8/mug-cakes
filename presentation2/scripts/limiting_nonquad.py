@@ -4,7 +4,7 @@ import numpy as np
 
 
 def t(x):
-    return np.sin(x * 10) + x
+    return -np.sin(x * 10) + x - 0.5
 
 
 np.random.seed(42)
@@ -34,6 +34,7 @@ def update(_):
     V_N = s2 * np.linalg.inv(s2 * V_0inv + X.T @ X)
     V_Ninv = V_0inv + 1 / s2 * X.T @ X
     w_N = V_N @ V_0inv @ w_0 + 1 / s2 * V_N @ X.T @ y
+    print(w_N)
 
     dom = np.linspace(-1, 1, 1000)
     expected = dom * dom * w_N[2] + dom * w_N[1] + w_N[0]
@@ -47,7 +48,7 @@ def update(_):
 
     ax.clear()
     ax.plot(dom, t(dom), color="red", label="True value")
-    ax.plot(dom, expected, "k--", alpha=0.7, label="Expected value")
+    ax.plot(dom, expected, "k--", alpha=0.7, label="Expected")
     ax.fill_between(
         dom,
         expected - 2 * var**0.5,

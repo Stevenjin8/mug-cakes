@@ -26,7 +26,7 @@ ax1.fill_between(
 )
 ax1.set_ylim(-0.4, 1.6)
 ax1.plot(X_star, post_mean, "k--")
-ax1.set_ylabel("$f(x)$")
+ax1.set_ylabel("$f$")
 
 x_M = np.array([0.75])
 ax1.vlines(x_M, -2, 2, "orangered", "dashed")
@@ -45,6 +45,7 @@ for x in X_star:
 ax2.plot(X_star, eis, "#006400")
 ax2.set_ylim(-0.001, 0.03)
 ax2.set_ylabel("$a_{vEI}$")
+ax2.set_xlabel("$x$")
 
 
 eis = []

@@ -1,5 +1,6 @@
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+from scipy import stats
 import numpy as np
 
 from mug_cakes import bo, gp, kernel
@@ -9,12 +10,12 @@ def t(x):
     return np.sin(x * 10) + x - 0.5
 
 
-np.random.seed(42)
+np.random.seed(45)
 N = 5
 s2 = 0.3**2
-x_list = [0.2, 0.8]
+x_list = [0.8]
 w = np.array([2, 0.1, -0.7])
-y_list = [t(x) + np.random.normal(scale=s2**0.5) for x in x_list]
+y_list = [t(0.8) + np.random.normal(scale=s2**0.5)]
 
 w_0 = np.array([0, 0, 0])
 V_0 = np.eye(3)
@@ -28,9 +29,6 @@ s2f = 1
 fig, ax = plt.subplots()
 
 def update(_, ax):
-    x_new = np.random.rand()
-    x_list.append(x_new)
-    y_list.append(t(x_new) + np.random.normal(scale=s2**0.5))
     X = np.array(x_list).reshape(-1, 1)
     y = np.array(y_list)
     B = np.zeros_like(y, dtype=np.uint64)
@@ -53,12 +51,20 @@ def update(_, ax):
        color="lightgray",
        label="95% Credible Interval",
     )
-    ax.scatter(X[:, 0], y, color="orange", alpha=0.3, label="Noisy Samples")
-    ax.legend(loc="upper left")
-    ax.set(xlim=[0, 1], ylim=[-1.5, 3])
+    # ax.axvline(0.795, -100, 100, color="red", label="True Max")
+    # ax.axvline(dom[expected.argmax()], -100, 100, color="k", label="Est. Max")
+    ax.scatter(X[:, 0], y, color="orange", alpha=0.9, label="Noisy Samples")
+    ax.legend(loc="upper left") 
+    ax.set(xlim=[0, 1], ylim=[-1.5, 3], xlabel="$y$", ylabel="$F$")
 
-np.random.seed(42)
-ani = animation.FuncAnimation(fig=fig, func=lambda x: update(x, ax), frames=100, interval=100)
-ani.save(filename="fig/gp-limiting.gif", writer="ffmpeg", dpi=400)
+    ei = stats.norm.cdf( (expected - 2) / var ** 0.5)
+    x_new = dom[ei.argmax(), 0]
+    x_list.append(x_new)
+    y_list.append(t(x_new) + np.random.normal(scale=s2**0.5))
+
+np.random.seed(46)
+ani = animation.FuncAnimation(fig=fig, func=lambda x: update(x, ax), frames=120, interval=100)
+ani.save(filename="fig/bo-limiting.gif", writer="ffmpeg", dpi=400) 
+
 
 

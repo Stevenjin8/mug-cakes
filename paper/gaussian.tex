@@ -127,8 +127,8 @@ One reason why Gaussians are popular is because they stay Gaussian under various
         & = \frac{ 1 }{ (2 \pi)^{(J + K)/2} \lvert \bsy{\Sigma} \rvert^{1/2} \lvert \bsy{\Sigma}_y \rvert^{1/2} }
         \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu})
         + -\frac12 (\mathbf{y} - \bsy{\mu}_y)^{T} \bsy{\Sigma}_y^{-1} (\mathbf{x} - \bsy{\mu}_y)  \right\} \\
-        & = \frac{ 1 }{ (2 \pi)^{(J + K)/2} \lvert \bsy{\Sigma}_{xy} \rvert^{1/2} } \\
-        & = \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu}_{xy})^{T} \bsy{\Sigma}_{xy}^{-1} (\mathbf{t} - \bsy{\mu}_{xy})  \right\} \\
+        & = \frac{ 1 }{ (2 \pi)^{(J + K)/2} \lvert \bsy{\Sigma}_{xy} \rvert^{1/2} }
+        \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu}_{xy})^{T} \bsy{\Sigma}_{xy}^{-1} (\mathbf{t} - \bsy{\mu}_{xy})  \right\} \\
         & = \mathcal{N}_{K + J} \left(
         \begin{bmatrix}
                 \mathbf{x} \\

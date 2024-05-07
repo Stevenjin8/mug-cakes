@@ -46,7 +46,7 @@ ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o")
 ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
 ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
 
-ax.set_ylim(-1.5, 1.5)
+ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/noiseless-posterior.png", dpi=500, bbox_inches="tight")
 
 m2 = gp.conditional_mean(y, np.linalg.inv(cov2), k_s.T)
@@ -59,7 +59,7 @@ ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
 ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
 
 
-ax.set_ylim(-1.5, 1.5)
+ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/noisy-posterior.png", dpi=500, bbox_inches="tight")
 
 
@@ -72,6 +72,6 @@ ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o")
 ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
 ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
 
-ax.set_ylim(-1.5, 1.5)
+ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 
 fig.savefig("fig/biased-posterior.png", dpi=500, bbox_inches="tight")

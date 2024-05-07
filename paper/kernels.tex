@@ -26,12 +26,12 @@ Large values of $\ell^2$ shrink the domain while small values of $\ell^2$ expand
 We see that RBF uses Euclidean distance as a measure of similarity.
 If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is large, then the correlation between $f(\mathbf{x})$ and $f(\mathbf{x}')$ small:
 \[
-    \frac{\Cov(f(\mathbf{x}, f(\mathbf{x}')}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}_0)])}}
+    \frac{\Cov(f(\mathbf{x}), f(\mathbf{x}'))}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}')])}}
     = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 0.
 \]
-However, if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, then almost correlation is large:
+However, if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, then the correlation is large:
 \begin{equation*}
-    \frac{\Cov(f(\mathbf{x}, f(\mathbf{x}')}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}_0)])}}
+    \frac{\Cov(f(\mathbf{x}), f(\mathbf{x}'))}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}')])}}
     = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 1.
 \end{equation*}
 
@@ -73,14 +73,14 @@ The next few results utilize infinite dimensional vector spaces and a clever use
     \begin{itemize}
         \item \textbf{additive identity}\\
             $\mathbf{0} = (0, 0, \dots)$ is an element of $L^1$ because
-            $\sum\limits_{i=1}^{\infty} \lvert 0 \rvert = 0 < \infty$.
+            $\sum\limits_{n=1}^{\infty} \lvert 0 \rvert = 0 < \infty$.
         \item \textbf{closed under addition} \\
             Let $\mathbf{f}, \mathbf{g} \in L^1$.
             Then,
             \begin{align*}
-                \sum\limits_{i=1}^{\infty} \lvert f_i + g_i \rvert
-                \leq \sum\limits_{i=1}^{\infty} \lvert f_i \rvert + \lvert g_i \rvert
-                = \sum\limits_{i=1}^{\infty} \lvert f_i \rvert + \sum\limits_{i=1}^{\infty} \lvert g_i \rvert
+                \sum\limits_{n=1}^{\infty} \lvert f_n + g_n \rvert
+                \leq \sum\limits_{n=1}^{\infty} \lvert f_n \rvert + \lvert g_n \rvert
+                = \sum\limits_{n=1}^{\infty} \lvert f_n \rvert + \sum\limits_{n=1}^{\infty} \lvert g_n \rvert
                 < \infty
             \end{align*}
             meaning that $\mathbf{f} + \mathbf{g} \in L^1$.
@@ -88,8 +88,8 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             Let $\mathbf{f} \in L^1$ and $\alpha \in \mathbb{R}$.
             Then
             \begin{equation*}
-                \sum\limits_{i=1}^{\infty} \lvert \alpha f_i \rvert
-                = \lvert \alpha \rvert \sum\limits_{i=1}^{\infty} \lvert f_i \rvert
+                \sum\limits_{n=1}^{\infty} \lvert \alpha f_n \rvert
+                = \lvert \alpha \rvert \sum\limits_{n=1}^{\infty} \lvert f_n \rvert
                 < \infty
             \end{equation*}
             meaning that $\alpha \mathbf{f} \in L^1$.
@@ -103,16 +103,16 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             Then
             \begin{equation*}
                 \langle \mathbf{f}, \mathbf{f} \rangle
-                = \sum f_i^2
+                = \sum\limits_{n=1}^{\infty} f_n^2
                 \geq 0.
             \end{equation*}
-            At the same time, $\mathbf{f}$ must be bounded, so there exists $M \in \mathbb{R}$ such that $M > \lvert f_i \rvert$ for all $i$.
+            At the same time, $\mathbf{f}$ must be bounded, so there exists $M \in \mathbb{R}$ such that $M > \lvert f_n \rvert$ for all $n$.
             It follows that
             \begin{equation*}
                 \langle \mathbf{f}, \mathbf{f} \rangle
-                = \sum\limits_{i=1}^{\infty} f_i^2
-                \leq \sum\limits_{i=1}^{\infty}
-                M \lvert f_i \rvert < \infty
+                = \sum\limits_{n=1}^{\infty} f_n^2
+                \leq \sum\limits_{i=n}^{\infty}
+                M \lvert f_n \rvert < \infty
             \end{equation*}
 
         \item \textbf{definiteness} \\ Let $\mathbf{f} \in L^1$.
@@ -120,7 +120,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             \begin{align*}
                 \langle \mathbf{f}, \mathbf{f} \rangle = 0
                 \iff
-                \sum\limits_{i=1}^{\infty} f_i^2 = 0
+                \sum\limits_{n=1}^{\infty} f_n^2 = 0
                 \iff
                 \mathbf{f} = \mathbf{0}.
             \end{align*}
@@ -130,9 +130,9 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             Then,
             \begin{align*}
                 \langle \mathbf{f} + \mathbf{g}, \mathbf{h} \rangle
-                = \sum\limits_{i=1}^{\infty} (f_i + g_i)h_i
-                = \sum\limits_{i=1}^{\infty} f_ih_i + g_ih_i
-                = \sum\limits_{i=1}^{\infty} f_ih_i +\sum\limits_{i=1}^{\infty} g_ih_i
+                = \sum\limits_{n=1}^{\infty} (f_n + g_n)h_n
+                = \sum\limits_{n=1}^{\infty} f_ng_n + g_nh_n
+                = \sum\limits_{n=1}^{\infty} f_nh_n +\sum\limits_{n=1}^{\infty} g_nh_n
                 = \langle \mathbf{f}, \mathbf{h} \rangle + \langle \mathbf{g}, \mathbf{h} \rangle.
             \end{align*}
 
@@ -141,8 +141,8 @@ The next few results utilize infinite dimensional vector spaces and a clever use
             Then,
             \begin{equation*}
                 \langle \mathbf{f}, \mathbf{g} \rangle
-                = \sum\limits_{i=1}^{\infty} f_ig_i
-                = \sum\limits_{i=1}^{\infty} g_if_i
+                = \sum\limits_{n=1}^{\infty} f_ng_n
+                = \sum\limits_{n=1}^{\infty} g_nf_n
                 = \langle \mathbf{g}, \mathbf{f} \rangle.
             \end{equation*}
     \end{itemize}
@@ -150,7 +150,7 @@ The next few results utilize infinite dimensional vector spaces and a clever use
 
 \begin{theorem}
     \label{thm:rbf-mercer}
-    RBF kernels are a Mercer kernel.
+    RBF kernels are Mercer kernels.
 \end{theorem}
 \begin{proof}
     This proof is inspired by \cite{shashua2009}.
@@ -166,12 +166,12 @@ The next few results utilize infinite dimensional vector spaces and a clever use
         & = \sigma_f^2
         \exp \left\{ -\frac{\mathbf{x}^2}{2\ell^2} \right\}
         \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
-        \sum\limits_{i=1}^{\infty}
-        \frac{ (\mathbf{x}/\ell)^{i - 1} (\mathbf{x'}/\ell)^{i - 1}}{ (i - 1)! } \\
+        \sum\limits_{n=1}^{\infty}
+        \frac{ (\mathbf{x}/\ell)^{n - 1} (\mathbf{x'}/\ell)^{n - 1}}{ (n - 1)! } \\
         & = \sigma_f^2
         \exp \left\{ -\frac{ \mathbf{x}^2}{2\ell^2} \right\}
         \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
-        \exp \left\{ \frac{\mathbf{x} \mathbf{x'}}{ \ell} \right\} \\
+        \exp \left\{ \frac{\mathbf{x} \mathbf{x'}}{ \ell^2} \right\} \\
         & = \sigma_f^2 \exp \left\{ -\frac{ \lVert \mathbf{x} - \mathbf{x'} \rVert^2 }{ 2\ell^2 } \right\} \\
         & = \kappa_{\rbf}(\mathbf{x}, \mathbf{x'}).
     \end{align*}
@@ -213,13 +213,13 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that it generate
     RBF kernels are positive semi-definite.
 \end{corollary}
 
-In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_n$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
-Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_n))$ will be nondegenerate which allows $f(\mathbf{x}_i)$ to take on any value for all $i$.
-This property is important because we want to model continuous functions, and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_n$ and $y_1, \dots, y_n$ there exist continuous functions that map $\mathbf{x}_1, \dots, \mathbf{x}_n$ to $y_1, \dots, y_n$ respectively.
+In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
+Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_N))$ will be nondegenerate which allows $f(\mathbf{x}_n)$ to take on any value for all $n$.
+This property is important because we want to model continuous functions, and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_N$ and $y_1, \dots, y_N$ there exist continuous functions that map $\mathbf{x}_1, \dots, \mathbf{x}_N$ to $y_1, \dots, y_N$ respectively.
 
 \begin{lemma}
     \label{lem:rbf-pd}
-    If $\mathbf{x}_1, \dots, \mathbf{x}_n$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel will be strictly positive definite.
+    If $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel will be strictly positive definite.
 \end{lemma}
 \begin{proof}
     Once again, we only consider the case where $\mathcal{X} \subseteq \mathbb{R}^{1}$.
@@ -243,29 +243,29 @@ This property is important because we want to model continuous functions, and fo
 
     Looking at Equation~\ref{eq:dep} element-wise, we see that for all $q \in \mathbb{N}, q \geq 0$,
     \begin{align*}
-        \sum\limits_{i = 1}^{M} w_i \exp \left\{ -\frac12 \mathbf{x}_i^2 \right\} \mathbf{x}_i^{q}
+        \sum\limits_{n = 1}^{M} w_n \exp \left\{ -\frac12 \mathbf{x}_n^2 \right\} \mathbf{x}_n^{q}
         = \exp \left\{ -\frac12 \mathbf{x}_{M + 1}^2 \right\} \mathbf{x}_{M+1}^{q}
     \end{align*}
     implying that
     \begin{equation*}
-        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i)  = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
+        \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n)  = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
     \end{equation*}
 
     In the case that $\mathbf{x}_{M + 1} = 0$,
     \begin{equation*}
-        \sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i) = \mathbf{0}.
+        \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = \mathbf{0}.
     \end{equation*}
     We know that $\mathbf{x}_p w_p \neq 0$ because $w_p \neq 0$ and $\mathbf{x}_p \neq \mathbf{x}_M = 0$.
     As such, we have a found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
 
     In the case that $\mathbf{x}_{M + 1} \neq 0$,
     \begin{align}
-        &\sum\limits_{i=1}^{M} \mathbf{x}_i w_i \gamma(\mathbf{x}_i) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
-        \implies &\sum\limits_{i=1}^{M} \frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} w_i \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
+        &\sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
+        \implies &\sum\limits_{n=1}^{M} \frac{\mathbf{x}_n}{\mathbf{x}_{M + 1}} w_n \gamma(\mathbf{x}_n) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
     \end{align}
     Subtracting Equations \ref{eq:dep} and \ref{eq:other-dep},
     \begin{equation*}
-        \sum\limits_{i=1}^{M} w_i \left(\frac{\mathbf{x}_i}{\mathbf{x}_{M + 1}} - 1\right) \gamma(\mathbf{x}_i) = \gamma(\mathbf{x}_{M + 1}) - \gamma(\mathbf{x}_{M + 1}) = \mathbf{0}.
+        \sum\limits_{n=1}^{M} w_n \left(\frac{\mathbf{x}_n}{\mathbf{x}_{M + 1}} - 1\right) \gamma(\mathbf{x}_n) = \gamma(\mathbf{x}_{M + 1}) - \gamma(\mathbf{x}_{M + 1}) = \mathbf{0}.
     \end{equation*}
     Since $\mathbf{x}_p \neq \mathbf{x}_{M + 1}$, we conclude that
     \begin{equation*}
@@ -278,12 +278,12 @@ This property is important because we want to model continuous functions, and fo
     Let $\mathbf{c} \in \mathbb{R}^{N}$ be nonzero.
     Since $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent,
     \begin{equation*}
-        \sum\limits_{i = 1}^{N} c_i \gamma(\mathbf{x}_i) \neq \mathbf{0}.
+        \sum\limits_{n = 1}^{N} c_n \gamma(\mathbf{x}_n) \neq \mathbf{0}.
     \end{equation*}
     It follows that
     \begin{align*}
         \mathbf{c}^{T} \mathbf{K} \mathbf{c}
-        = \left\langle \sum\limits_{i}^{N} c_i \gamma(\mathbf{x}_i), \sum\limits_{i}^{N} c_i \gamma(\mathbf{x}_i) \right\rangle
+        = \left\langle \sum\limits_{n = 1}^{N} c_n \gamma(\mathbf{x}_n), \sum\limits_{n = 1}^{N} c_n \gamma(\mathbf{x}_n) \right\rangle
         > 0
     \end{align*}
     by the definiteness property of inner products
