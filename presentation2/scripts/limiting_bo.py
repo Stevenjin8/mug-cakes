@@ -22,11 +22,11 @@ V_0 = np.eye(3)
 V_0inv = np.linalg.inv(V_0)
 
 
-
 l2 = 0.12**2
 s2f = 1
 
 fig, ax = plt.subplots()
+
 
 def update(_, ax):
     X = np.array(x_list).reshape(-1, 1)
@@ -45,26 +45,26 @@ def update(_, ax):
     ax.plot(dom, t(dom), color="red", label="True value")
     ax.plot(dom, expected, "k--", alpha=0.7, label="Expected")
     ax.fill_between(
-       dom.reshape(-1),
-       expected - 2 * var**0.5,
-       expected + 2 * var**0.5,
-       color="lightgray",
-       label="95% Credible Interval",
+        dom.reshape(-1),
+        expected - 2 * var**0.5,
+        expected + 2 * var**0.5,
+        color="lightgray",
+        label="95% Credible Interval",
     )
     # ax.axvline(0.795, -100, 100, color="red", label="True Max")
     # ax.axvline(dom[expected.argmax()], -100, 100, color="k", label="Est. Max")
     ax.scatter(X[:, 0], y, color="orange", alpha=0.9, label="Noisy Samples")
-    ax.legend(loc="upper left") 
+    ax.legend(loc="upper left")
     ax.set(xlim=[0, 1], ylim=[-1.5, 3], xlabel="$y$", ylabel="$F$")
 
-    ei = stats.norm.cdf( (expected - 2) / var ** 0.5)
+    ei = stats.norm.cdf((expected - 2) / var**0.5)
     x_new = dom[ei.argmax(), 0]
     x_list.append(x_new)
     y_list.append(t(x_new) + np.random.normal(scale=s2**0.5))
 
+
 np.random.seed(46)
-ani = animation.FuncAnimation(fig=fig, func=lambda x: update(x, ax), frames=120, interval=100)
-ani.save(filename="fig/bo-limiting.gif", writer="ffmpeg", dpi=400) 
-
-
-
+ani = animation.FuncAnimation(
+    fig=fig, func=lambda x: update(x, ax), frames=120, interval=100
+)
+ani.save(filename="fig/bo-limiting.gif", writer="ffmpeg", dpi=400)

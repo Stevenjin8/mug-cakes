@@ -47,11 +47,11 @@ def update(_, ax1):
     S = bo.full_cov(K, 1, B, s2, 0)[:-1, :-1]
 
     expected = gp.conditional_mean(y, np.linalg.inv(S), K_s) + 3.5
-    var = gp.conditional_var(K_ss, np.linalg.inv(S), K_s) 
+    var = gp.conditional_var(K_ss, np.linalg.inv(S), K_s)
 
     ax1.clear()
     ax1.plot(dom, expected, "k--", alpha=0.7, label="Expected")
-    #ax1.plot(dom, t(dom), color="red", label="True value", alpha=0.7)
+    # ax1.plot(dom, t(dom), color="red", label="True value", alpha=0.7)
     ax1.fill_between(
         dom.reshape(-1),
         expected - 2 * var**0.5,
@@ -59,15 +59,13 @@ def update(_, ax1):
         color="lightgray",
         label="95% Credible Interval",
     )
-    ax1.scatter(
-        X, y + 3.5, color="orange", alpha=1, label="Noisy Samples", s=120
-    )
+    ax1.scatter(X, y + 3.5, color="orange", alpha=1, label="Noisy Samples", s=120)
     ax1.legend(loc="upper left")
     ax1.set(xlim=[0, 1], ylim=[1.5, 7], xlabel="Proportion of Flour", ylabel="Quality")
 
 
 fig.savefig(f"fig/sample_prior.png", dpi=500, bbox_inches="tight")
-for i in range(5): 
+for i in range(5):
     update(None, ax1)
     fig.savefig(f"fig/sample_{i}.png", dpi=500, bbox_inches="tight")
 
@@ -127,12 +125,17 @@ ax1.set(xlim=[0, 1], ylim=[1.5, 7], xlabel="Proportion of Flour", ylabel="Qualit
 ax2.clear()
 ax2.plot(
     dom.reshape(-1),
-    stats.norm.cdf( (expected - 2 - 3.5) / var ** 0.5),
+    stats.norm.cdf((expected - 2 - 3.5) / var**0.5),
     color="g",
 )
-ax2.set(xlim=[0, 1], ylim=[0, .03], ylabel=r"Probability of Improvement", xlabel="Proportion of Flour")
+ax2.set(
+    xlim=[0, 1],
+    ylim=[0, 0.03],
+    ylabel=r"Probability of Improvement",
+    xlabel="Proportion of Flour",
+)
 
-best = dom[stats.norm.cdf( (expected - 2 - 3.5) / var ** 0.5).argmax()]
+best = dom[stats.norm.cdf((expected - 2 - 3.5) / var**0.5).argmax()]
 ax1.axvline(best, -1.5, 4)
 ax2.axvline(best, 0, 1)
 

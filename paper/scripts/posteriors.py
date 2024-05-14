@@ -3,7 +3,8 @@ import numpy as np
 from scipy.stats import multivariate_normal
 
 from mug_cakes import bo, gp, kernel
-plt.rcParams.update({'axes.labelsize': 'x-large'})
+
+plt.rcParams.update({"axes.labelsize": "x-large"})
 
 BLUE = "#1f77b4"
 ORANGE = "#ff7f0e"

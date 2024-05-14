@@ -1,7 +1,6 @@
 import numpy as np
 
-from mug_cakes.simplex import (dreparam, dsimplex_wrap, reparam, reparaminv,
-                               simplex_wrap)
+from mug_cakes.simplex import dreparam, dsimplex_wrap, reparam, reparaminv, simplex_wrap
 
 from . import utils
 

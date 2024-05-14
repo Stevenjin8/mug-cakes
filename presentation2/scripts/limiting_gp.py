@@ -21,11 +21,11 @@ V_0 = np.eye(3)
 V_0inv = np.linalg.inv(V_0)
 
 
-
 l2 = 0.12**2
 s2f = 1
 
 fig, ax = plt.subplots()
+
 
 def update(_, ax):
     x_new = np.random.rand()
@@ -47,18 +47,19 @@ def update(_, ax):
     ax.plot(dom, t(dom), color="red", label="True value")
     ax.plot(dom, expected, "k--", alpha=0.7, label="Expected")
     ax.fill_between(
-       dom.reshape(-1),
-       expected - 2 * var**0.5,
-       expected + 2 * var**0.5,
-       color="lightgray",
-       label="95% Credible Interval",
+        dom.reshape(-1),
+        expected - 2 * var**0.5,
+        expected + 2 * var**0.5,
+        color="lightgray",
+        label="95% Credible Interval",
     )
     ax.scatter(X[:, 0], y, color="orange", alpha=0.3, label="Noisy Samples")
     ax.legend(loc="upper left")
     ax.set(xlim=[0, 1], ylim=[-1.5, 3])
 
+
 np.random.seed(42)
-ani = animation.FuncAnimation(fig=fig, func=lambda x: update(x, ax), frames=100, interval=100)
+ani = animation.FuncAnimation(
+    fig=fig, func=lambda x: update(x, ax), frames=100, interval=100
+)
 ani.save(filename="fig/gp-limiting.gif", writer="ffmpeg", dpi=400)
-
-

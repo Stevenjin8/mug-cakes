@@ -292,7 +292,7 @@ def bo_iter(
     state: BoState,
     disp: bool = False,
     log_hparam_bounds: Optional[Tuple[Tuple[float, float], ...]] = None,
-    hparams: Optional[Tuple[float, float, float]] = None
+    hparams: Optional[Tuple[float, float, float]] = None,
 ):
     # estimate hyperparameters and get Gram matrix
     if hparams is None:

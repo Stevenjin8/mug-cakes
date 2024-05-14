@@ -4,7 +4,8 @@ from matplotlib import colormaps as cm
 from scipy.stats import multivariate_normal
 
 from mug_cakes.kernel import rbf
-plt.rcParams.update({'axes.labelsize': 'x-large'})
+
+plt.rcParams.update({"axes.labelsize": "x-large"})
 X = np.linspace(0, 1, 100).reshape(-1, 1)
 
 
@@ -19,7 +20,7 @@ for _ in range(3):
     y = multivariate_normal.rvs(cov=K)
     ax.plot(X, y, "k")
 
-ax.set(xlabel="$x$", ylabel="$f$") 
+ax.set(xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/gp-sample2d.png", bbox_inches="tight", dpi=500)
 
 

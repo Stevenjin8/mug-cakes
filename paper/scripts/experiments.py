@@ -3,7 +3,8 @@ import numpy as np
 from scipy import stats
 
 from mug_cakes import bo, gp, kernel
-plt.rcParams.update({'axes.labelsize': 'x-large'})
+
+plt.rcParams.update({"axes.labelsize": "x-large"})
 
 SIZE = 100
 X = np.loadtxt("data/experiments.txt")

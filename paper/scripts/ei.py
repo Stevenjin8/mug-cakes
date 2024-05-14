@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from mug_cakes import bo, gp, kernel
-plt.rcParams.update({'axes.labelsize': 'x-large'})
+
+plt.rcParams.update({"axes.labelsize": "x-large"})
 
 SIZE = 100
 X = np.linspace(0, 1, 5).reshape(-1, 1)
