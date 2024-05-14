@@ -1,15 +1,16 @@
 To show that Bayesian Optimization with biased observers, Gaussian Processes, and the $a_{\vei}$ acquisition function works,
-we do a small case study optimizing mug cakes involving multiple human judges.
-As mentioned in the introduction
-baking is an ideal candidate for Bayesian Optimization because
+we do a small case study optimizing mug cakes recipes involving multiple human judges.
+The inspiration for this experiment came from \cite{Solnik2017}.
+Baking is an ideal candidate for Bayesian Optimization because
 trials take a long time since one has to measure, mix, and bake the ingredients.
-Gaussian Processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the recipes as they bake and how they are perceived.
-Despite these subtle interactions, we still expect that small in changes in the recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Gaussian Processes.
+Gaussian Processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the ingredients as they bake and how they are perceived.
+Despite these subtle interactions, we still expect that small in changes in the recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Bayesian Optimization.
 We can incorporate our analysis of biased observations by having multiple judges.
 Observations are noisy because the whole baking process, from measuring to baking to tasting, is noisy.
-Further, human judges have unique preferences and standards that can bias their results.
+Further, human judges have unique preferences and standards that can bias their judgements.
+The code used for this experiment can be found here \url{https://github.com/Stevenjin8/mug-cakes}.
 
-\subsection{Recipe and Parameters}
+\subsection{Recipe and Parameters}\label{ssec:recip}
 
 We use a recipe based on \cite{mugcake}, but we omit vanilla and salt, and have milk be the only wet ingredient.
 As such, our five ingredients are baking soda, flour, sugar, cocoa, and milk.
@@ -17,14 +18,14 @@ As such, our five ingredients are baking soda, flour, sugar, cocoa, and milk.
 Our tunable parameters are the volumetric proportion of flour $x_\ff$, sugar $x_\ss$, cocoa $x_\cc$, and milk $x_\mm$.
 In other words, we require these parameters to be positive and sum to 1.
 As such, our tunable parameters can be represented by a vector $\mathbf{x} = (x_\ff, x_\ss, x_\cc,x_\mm)$ in a 3-dimensional simplex.
-We fix the amount of baking soda to 1/4 teaspoons to reduce the number of parameters.
+We fix the amount of baking soda to 1/8 teaspoons to reduce the number of parameters.
 Given some parameters, our recipe consists of
 \begin{itemize}
     \item $24x_\ff$ teaspoons of all-purpose flour
     \item $24x_\ss$ teaspoons of sugar
     \item $24x_\cc$ teaspoons of cocoa powder
     \item $24x_\mm$ teaspoons milk
-    \item 1/4 teaspoon of baking soda
+    \item 1/8 teaspoon of baking soda
 \end{itemize}
 To bake the cakes,
 \begin{enumerate}
@@ -35,41 +36,44 @@ To bake the cakes,
 \end{enumerate}
 Figure~\ref{fig:cake} shows a sample cake
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.33\textwidth]{fig/cake.png}
     \caption{A sample cake.}
     \label{fig:cake}
 \end{figure}
 
-\subsection{Setup}
+\subsection{Setup}\label{ssec:setup}
 
-To perform Bayesian Optimization, we use a Gaussian Process surrogate model and $vEI$ as the acquisition function.
+To perform Bayesian Optimization, we use a Gaussian Process surrogate model and $a_{\vei}$ as the acquisition function.
 For the Gaussian Process, our domain $\mathcal{X}$ was a 3-dimensional simplex.
-We used a mean function of $m(\mathbf{x}) = 3$ and $\sigma^2_f = 1 ^ 2$ because I thought that most recipes would not taste great, but still be manageable given that sugar, milk, and cocoa powder are pleasant on their own.
+We used a mean function of $m(\mathbf{x}) = 3$ and $\sigma^2_f = \Var[F(\mathbf{x})] = 1 ^ 2$ for all $\mathbf{x} \in \mathcal{X}$ because
+I thought that most recipes would not taste great.
 We found $\ell^2 = 0.08^2$ to be a reasonable value with some simulations.
 To account for noisy and biased observations noise, we had an observation noise of $\sigma^2_{\epsilon} = 0.3 ^ 2$ and observer bias variance of $\sigma_b^2 = 0.2$.
-There were $N_b = 2$ observers.
+There were $N_B = 2$ observers.
 
-\subsection{Procedure}
+\subsection{Procedure}\label{ssec:procedure}
 
 We follow Algorithm~\ref{alg:bo}.
 To observe $f(\mathbf{x})$ for some $\mathbf{x} \in \mathcal{X}$, we baked the recipe as outlined above and had one observer taste the recipe and give it a score out of 10.
 Ingredients were measured with measuring spoons with the smallest one being 1/8 teaspoon.
 When finding the $\argmax_{\mathbf{x} \in \mathcal{X} } a_{\vei}( \mathbf{x} | \mathcal{D}_n)$, (line 5 of Algorithm~\ref{alg:bo}), ties were broken arbitrarily.
 
-To speed up the process, the first 4 trials were given a score of 0 by observer 1 without actually baking the executing the recipe since they effectively consisted of one ingredient (and baking soda).
-We conducted 6 more trials with alternating observers.
+To speed up the process, the first four trials were given a score of 0 by observer 1 without baking the recipe since they effectively consisted of one ingredient (and baking soda).
+We conducted six more trials with alternating observers.
 
-\subsection{Inner Optimization Loop}
+\subsection{Inner Optimization Loop}\label{ssec:inner-opt}
 
-One practical issue came when executing the inner optimization loop (line 5 of Algorithm~\ref{alg:bo}).
+One practical issue came when executing the inner optimization loop (line 4 of Algorithm~\ref{alg:bo}).
 Scipy's Basin Hopping \cite{scipy, wales1997}, uses SciPy's implementation of L-BFGS-B by default.
 However, this implementation of L-BFGS-B only supports domains that are rectangles in the form
-\begin{equation*}[a_1, b_1] \times \ldots \times [a_N, b_N]
+\begin{equation*}
+    [a_1, d_1] \times \ldots \times [a_K, d_K]
 \end{equation*}
-which does not match our domain $\mathcal{X}$ which is a 3-dimensional simplex.
-As such, we use surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$:
+for $K \in \mathbb{Z}^{+}$,
+which does not match our domain $\mathcal{X}$, a 3-dimensional simplex.
+As such, we use surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$
 \begin{equation*}
     g(\mathbf{r}) =
     \begin{bmatrix}
@@ -88,36 +92,37 @@ Thus, we can implement the inner optimization loop as
     g\left(\argmax_{\mathbf{r} \in [0, 1]^3} a_{\vei}(g(\mathbf{r}) | \mathcal{D}_N)\right).
 \end{equation*}
 
-\subsection{Results and Discussion}
+\subsection{Results and Discussion}\label{ssec:results}
 
 Figure~\ref{fig:exp-res} shows the result of our experiments.
 In Figure \ref{subfig:exp:progression} we see that our algorithm first explores the domain by sampling the corners 4 corners $\mathcal{X}$ and the center.
-Once it sees that $\mathbf{x}_5$ did better than the other samples, our algorithm exploits this knowledge by sampling around $\mathbf{x}_5$.
+Once it sees that $\mathbf{x}_5$ did better than previous recipes, our algorithm exploits this knowledge by sampling around $\mathbf{x}_5$.
 It does not stop exploiting this knowledge because it gets generally increasing results.
 Ultimately, the best recipe was $\mathbf{x}_7$.
 
-With only 10 trials and no prior knowledge, our algorithm was able to find an acceptable recipe validating our method.
+With only ten trials, no prior knowledge, and only four ingredients,
+our algorithm found an acceptable recipe, thus validating our method.
 One taster described it as ``a bit bland but nothing that destroys your soul or taste buds''.
-Further, Figure~\ref{subfig:exp:bias-diff} shows that 0 was not in the 95\% credible interval of $b_1 - b_2$
+Further, Figure~\ref{subfig:exp:bias-diff} shows that 0 was not in the 95\% credible interval of $B_1 - B_2$
 suggesting that our model for observer bias detected a difference and can help our optimization algorithms converge faster.
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{0.31\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig/progression.png}
         \caption{}
         \label{subfig:exp:progression}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.31\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig/ys.png}
         \caption{}
         \label{subfig:exp:ys}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.31\textwidth}
+    \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{fig/bais-diff.png}
         \caption{}

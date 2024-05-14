@@ -1,18 +1,21 @@
-Bayesian Optimization is an iterative probabilistic method for solving black-box optimization problems with expensive sampling.
-It has two parts: a surrogate model and an acquisition function.
-The surrogate model is a probabilistic model that represents our beliefs about $f$ given our observations.
-The acquisition function $a( \cdot | \mathcal{D}_N)$ quantifies how much ``utility'' we think we can get from sampling a point given our beliefs about $f$ and our previous observations $\mathcal{D}_N$.
-As we iterate, we make noisy observations of $f$ in the hope is that we learn more and more about $f$'s peaks giving us better estimates for its maximum.
-We also consider the case where we have multiple biased observers.
-This could occur if we are modeling food and we have different judges with different biases and standards.
-However, we could also represent other grouping structures.
-For example, we might believe that the day of the week biases observations, so all tastings done on a day of the week belong to one observer.
-Generally, we have $N_b$ observers numbered 1 to $N_b$ and let $z_n$ indicate the observer for the $n$th observation.
-As such, the first $N$ observations consist of $\mathcal{D}_N = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_N, y_N, z_N))$.
-
+The high-level idea behind Bayesian Optimization is to iteratively evaluate our unknown
+function $f: \mathcal{X} \subseteq \mathbb{R}^{K} \to \mathbb{R}$ in an intelligent way.
+The hope is that as we iterate, we get a better and better understanding of $f$'s
+peaks, giving us an accurate estimate of $f$s maximum.
+Bayesian Optimization has two components: a surrogate regression model and an acquisition function.
+The surrogate model is a probabilistic model $F$ that represents our beliefs about $f$ given our previous observation observations $\mathcal{D}_N$.
+The acquisition function $a( \mathbf{x} | \mathcal{D}_N)$ tells us where to evaluate $f$ at the $N + 1$st iteration by
+quantifying how much ``utility'' we gain from evaluating $f(\mathbf{x})$ given our existing observations.
+Almost all literature on Bayesian Optimization literature assumes that evaluations of $f$ are noisy but unbiased.
+In this work, we also consider the case where we have multiple biased observers that create a grouping structure in noise across observations.
+In the baking example, biased observations occur if we have different judges with different standards judging our pastries.
+Generally, we have $N_B$ observers numbered 1 to $N_B$ and let $z_n$ indicate the observer for the $n$th observation.
+As such, the first $N$ observations consist of $\mathcal{D}_N = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_N, y_N, z_N))$ where
+$y_n \in \mathbb{R}$ is biased and noisy observation of $f(\mathbf{x}_n)$ by observer $z_n$.
+We cover the exact details of biased and noisy observations in Section~\ref{sec:sm}.
 The pseudocode for Bayesian optimization is as follows.
 \begin{algorithm}
-    \begin{algorithmic}
+    \begin{algorithmic}[1]
         \caption{Bayesian Optimization}
         \label{alg:bo}
         \State $n \gets 1$
@@ -26,15 +29,17 @@ The pseudocode for Bayesian optimization is as follows.
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
-When we finish after $N$ iterations, our estimate for $\argmax_{\mathbf{x} \in \mathcal{X}}f(\mathbf{x})$ is
-the $\mathbf{x}$-value we have sampled (in expectation) given our observations
+
+When we finish after $N$ iterations, our estimate for Equation~\ref{eq:obj} is
+the $\mathbf{x}$-value we have sampled that maximizes $F$ (in expectation) given our observations
 \begin{equation*}
-    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \} } \mathbb{E}[f(\mathbf{x}) | \mathcal{D}_N].
+    \argmax_{\mathbf{x} \in \{ \mathbf{x}_1, \dots, \mathbf{x}_N \} } \mathbb{E}[F(\mathbf{x}) | \mathcal{D}_N].
 \end{equation*}
 
-The hope is that as we iterate, we get a better and better understanding of $f$'s peaks so that we can get better estimates of our objective (Equation \ref{eq:obj}).
-As such, there are two competing objects: exploration and exploitation.
-On one hand, we want to sample far and wide in $\mathcal{X}$ as to not miss any of $f$'s peaks.
-But we also want to exploit existing knowledge of $f$'s peaks to get more precise estimates of $f$'s maximums.
-Our surrogate model lets us see through the noise and bias and quantifies our belief about $f$.
+Since we want to understand $f$'s peaks,
+there are two competing objects: exploration and exploitation.
+On one hand, we want to sample far and wide in $\mathcal{X}$ to not $f$'s highest peak (exploration).
+But we also want to exploit existing knowledge of $f$'s peaks to get more precise estimates of $f$'s maximums (exploitation).
+Our surrogate model lets us see through the noise and bias of our observations and quantify our belief about $f$.
 With this knowledge, our acquisition can make sampling choices that efficiently explore $\mathcal{X}$ and exploit previous observations.
+

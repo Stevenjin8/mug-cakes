@@ -3,9 +3,11 @@ import numpy as np
 from scipy.stats import multivariate_normal
 
 from mug_cakes import bo, gp, kernel
+plt.rcParams.update({'axes.labelsize': 'x-large'})
 
 BLUE = "#1f77b4"
 ORANGE = "#ff7f0e"
+SIZE = 100
 
 np.random.seed(43)
 N = 10
@@ -25,7 +27,7 @@ K = kernel.rbf(X, X, scale2, s2f)
 
 cov2 = bo.full_cov(K, N_b, Z, 0, 0)[:N, :N]
 y = multivariate_normal(cov=cov2).rvs().flatten()
-noise = np.random.normal(scale = s2e ** 0.5, size = y.shape)
+noise = np.random.normal(scale=s2e**0.5, size=y.shape)
 y += B[Z] + noise
 
 cov1 = K.copy()
@@ -42,11 +44,11 @@ v1 = gp.conditional_var(K_2s, np.linalg.inv(cov1), k_s.T)
 fig, ax = plt.subplots()
 ax.fill_between(X_star.flatten(), m1 - 2 * v1**0.5, m1 + 2 * v1**0.5, color="lightgray")
 ax.plot(X_star, m1, "k--")
-ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o")
-ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
-ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
+ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
+ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)
+ax.scatter(X, (y - B[Z] - noise), color="k", marker="x", s=SIZE)
 
-ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
+ax.set(ylim=(-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/noiseless-posterior.png", dpi=500, bbox_inches="tight")
 
 m2 = gp.conditional_mean(y, np.linalg.inv(cov2), k_s.T)
@@ -54,12 +56,12 @@ v2 = gp.conditional_var(K_2s, np.linalg.inv(cov2), k_s.T)
 fig, ax = plt.subplots()
 ax.fill_between(X_star.flatten(), m2 - 2 * v2**0.5, m2 + 2 * v2**0.5, color="lightgray")
 ax.plot(X_star, m2, "k--")
-ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o")
-ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
-ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
+ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
+ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)
+ax.scatter(X, (y - B[Z] - noise), color="k", marker="x", s=SIZE)
 
 
-ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
+ax.set(ylim=(-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 fig.savefig("fig/noisy-posterior.png", dpi=500, bbox_inches="tight")
 
 
@@ -68,10 +70,10 @@ v3 = gp.conditional_var(K_2s, np.linalg.inv(cov3), k_s.T)
 fig, ax = plt.subplots()
 ax.fill_between(X_star.flatten(), m3 - 2 * v3**0.5, m3 + 2 * v3**0.5, color="lightgray")
 ax.plot(X_star, m3, "k--")
-ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o")
-ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="o")
-ax.scatter(X, (y - B[Z] - noise), color="k", marker="x")
+ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
+ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)
+ax.scatter(X, (y - B[Z] - noise), color="k", marker="x", s=SIZE)
 
-ax.set(ylim = (-1.5, 1.5), xlabel="$x$", ylabel="$f$")
+ax.set(ylim=(-1.5, 1.5), xlabel="$x$", ylabel="$f$")
 
 fig.savefig("fig/biased-posterior.png", dpi=500, bbox_inches="tight")

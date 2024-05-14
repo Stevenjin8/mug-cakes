@@ -1,22 +1,45 @@
-Optimization problems come in various flavors that require specific solutions.
-In this paper, we study Bayesian optimization applied to black-box sample-efficient optimization problems.
-That is, problems for which the only way we can access the underlying behavior is through expensive trials.
-For example, we might be trying to find the best location for wildlife sensors or (as we will see later) the proportion of ingredients to make the best mug cakes.
+The textbook way to optimize a continuous objective function $f: [a, b] \to \mathbb{R}$ is to
+\begin{enumerate}
+    \item Find $f'$
+    \item Find the critical points by solving $f'(c) = 0$ or find $f'(c)$ does not exist.
+    \item Evaluate $f$ at $a$, $b$, and the critical points.
+\end{enumerate}
+However, this method is unsuitable for many real-world problems because
+we might not have a formula for $f$ or $f'$, and $f$ might be expensive to evaluate.
+In this paper, we study how Bayesian Optimization optimizes unknown continuous functions that are expensive to evaluate and impossible to evaluate precisely.
+For example, given a cake recipe $\mathbf{x}$, the only way for a novice baker to learn about
+the quality of a recipe $f(\mathbf{x})$ is by baking the recipe and having judges taste the resulting pastry.
+Evaluating the quality of a recipe is expensive because baking is slow and laborious.
+Further, the evaluation of a recipe's quality is imprecise because there might be small inaccuracies in measurements
+and judges could have different biases and standards.
+The only structure we require of $f$ is that it be continuous so that we can perform probabilistic inference on $f$'s global behavior given 
+a finite number of imprecise observations.
+For baking, this requirement means that small changes in recipes cause small changes in the quality of the recipe.
+Baking will be the model problem for this paper, but similar problems
+include finding optimal placements of sensors \cite{capl2017}, sustainable concrete mixtures \cite{ament2023},
+and the most profitable slot machines \cite{shahriari2016}.
 
-More formally, we are considering a space $\mathcal{X}$ (most often a compact subset of $\mathbb{R}^{K}$) and an unknown continuous function $f: \mathcal{X} \to \mathbb{R}$.
-The only structure we require of $f$ is that it be continuous so that we can learn about $f$'s global behavior by evaluating it at a finite number of points.
+More formally, we consider a compact space $\mathcal{X} \subseteq \mathbb{R}^{K}$  and an unknown continuous function $f: \mathcal{X} \to \mathbb{R}$.
+In the context of backing, $\mathcal{X}$ is the set of vector-encode recipes
+and $f$ maps each vector-encoded recipe to its quality.
+For example, given $K$ ingredients, each dimension of $\mathcal{X}$ could represent the proportion of an ingredient in a recipe
+and $\mathcal{X}$ would be a $(K - 1)$-dimensional simplex.
 Our goal is to estimate
 \begin{equation}\label{eq:obj}
     \argmax_{\mathbf{x} \in \mathcal{X}} f(\mathbf{x})
 \end{equation}
-in as few samples as possible 
-(Note that the maximum exists because $f$ is continuous and $\mathcal{X}$ is compact).
-In the context of baking, $\mathcal{X}$ is a set of recipes and $f$ gives the quality of a recipe after baking.
-Further, baking satisfies the continuity requirement because small changes in a recipe have small changes in the quality of the resulting cake.
+while minimizing the number of imprecise evaluations of $f$.
+(Note that the maximum exists because $f$ by the Extreme Value Theorem).
 
-We will first review Gaussian distributions.
-Next, we will explore Gaussian Processes and how to deal with noisy and biased observations
-so that we can use them as a surrogate model.
-In section ... we will look at acquisition functions.
-Having explored both components of Bayesian Optimization we will see how the algorithm performs in the real-world example of finding the perfect mug cake.
-Finally, we will investigate how to perform inference on the biases using data from the experiment.
+In Section~\ref{sec:bo}, we will give an overview of Bayesian Optimization and introduce its two components: a surrogate regression model and an acquisition function.
+In Section~\ref{sec:sm}, we will explore how to use Gaussian Processes
+to model about our beliefs about $f$ while accoutning for noisy and biased observations.
+Section~\ref{sec:af} will present an acquisition function that will tell us where to place our observations.
+Finally, Section~\ref{sec:exp} will present a small experiment where we optimize mug cake recipes using Bayesian Optimization.
+
+For the sake of correctness, we only consider Borel subsets of $\mathbb{R}^{N}$ denoted $\mathcal{B}_N$.
+This restriction is crucial for theoretical purposes, but has almost no practical importance because
+ ``any subset of $\mathbb{R}$ that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}.
+Further, all integrals are Lebesgue integrals using the Lebesgue measure on $\mathbb{R}^{N}$.
+Lastly, all functions we consider will be measurable.
+Pragmatic readers that are unfamiliar with measure theory treat $\mathcal{B}_N$ as the powerset of $\mathbb{R}^{N}$ and ignore the rest of this paragraph.

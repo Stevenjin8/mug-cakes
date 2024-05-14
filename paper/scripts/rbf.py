@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from mug_cakes.kernel import rbf
+plt.rcParams.update({'axes.labelsize': 'x-large'})
 
 X_star = np.linspace(-3, 3, 1000).reshape(-1, 1)
 zero = np.array([[0]])

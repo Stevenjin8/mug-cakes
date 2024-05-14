@@ -1,41 +1,41 @@
-\subsection{Kernels}
+\subsection{Kernels}\label{ssec:kernel}
 
-The central idea of Bayesian Optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points.
-Gaussian Processes implement this idea with a kernel which gives the covariance of $f(\mathbf{x})$ and $f(\mathbf{x}')$
-as a function of $\mathbf{x}$ and $\mathbf{x}'$.
-In this section, we will study the Radial Basis Function and show some results that make it a good kernel.
+The central idea of Bayesian Optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points allowing us to make inferences about $f$'s global behavior with a finite number of observations.
+Modeling $f$'s global behavior with a surrogate model $F \sim \mathcal{GP}(m, \kappa)$ will allow us to make inferences on the location of peaks which will aid our acquisition function in balancing exploration and exploitation.
+Gaussian Processes implement the idea of similarity with a kernel which gives the covariance of $F(\mathbf{x})$ and $F(\mathbf{x}')$ as a function of $\mathbf{x}$ and $\mathbf{x}'$.
+In this section, we will study the Radial Basis Function and show that it satisfies theoretical requirements of Gaussian Processes and work well with Bayesian Optimization.
 
-\begin{definition}[Radial Basis Function]
-    A radial basis function $\kappa_{\rbf}: \mathbb{R}^{k} \times \mathbb{R}^{k} \to \mathbb{R}$
+\begin{definition}[Radial Basis Function]\label{def:rbf}
+    A radial basis function $\kappa_{\rbf}: \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}$
     is given by
-    \begin{equation*}
+    \begin{equation}\label{eq:rbf}
         \kappa_{\rbf}(\mathbf{x}, \mathbf{x}'; \sigma_f^2, \ell^2)
         = \sigma_f^{2} \exp \left\{ - \frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2 \ell^2 }\right\}
-    \end{equation*}
-    for $\sigma_f^2 > 0$ and $\ell^2 > 0$.
+    \end{equation}
+    for parameters $\sigma_f^2 > 0$ and $\ell^2 > 0$.
 
     If the parameters are clear from context or not relevant, we omit them and write $\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')$ instead.
 \end{definition}
-In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal variance of $f(\mathbf{x})$ for all $\mathbf{x}$ because
+In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal variance of $F(\mathbf{x})$ for all $\mathbf{x}$ because
 \begin{equation*}
-    \Var(f(\mathbf{x})) = \Cov(f(\mathbf{x}), f(\mathbf{x})) = \kappa_{\rbf}(f(\mathbf{x}), f(\mathbf{x})) = \sigma_f^2.
+    \Var(F(\mathbf{x})) = \Cov(F(\mathbf{x}), F(\mathbf{x})) = \kappa_{\rbf}(\mathbf{x}, \mathbf{x}) = \sigma_f^2.
 \end{equation*}
 The parameter $\ell^2$ scales the domain by dividing $\lVert \mathbf{x} - \mathbf{x}' \rVert$.
 Large values of $\ell^2$ shrink the domain while small values of $\ell^2$ expand the domain.
+For example, if our $\mathcal{X}$-units were in cups, we would choose small $\ell^2$, but if the units were in teaspoons, we would choose large $\ell^2$.
 
-We see that RBF uses Euclidean distance as a measure of similarity.
-If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is large, then the correlation between $f(\mathbf{x})$ and $f(\mathbf{x}')$ small:
-\[
-    \frac{\Cov(f(\mathbf{x}), f(\mathbf{x}'))}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}')])}}
-    = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 0.
-\]
+We also see that RBF uses Euclidean distance as a measure of similarity.
+If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2 / \ell^2$ is large, then the correlation between $F(\mathbf{x})$ and $F(\mathbf{x}')$ small:
+\begin{equation*}
+    \frac{\Cov(F(\mathbf{x}), F(\mathbf{x}'))}{\sqrt{\Var[F(\mathbf{x})]\Var[F(\mathbf{x}')])}} = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} = \exp \left\{ -\frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2\ell^2 } \right\} \approx 0.
+\end{equation*}
 However, if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, then the correlation is large:
 \begin{equation*}
-    \frac{\Cov(f(\mathbf{x}), f(\mathbf{x}'))}{\sqrt{\Var[f(\mathbf{x})]\Var[f(\mathbf{x}')])}}
-    = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} \approx 1.
+    \frac{\Cov(F(\mathbf{x}), F(\mathbf{x}'))}{\sqrt{\Var[F(\mathbf{x})]\Var[F(\mathbf{x}')])}}
+    = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} = \exp \left\{ -\frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2\ell^2 } \right\} \approx 1.
 \end{equation*}
 
-An important class of kernel is Mercer kernels.
+An important class of kernels is Mercer kernels.
 Such kernels allow us to implicitly map our data to a higher (potentially infinite) dimensional inner product space, and work in that potentially infinite dimensional space with a finite amount of computation.
 We will use this definition to prove necessary and desirable properties of RBF kernels which will make them suitable kernels for Gaussian Processes.
 
@@ -48,8 +48,9 @@ We will use this definition to prove necessary and desirable properties of RBF k
     \end{equation*}
 \end{definition}
 
-It might be surprising that RBF kernels are Mercer kernels because there is no sum in its formula.
-The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $e^{x}$ to show that RBF kernels are Mercer kernel.
+It might be surprising that RBF kernels are Mercer kernels because there is no sum in Equation~\ref{eq:rbf}.
+The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $\exp$ to show that RBF kernels are Mercer kernels.
+For the next definition, $\mathbb{R}^{\omega}$ is the set of sequences of real numbers.
 
 \begin{definition}[$L^1$]
     The set $L^1$ is the set of sequences of $\mathbb{R}$ whose infinite sum converges absolutely.
@@ -68,8 +69,8 @@ The next few results utilize infinite dimensional vector spaces and a clever use
 \begin{proof}
     We need to show that $L^1$ is a vector space and $\langle \cdot, \cdot \rangle$ is an inner product.
 
-    The set $\mathbb{R}^{\omega}$ is a vector space by Example 6.29 of \cite{axler2020}.
-    So to show that $L^1 \subseteq \mathbb{R}^{\omega}$ is a vector space, we just need to show that it is a subspace of $\mathbb{R}^{\omega}$.
+    The set of sequence of real numbers $\mathbb{R}^{\omega}$ is a vector space by Example 6.29 of \cite{axler2020}.
+    To show that $L^1 \subseteq \mathbb{R}^{\omega}$ is a vector space, we just need to show that it is a subspace of $\mathbb{R}^{\omega}$.
     \begin{itemize}
         \item \textbf{additive identity}\\
             $\mathbf{0} = (0, 0, \dots)$ is an element of $L^1$ because
@@ -106,12 +107,12 @@ The next few results utilize infinite dimensional vector spaces and a clever use
                 = \sum\limits_{n=1}^{\infty} f_n^2
                 \geq 0.
             \end{equation*}
-            At the same time, $\mathbf{f}$ must be bounded, so there exists $M \in \mathbb{R}$ such that $M > \lvert f_n \rvert$ for all $n$.
+            At the same time, $\mathbf{f}$ must be bounded because the infinite sum of its elements converges, so there exists $M \in \mathbb{R}$ such that $M > \lvert f_n \rvert$ for all $n \in \mathbb{Z}^{+}$.
             It follows that
             \begin{equation*}
                 \langle \mathbf{f}, \mathbf{f} \rangle
                 = \sum\limits_{n=1}^{\infty} f_n^2
-                \leq \sum\limits_{i=n}^{\infty}
+                \leq \sum\limits_{n=1}^{\infty}
                 M \lvert f_n \rvert < \infty
             \end{equation*}
 
@@ -154,12 +155,13 @@ The next few results utilize infinite dimensional vector spaces and a clever use
 \end{theorem}
 \begin{proof}
     This proof is inspired by \cite{shashua2009}.
-    For notational simplicity, we only consider the case where $\mathbf{x} \in \mathbb{R}^{1}$.
+    For notational simplicity, we only consider the case where $\mathbf{x} \in \mathcal{X} \subseteq \mathbb{R}^{1}$.
     Let $\gamma : \mathbb{R}^{1} \to L^1$ be
     \begin{equation*}
         \gamma(\mathbf{x}) = \sigma_f \exp\left\{- \frac{\mathbf{x}^2}{2\ell^2}\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
     \end{equation*}
-    We can check that the absolute sum of the elements of $\gamma(\mathbf{x})$ converges using the ratio test, which we omit.
+    (We adopt the convention that $0^0 = 1$).
+    The domain of $\gamma$ is $L_1$ because the absolute sum of the elements of $\gamma(\mathbf{x})$ converges by the ratio test.
     Then, for $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^{1}$,
     \begin{align*}
         \langle \gamma(\mathbf{x}), \gamma(\mathbf{x'}) \rangle
@@ -169,6 +171,11 @@ The next few results utilize infinite dimensional vector spaces and a clever use
         \sum\limits_{n=1}^{\infty}
         \frac{ (\mathbf{x}/\ell)^{n - 1} (\mathbf{x'}/\ell)^{n - 1}}{ (n - 1)! } \\
         & = \sigma_f^2
+        \exp \left\{ -\frac{\mathbf{x}^2}{2\ell^2} \right\}
+        \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
+        \sum\limits_{n=0}^{\infty}
+        \frac{ \left(\mathbf{x}\mathbf{x'}/\ell^2\right)^{n }}{ n ! } \\
+        & = \sigma_f^2
         \exp \left\{ -\frac{ \mathbf{x}^2}{2\ell^2} \right\}
         \exp \left\{ -\frac{ \mathbf{x'}^2}{2\ell^2} \right\}
         \exp \left\{ \frac{\mathbf{x} \mathbf{x'}}{ \ell^2} \right\} \\
@@ -176,14 +183,20 @@ The next few results utilize infinite dimensional vector spaces and a clever use
         & = \kappa_{\rbf}(\mathbf{x}, \mathbf{x'}).
     \end{align*}
 
-    The proof becomes more laborious when considering $\mathcal{X} \subseteq \mathbb{R}^{N}$ because of the multinomial expansion of $\lVert \mathbf{x} - \mathbf{y} \rVert^2$.
+    The proof becomes more laborious when considering $\mathcal{X} \subseteq \mathbb{R}^{K}$ because of the multinomial expansion of $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$.
     For a complete proof, see Section 4.3.3 of \cite{shashua2009}.
 \end{proof}
 
-Using the fact that RBF kernels are Mercer Kernels, we can show that it generates positive semi-definite covariance matrices.
+Using the fact that RBF kernels are Mercer Kernels, we can show that they generate positive semi-definite covariance matrices.
 
 \begin{lemma}
-    Mercer Kernels are positive semi-definite.
+    Suppose $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a Mercer kernel.
+    Then, for any $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathcal{X}$, the matrix $\mathbf{K}$
+    given by
+    \begin{equation*}
+        (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
+    \end{equation*}
+    is positive semi-definite.
 \end{lemma}
 \begin{proof}
     Suppose that $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a Mercer Kernel.
@@ -202,7 +215,8 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that it generate
     Then,
     \begin{align*}
         \mathbf{c}^{T} \mathbf{K} \mathbf{c}
-        & = \langle c_1 \gamma(\mathbf{x}_1) + \dots + c_N \gamma(\mathbf{x}_N), c_1 \gamma(\mathbf{x}_1) + \dots + c_N \gamma(\mathbf{x}_N) \rangle
+        & = \left\langle \sum_{i = 1}^{N}c_i \gamma(\mathbf{x}_i),
+        \sum_{i = 1}^{N}c_i \gamma(\mathbf{x}_i) \right\rangle
         \geq 0
     \end{align*}
     by the positivity of inner products.
@@ -214,15 +228,15 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that it generate
 \end{corollary}
 
 In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
-Thus, the distribution of $(f(\mathbf{x}_1), \dots f(\mathbf{x}_N))$ will be nondegenerate which allows $f(\mathbf{x}_n)$ to take on any value for all $n$.
+Thus, the distribution of $(F(\mathbf{x}_1), \dots F(\mathbf{x}_N))$ will be nondegenerate which allows $F(\mathbf{x})$ to take on any value for all $\mathbf{x} \in \mathcal{X}$.
 This property is important because we want to model continuous functions, and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_N$ and $y_1, \dots, y_N$ there exist continuous functions that map $\mathbf{x}_1, \dots, \mathbf{x}_N$ to $y_1, \dots, y_N$ respectively.
 
 \begin{lemma}
     \label{lem:rbf-pd}
-    If $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel will be strictly positive definite.
+    If $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel is strictly positive definite.
 \end{lemma}
 \begin{proof}
-    Once again, we only consider the case where $\mathcal{X} \subseteq \mathbb{R}^{1}$.
+    Once again, we only consider the case where $\mathbf{x}, \mathbf{y} \in \mathcal{X} \subseteq \mathbb{R}^{1}$.
     Without loss of generality, assume that $\sigma_f^2 = \ell^2 = 1$.
     We can write $\kappa_{\rbf}(\mathbf{x}, \mathbf{y}) = \langle \gamma(\mathbf{x}), \gamma(\mathbf{y}) \rangle$
     where $\gamma: \mathcal{X} \to L^{1}$ is given by
@@ -233,35 +247,50 @@ This property is important because we want to model continuous functions, and fo
 
     First, we show that if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent.
     For contradiction, assume that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly dependent.
-    Then, there exists an $M \in \mathbb{N}, 0 < M < N$ such that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$
+    Then, there exists an $M \in \mathbb{Z}^{+}, 0 < M < N$ such that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$
     are linearly independent and for some weights $w_1, \dots, w_M \in \mathbb{R}$,
     \begin{equation}
         \label{eq:dep}
-        w_1 \gamma(\mathbf{x}_1) + \dots + w_M \gamma(\mathbf{x}_M) = \gamma(\mathbf{x}_{M + 1}).
+        \sum_{i = 1}^{M}w_i \gamma(\mathbf{x}_i)  = \gamma(\mathbf{x}_{M + 1}).
     \end{equation}
-    Since $\gamma$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$, $p \in \mathbb{N}$, $0 < p \leq M$.
+    Since $\gamma$ does not map to $\mathbf{0}$, we know that $M > 0$ and there exists a $w_p \neq 0$ with $p \in \mathbb{Z}^{+}$, $0 < p \leq M$.
 
-    Looking at Equation~\ref{eq:dep} element-wise, we see that for all $q \in \mathbb{N}, q \geq 0$,
+    Expanding out at Equation~\ref{eq:dep},
     \begin{align*}
-        \sum\limits_{n = 1}^{M} w_n \exp \left\{ -\frac12 \mathbf{x}_n^2 \right\} \mathbf{x}_n^{q}
-        = \exp \left\{ -\frac12 \mathbf{x}_{M + 1}^2 \right\} \mathbf{x}_{M+1}^{q}
+        \sum_{i = 1}^{M}w_i \exp\left\{-\frac{\mathbf{x}_{i}^2}2 \right\} \left(\frac{ \mathbf{x}_i^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
+        & =
+        \exp\left\{-\frac{\mathbf{x}_{M + 1}^2}2 \right\} \left(\frac{ \mathbf{x}_{M + 1}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty} \\
+        \implies
+        \sum_{i = 1}^{M}w_i \exp\left\{-\frac{\mathbf{x}_{i}^2}2 \right\} \left(\frac{ \mathbf{x}_i^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=2}^{\infty}
+        & =
+        \exp\left\{-\frac{\mathbf{x}_{M + 1}^2}2 \right\} \left(\frac{ \mathbf{x}_{M + 1}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=2}^{\infty} \\
+        \implies
+        \sum_{i = 1}^{M}w_i \exp\left\{-\frac{\mathbf{x}_{i}^2}2 \right\} \left( \frac{ \mathbf{x}_i^{n - 1} }{ \sqrt{(n - 2)!} }\right)_{n=2}^{\infty}
+        & =
+        \exp\left\{-\frac{\mathbf{x}_{M + 1}^2}2 \right\} \left(\frac{ \mathbf{x}_{M + 1}^{n - 1} }{ \sqrt{(n - 2)!} }\right)_{n=2}^{\infty} \\
+        \implies
+        \sum_{i = 1}^{M}w_i \exp\left\{-\frac{\mathbf{x}_{i}^2}2 \right\} \mathbf{x}_i \left( \frac{ \mathbf{x}_i^{n - 2} }{ \sqrt{(n - 2)!} }\right)_{n=2}^{\infty}
+        & =
+        \exp\left\{-\frac{\mathbf{x}_{M + 1}^2}2 \right\} \mathbf{x}_{M + 1}\left(\frac{ \mathbf{x}_{M + 1}^{n - 2} }{ \sqrt{(n - 2)!} }\right)_{n=2}^{\infty} \\
+        \implies
+        \sum_{i = 1}^{M}\mathbf{x}_i w_i \exp\left\{-\frac{\mathbf{x}_{i}^2}2 \right\} \left( \frac{ \mathbf{x}_i^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}
+        & =
+        \mathbf{x}_{M + 1}\exp\left\{-\frac{\mathbf{x}_{M + 1}^2}2 \right\}  \left(\frac{ \mathbf{x}_{M + 1}^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty} \\
+        \implies
+        \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) & = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
     \end{align*}
-    implying that
-    \begin{equation*}
-        \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n)  = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
-    \end{equation*}
 
-    In the case that $\mathbf{x}_{M + 1} = 0$,
+    In the case that $\mathbf{x}_{M + 1} = \mathbf{0}$,
     \begin{equation*}
         \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = \mathbf{0}.
     \end{equation*}
-    We know that $\mathbf{x}_p w_p \neq 0$ because $w_p \neq 0$ and $\mathbf{x}_p \neq \mathbf{x}_M = 0$.
-    As such, we have a found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
+    We know that $\mathbf{x}_p w_p \neq 0$ because $w_p \neq 0$ and $\mathbf{x}_p \neq \mathbf{x}_{M + 1} = 0$.
+    As such, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
 
     In the case that $\mathbf{x}_{M + 1} \neq 0$,
     \begin{align}
-        &\sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
-        \implies &\sum\limits_{n=1}^{M} \frac{\mathbf{x}_n}{\mathbf{x}_{M + 1}} w_n \gamma(\mathbf{x}_n) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
+        & \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
+        \implies & \sum\limits_{n=1}^{M} \frac{\mathbf{x}_n}{\mathbf{x}_{M + 1}} w_n \gamma(\mathbf{x}_n) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
     \end{align}
     Subtracting Equations \ref{eq:dep} and \ref{eq:other-dep},
     \begin{equation*}
@@ -271,10 +300,10 @@ This property is important because we want to model continuous functions, and fo
     \begin{equation*}
         w_p\left(\frac{ \mathbf{x}_p }{ \mathbf{x}_{M + 1} } - 1\right) \neq 0.
     \end{equation*}
-    Once again, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weights that equals $\mathbf{0}$ which also contradicts the assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ is linearly independent.
-    Since we get a contradiction in both cases, we conclude that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent.
+    Once again, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weights that equals $\mathbf{0}$ contradicting the assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
+    Since we get a contradiction in both cases, we conclude that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent when $\mathbf{x}_1, \ldots, \mathbf{x}_N$ are distinct.
 
-    Now, we use the independence of $\mathbf{x}_1, \dots, \mathbf{x}_N$ to show that $\mathbf{K}$ is strictly positive definite.
+    Now, we use the independence of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ to show that $\mathbf{K}$ is strictly positive definite.
     Let $\mathbf{c} \in \mathbb{R}^{N}$ be nonzero.
     Since $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent,
     \begin{equation*}
@@ -286,7 +315,6 @@ This property is important because we want to model continuous functions, and fo
         = \left\langle \sum\limits_{n = 1}^{N} c_n \gamma(\mathbf{x}_n), \sum\limits_{n = 1}^{N} c_n \gamma(\mathbf{x}_n) \right\rangle
         > 0
     \end{align*}
-    by the definiteness property of inner products
-    Thus, the RBF kernel generates strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$
-    are distinct.
+    by the definiteness and positivity properties of inner products.
+    Thus, the RBF kernel generates strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
 \end{proof}

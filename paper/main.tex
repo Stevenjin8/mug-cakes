@@ -1,7 +1,7 @@
 \documentclass{article}[12, letterpaper]
-\author{Steven Jin Xuan}
-\date{Fall 2023}
-\title{Bayesian Statistics}
+\author{Steven M. Jin Xuan}
+\date{Spring 2024}
+\title{Bayesian Optimization for a Better Cake}
 
 \input{./preamble.tex}
 
@@ -15,24 +15,30 @@
 
 \begin{document}
 
+\maketitle
+\pagebreak
+
 \input{abstract.tex}
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 \input{intro.tex}
-\section{Bayesian Optimization}
+\section{Bayesian Optimization}\label{sec:bo}
 \input{bo.tex}
-\section{Gaussians}
+\section{Surrogate Model}\label{sec:sm}
 \input{gaussian.tex}
 \input{gp.tex}
 
 \input{kernels.tex}
 
-\section{Acquisition Functions}
+\section{Acquisition Functions}\label{sec:af}
 \input{acquisition.tex}
-\section{Mug Cake Experiments}
+\section{Mug Cake Experiments}\label{sec:exp}
 \input{experiments.tex}
-%\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
+\input{conclusion.tex}
+\section*{Acknowledgements}
+\input{acknowledgements.tex}
 
 \pagebreak
 \bibliography{mybib.bib}{}
-\bibliographystyle{plain}
+\bibliographystyle{apalike}
 \end{document}
