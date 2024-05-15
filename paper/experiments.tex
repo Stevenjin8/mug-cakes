@@ -1,10 +1,10 @@
-To show that Bayesian Optimization with biased observers, Gaussian Processes, and the $a_{\vei}$ acquisition function works,
+To show that Bayesian optimization with biased observers, Gaussian processes, and the $a_{\vei}$ acquisition function works,
 we do a small case study optimizing mug cakes recipes involving multiple human judges.
 The inspiration for this experiment came from \cite{Solnik2017}.
-Baking is an ideal candidate for Bayesian Optimization because
+Baking is an ideal candidate for Bayesian optimization because
 trials take a long time since one has to measure, mix, and bake the ingredients.
-Gaussian Processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the ingredients as they bake and how they are perceived.
-Despite these subtle interactions, we still expect that small in changes in the recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Bayesian Optimization.
+Gaussian processes are a perfect model relationship between recipes and their perceived quality because there could be subtle interactions between the ingredients as they bake and how they are perceived.
+Despite these subtle interactions, we still expect that small in changes in the recipe will have little effect on the resulting cake's perceived quality satisfying the continuity assumption of Bayesian optimization.
 We can incorporate our analysis of biased observations by having multiple judges.
 Observations are noisy because the whole baking process, from measuring to baking to tasting, is noisy.
 Further, human judges have unique preferences and standards that can bias their judgements.
@@ -30,27 +30,27 @@ Given some parameters, our recipe consists of
 To bake the cakes,
 \begin{enumerate}
     \item Mix dry ingredients in a large ceramic mug.
-    \item Add milk and mix until homogeneous
+    \item Add milk and mix until homogeneous.
     \item Place mug on the edge of a 700 Watt microwave and microwave on high for 2 minutes and 15 seconds.
     \item Allow cake to cool for 1 minute.
 \end{enumerate}
 Figure~\ref{fig:cake} shows a sample cake
 
-\begin{figure}[ht]
+\begin{figure}
     \centering
     \includegraphics[width=0.33\textwidth]{fig/cake.png}
-    \caption{A sample cake.}
+    \caption{A sample cake. It did not taste great.}
     \label{fig:cake}
 \end{figure}
 
 \subsection{Setup}\label{ssec:setup}
 
-To perform Bayesian Optimization, we use a Gaussian Process surrogate model and $a_{\vei}$ as the acquisition function.
-For the Gaussian Process, our domain $\mathcal{X}$ was a 3-dimensional simplex.
+To perform Bayesian optimization, we use a Gaussian process surrogate model and $a_{\vei}$ as the acquisition function.
+For the Gaussian process, our domain $\mathcal{X}$ was a 3-dimensional simplex.
 We used a mean function of $m(\mathbf{x}) = 3$ and $\sigma^2_f = \Var[F(\mathbf{x})] = 1 ^ 2$ for all $\mathbf{x} \in \mathcal{X}$ because
 I thought that most recipes would not taste great.
 We found $\ell^2 = 0.08^2$ to be a reasonable value with some simulations.
-To account for noisy and biased observations noise, we had an observation noise of $\sigma^2_{\epsilon} = 0.3 ^ 2$ and observer bias variance of $\sigma_b^2 = 0.2$.
+To account for noisy and biased observations noise, we had an observation noise of $\sigma^2_{\epsilon} = 0.3 ^ 2$ and observer bias variance of $\sigma_B^2 = 0.2$.
 There were $N_B = 2$ observers.
 
 \subsection{Procedure}\label{ssec:procedure}
@@ -60,20 +60,20 @@ To observe $f(\mathbf{x})$ for some $\mathbf{x} \in \mathcal{X}$, we baked the r
 Ingredients were measured with measuring spoons with the smallest one being 1/8 teaspoon.
 When finding the $\argmax_{\mathbf{x} \in \mathcal{X} } a_{\vei}( \mathbf{x} | \mathcal{D}_n)$, (line 5 of Algorithm~\ref{alg:bo}), ties were broken arbitrarily.
 
-To speed up the process, the first four trials were given a score of 0 by observer 1 without baking the recipe since they effectively consisted of one ingredient (and baking soda).
+To speed up the process, the first four trials were given a score of 0 by observer 2 without baking the recipe since they effectively consisted of one ingredient (and baking soda).
 We conducted six more trials with alternating observers.
 
 \subsection{Inner Optimization Loop}\label{ssec:inner-opt}
 
 One practical issue came when executing the inner optimization loop (line 4 of Algorithm~\ref{alg:bo}).
-Scipy's Basin Hopping \cite{scipy, wales1997}, uses SciPy's implementation of L-BFGS-B by default.
+Scipy's Basin Hopping implementation \cite{scipy, wales1997}, uses SciPy's implementation of L-BFGS-B by default.
 However, this implementation of L-BFGS-B only supports domains that are rectangles in the form
 \begin{equation*}
-    [a_1, d_1] \times \ldots \times [a_K, d_K]
+    [a_1, d_1] \times \dots \times [a_K, d_K]
 \end{equation*}
 for $K \in \mathbb{Z}^{+}$,
 which does not match our domain $\mathcal{X}$, a 3-dimensional simplex.
-As such, we use surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$
+As such, we use a surjective differentiable map $g: [0, 1]^3 \to \mathcal{X}$
 \begin{equation*}
     g(\mathbf{r}) =
     \begin{bmatrix}
@@ -96,8 +96,8 @@ Thus, we can implement the inner optimization loop as
 
 Figure~\ref{fig:exp-res} shows the result of our experiments.
 In Figure \ref{subfig:exp:progression} we see that our algorithm first explores the domain by sampling the corners 4 corners $\mathcal{X}$ and the center.
-Once it sees that $\mathbf{x}_5$ did better than previous recipes, our algorithm exploits this knowledge by sampling around $\mathbf{x}_5$.
-It does not stop exploiting this knowledge because it gets generally increasing results.
+Once it saw that $\mathbf{x}_5$ did better than previous recipes, our algorithm exploited this knowledge by sampling around $\mathbf{x}_5$.
+It did not stop exploiting this knowledge because it received generally increasing results.
 Ultimately, the best recipe was $\mathbf{x}_7$.
 
 With only ten trials, no prior knowledge, and only four ingredients,
@@ -131,9 +131,9 @@ suggesting that our model for observer bias detected a difference and can help o
     \hfill
     \caption{
         Results of Mug Cake case study.
-        (a) the progression of ingredient proportions.
-        (b) the progression of scores.
-        (c) posterior belief about the difference in bias between our observers after all observations.
+        Figure (a) shows the progression of ingredient proportions.
+        Figure (b) shows the progression of scores.
+        Figure (c) shows posterior belief about the difference in bias between our observers after all observations.
     }
     \label{fig:exp-res}
 \end{figure}

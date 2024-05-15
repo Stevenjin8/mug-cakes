@@ -1,47 +1,53 @@
-While we can express our beliefs about our objective function $f$
-using a Gaussian Process $F \sim \mathcal{GP}(m, \kappa_{\rbf})$,
-acquisition functions balances exploration and exploitation
-by picking where to evaluate $f$ at every iteration.
-Unlike Gaussian Processes, acquisition functions are usually heuristics-based.
+Now that we can express our beliefs about our objective function $f$
+using a Gaussian process $F \sim \mathcal{GP}(m, \kappa_{\rbf})$,
+we discuss acquisition functions which balance
+
+exploration and exploitation by picking where to evaluate $f$ at every iteration.
+Unlike Gaussian processes, acquisition functions are usually heuristics-based.
 In this section, we focus on a variation of Expected Improvement (EI).
 
 Under EI, the utility of evaluating $f(\mathbf{x})$ is the expectation of the maximum sampled $y$-value after the $N$th iteration.
 \begin{align}
     \label{eq:ei}
-    a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_N) &= \mathbb{E}[\max\{F(\mathbf{x}), y_1, \dots, y_N\} | \mathcal{D}_N] \\
-    & = y_* + \mathbb{E}[\max\{F(\mathbf{x}) - y_*, 0\} |\mathcal{D}_N] \\
-    & = y_* + \mathbb{E}[F(\mathbf{x}) - y_* | F(\mathbf{x}) > y_*, \mathcal{D}_N]p(F(\mathbf{x}) > y_* | \mathcal{D}_N)
+    \begin{split}
+        a_{\mathrm{EI}}(\mathbf{x} | \mathcal{D}_N) & = \mathbb{E}[\max\{F(\mathbf{x}), y_1, \dots, y_N\} | \mathcal{D}_N] \\
+        & = y_* + \mathbb{E}[\max\{F(\mathbf{x}) - y_*, 0\} |\mathcal{D}_N] \\
+        & = y_* + \mathbb{E}[F(\mathbf{x}) - y_* | F(\mathbf{x}) > y_*, \mathcal{D}_N]P(F(\mathbf{x}) > y_* | \mathcal{D}_N)
+    \end{split}
 \end{align}
 where $y_* = \max\{y_1, \dots, y_N\}$.
 EI encourages both exploitation and exploration because $F(\mathbf{x})$ will probably be greater than $y_*$ only if we are very uncertain about $F(\mathbf{x})$ (exploration) or we think $F(\mathbf{x})$ is near $y_*$ (exploitation).
 
 However, the usage of $y_*$ in Equation~\ref{eq:ei} makes little sense if we have noisy observations because $y_*$'s extremity could be due to noise.
-It makes less sense if we consider biased observations because $y_*$ is even less representative of the underlying function and we are not using our knowledge about each observer's bias.
+It makes less sense if we consider biased observations because $y_*$ would be even less representative of the underlying function, and would not be using our knowledge about each observer's bias.
 The following definition addresses this issue by replacing $y_*$ with $F(x_*)$.
 
 \begin{definition}[vEI]
-    \begin{align*}
+    \begin{equation}
         \begin{split}
-        \label{eq:vei}
-        a_{\vei}(\mathbf{x} | \mathcal{D}_N) &= \mathbb{E}[\max \{ F(\mathbf{x}), F(\mathbf{x}_*) \} | \mathcal{D}_N] \\
-        &= \mathbb{E}[F(\mathbf{x}_*) | \mathcal{D}_N] + \mathbb{E}[\max \{ F(\mathbf{x}) - F(\mathbf{x}_*), 0 \} | \mathcal{D}_N]
+            a_{\vei}(\mathbf{x} | \mathcal{D}_N) & = \mathbb{E}[\max \{ F(\mathbf{x}), F(\mathbf{x}_*) \} | \mathcal{D}_N] \\
+            & = \mathbb{E}[F(\mathbf{x}_*) | \mathcal{D}_N] + \mathbb{E}[\max \{ F(\mathbf{x}) - F(\mathbf{x}_*), 0 \} | \mathcal{D}_N]
         \end{split}
-    \end{align*}
+        \label{eq:vei}
+    \end{equation}
     where $\mathbf{x}_* = \argmax_{\mathbf{x'} \in (\mathbf{x}_1, \dots, \mathbf{x}_N)} \mathbb{E}[F(\mathbf{x'}) | \mathcal{D}_N]$.
 \end{definition}
 
 The big difference between vEI and EI is that while $y_*$ in Equation~\ref{eq:ei} is a constant, $F(\mathbf{x}_*)$ in Equation~\ref{eq:vei} is a random variable.
 Thus, we need to take into account the dependence between $F(\mathbf{x})$ and $F(\mathbf{x}_*)$.
-In practice this dependence encourages exploration because $F(\mathbf{x}) - F(\mathbf{x}_*)$ will probably be small when $\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei};
+In practice,
+this dependence encourages exploration
+because $F(\mathbf{x}) - F(\mathbf{x}_*)$ will probably be small when
+$\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei} and our discussion in Section~\ref{ssec:gp};
 even though our posterior mean is maximized at 0.8, vEI is maximized at 0.25 because 0.25 is further away from $\mathbf{x}_* = 0.75$ than 0.8.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.5\textwidth]{fig/ei.png}
     \caption{
-        The top figure shows the posterior of a Gaussian Process with a mean function of 0,
+        The top figure shows the posterior of a Gaussian process with a mean function of 0,
         $\sigma_{\epsilon}^2 = 0.2^2$, and RBF kernel.
-        The kernel parameters were $\sigma_f^2 = 0.5^2, \ell^2 = 0.2^2$.
+        The kernel parameters are $\sigma_f^2 = 0.5^2, \ell^2 = 0.2^2$.
         The grey area is the 95\% posterior credible interval and the dotted line is the posterior mean.
         The points are noisy, but unbiased observations, and the dotted vertical red line represents the sampled $\mathbf{x}$-value with the highest posterior mean.
         The bottom figure shows $a_\vei$ given the data and the surrogate model from the top figure.
@@ -50,9 +56,10 @@ even though our posterior mean is maximized at 0.8, vEI is maximized at 0.25 bec
 
 \end{figure}
 
-Because $F(\mathbf{x})$ and $F(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}, \mathbf{x}^{*} \in \mathcal{X}$, we can find vEI in closed form.
-Let $\varphi$ and $\Phi$ be the pdf and cdf of the standard univariate normal respectively.
-Because $F$ is a Gaussian Process,
+We can find vEI in closed form because $F(\mathbf{x})$ and $F(\mathbf{x}_*)$ are jointly Gaussian for all $\mathbf{x}, \mathbf{x}^{*} \in \mathcal{X}$
+by Definition~\ref{def:gp}.
+Let $\varphi$ and $\Phi$ be the probability density function and cumulative density function of the standard univariate normal respectively.
+Because $F$ is a Gaussian process,
 \begin{equation*}
     \begin{bmatrix}
         F(\mathbf{x}) \\
@@ -74,10 +81,9 @@ Because $F$ is a Gaussian Process,
 for some $\mu_1, \mu_2, \sigma_{12} \in \mathbb{R}$ and $\sigma_1, \sigma_2 > 0$ by our discussion in Section~\ref{sssec:post-inf}.
 Setting $\mu = \mu_1 - \mu_2$ and $\sigma^2 = \sigma_1^2 + \sigma_2^2 - 2 \sigma_{12}$,
 \begin{equation*}
-    F(\mathbf{x}) - F\left(\mathbf{x}_*\right) \sim \mathcal{N}(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2\sigma_{12})
-    = \mathcal{N}\left(\mu, \sigma^2\right)
+    F(\mathbf{x}) - F\left(\mathbf{x}_*\right) \sim \mathcal{N}_1(\mu_1 - \mu_2, \sigma_1^2 + \sigma_2^2 - 2\sigma_{12}) = \mathcal{N}_1\left(\mu, \sigma^2\right)
 \end{equation*}
-by Theorem~\ref{thm:ogag}.
+by part (3) of Theorem~\ref{thm:ogag}.
 It follows that
 \begin{align*}
     a_{\vei}(\mathbf{x} | \mathcal{D}_N)
@@ -92,7 +98,7 @@ It follows that
 We evaluated the integral using the fact that
 \begin{equation*}
     \frac{ \dd }{ \dd u } \varphi(u) = - u\varphi(u)
-    \text{  and  }
+    \text{   and   }
     \frac{ \dd }{ \dd u } \Phi(u) = \varphi(u)
 \end{equation*}
 meaning that
@@ -104,6 +110,8 @@ meaning that
     = u \frac{ 1 }{ \sigma } \varphi\left( \frac{ u - \mu }{\sigma}\right).
 \end{equation*}
 
-Because of the usage of $\Phi$, it is hard to maximize $a_{\vei}$ it analytically.
+Because of the usage of $\Phi$, it is hard to maximize $a_{\vei}$ analytically in line 5 of Algorithm~\ref{alg:bo}.
 At the same time, we can see in Figure~\ref{fig:ei} that $a_{\vei}$ can have many local maxima.
-Thus, we have to rely on global optimization methods such as Basin Hopping \cite{wales1997} to find where to evaluate $f$ at each iteration.
+The fact that we can expresses $a_{\vei}$ and its derivative (which we do not show) in closed form
+allows us to use global optimization methods such as Basin Hopping \cite{wales1997}
+to find where to evaluate $f$ at each iteration.

@@ -1,13 +1,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from mug_cakes.gp import (
-    conditional_covar,
-    conditional_mean,
-    conditional_var,
-    dexpected_improvement,
-    expected_improvement,
-)
+from mug_cakes.gp import (conditional_covar, conditional_mean, conditional_var,
+                          dexpected_improvement, expected_improvement)
 
 from . import utils
 

@@ -117,7 +117,9 @@ var_diff = var[0, 0] + var[1, 1] - 2 * var[1, 0]
 dom = np.linspace(-1.25, 0.5, 1000)
 img = stats.norm.pdf(dom, loc=mean_diff, scale=var_diff**0.5)
 ax.plot(dom, img, "gray", label="Density")
-dom = np.linspace(mean_diff - 2 * var_diff**0.5, mean_diff + 2 * var_diff**0.5, 1000)
+dom = np.linspace(
+    mean_diff - 2 * var_diff**0.5, mean_diff + 2 * var_diff**0.5, 1000
+)
 img = stats.norm.pdf(dom, loc=mean_diff, scale=var_diff**0.5)
 ax.fill_between(dom, img, color="lightgrey", label="95% Credible Interval")
 ax.vlines(0, 0, img.max(), "r", "dashed", label="0")

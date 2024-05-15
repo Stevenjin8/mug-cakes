@@ -1,15 +1,15 @@
 \subsection{Gaussian Processes}\label{ssec:gp}
 
-Gaussian Processes extend Gaussian distributions to random functions $F: \mathcal{X} \to \mathbb{R}$.
+Gaussian processes extend Gaussian distributions to random functions $F: \mathcal{X} \to \mathbb{R}$.
 That is, for each element $\mathbf{x} \in \mathcal{X}$, we have a random variable $F(\mathbf{x})$.
 Practically speaking, a random variable is a value that we do not know.
-So in the baking example, for each recipe $\mathbf{x}$, the unknown value is the recipe's quality $F(\mathbf{x})$. %%HELPME 
-If there are infinitely many elements in $\mathcal{X}$,
-working with Gaussian Processes might seem overwhelming because we might try to create a joint distribution over all our infinitely many random variables.
+In the baking example, for each recipe $\mathbf{x}$, the unknown value is the recipe's quality $F(\mathbf{x})$.
+%%HELPME 
+If there are infinitely many elements in $\mathcal{X}$, working with Gaussian processes might seem overwhelming because we might try to create a joint distribution over all our infinitely many random variables.
 The key to making this problem tractable is to consider finitely many random variables at a time.
 
-\begin{definition}[Gaussian Process]\label{def:gp}
-    A Gaussian Process on $\mathcal{X}$ is a random function $F$ parameterized by a mean function
+\begin{definition}[Gaussian process]\label{def:gp}
+    A Gaussian process on $\mathcal{X}$ is a random function $F$ parameterized by a mean function
     $m: \mathcal{X} \to \mathbb{R}$ and covariance kernel $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
     such that
     for any $\mathbf{x}_1, \dots,\mathbf{x}_N \in \mathcal{X}$,
@@ -22,28 +22,26 @@ The key to making this problem tractable is to consider finitely many random var
     \end{equation*}
 
     For this equation to make sense, we require $\kappa$ to generate positive semi-definite $\mathbf{K}$.
-    We denote this as $F \sim \mathcal{GP}_{\mathcal{X}}(m, \kappa)$
-    or $F \sim \mathcal{GP}(m, \kappa)$ if $\mathcal{X}$ is clear from context.
+    We denote this as $F \sim \mathcal{GP}_{\mathcal{X}}(m, \kappa)$ or $F \sim \mathcal{GP}(m, \kappa)$ if $\mathcal{X}$ is clear from context.
 \end{definition}
 
-We see that there is a one-to-one correspondence between the parameters of a Multivariate Gaussian $\mathcal{N}_{N}(\bsy{\mu}, \bsy{\Sigma})$ and that of a Gaussian Process $\mathcal{GP}_{ \mathcal{X}}(m, \kappa)$.
+We see that there is a one-to-one correspondence between the parameters of a Multivariate Gaussian $\mathcal{N}_{N}(\bsy{\mu}, \bsy{\Sigma})$ and that of a Gaussian process $\mathcal{GP}_{ \mathcal{X}}(m, \kappa)$.
 The set $\mathcal{X}$ corresponds to $N$ as they both represent the amount of random variables.
 The function $m$ corresponds with $\bsy{\mu}$ in that they both give us the means of our random variables.
 The kernel $\kappa$ corresponds with $\bsy{\Sigma}$ as they both tell us the covariance between random variables.
-The two distributions are also similar in that they have the property that the marginals of a finite number of random variables is a Gaussian distribution.
-The key difference is that with Gaussian distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution (Theorem~\ref{thm:ogag}), while Gaussian Processes are \emph{defined} by this property.
+The two distributions also have the property that the marginals of a finite number of random variables is a Gaussian distribution.
+The key difference is that with Gaussian distributions, this property of finite marginals is a \emph{result} derived from the full joint distribution (Theorem~\ref{thm:ogag}), while Gaussian processes are \emph{defined} by this property.
 
-Figure~\ref{fig:gp-sample} shows some samples from a Gaussian Process with 1 and 2-dimensional domains,
-a constant mean function $m = 0$, and a Radial Basis Function (RBF) kernel $\kappa$ which is continuous (more on kernels later in Section~\ref{ssec:kernel}).
-It is no coincidence that all these samples are also continuous because for any $\mathbf{x}_0 \in \mathcal{X}$
+Figure~\ref{fig:gp-sample} shows some samples from a Gaussian process with 1 and 2-dimensional domains, a constant mean function $m = 0$, and a Radial Basis Function (RBF) kernel $\kappa$ which is continuous (more on kernels in Section~\ref{ssec:kernel}).
+It is no coincidence that all these samples are continuous because for any $\mathbf{x}_0 \in \mathcal{X}$
 \begin{align*}
-    \lim_{\mathbf{x} \to \mathbf{x}_0 }\mathbb{E}[F(\mathbf{x}) - F(\mathbf{x}_0)] &= 0 \\
-    \lim_{\mathbf{x} \to \mathbf{x}_0 }\Var[F(\mathbf{x}) - F(\mathbf{x}_0)] &=
+    \lim_{\mathbf{x} \to \mathbf{x}_0 }\mathbb{E}[F(\mathbf{x}) - F(\mathbf{x}_0)] & = 0 \\
+    \lim_{\mathbf{x} \to \mathbf{x}_0 }\Var[F(\mathbf{x}) - F(\mathbf{x}_0)] & =
     \lim_{\mathbf{x} \to \mathbf{x}_0} (\kappa(\mathbf{x}, \mathbf{x}) + \kappa(\mathbf{x}_0, \mathbf{x}_0) - 2\kappa(\mathbf{x}, \mathbf{x}_0))
     = 0
 \end{align*}
 by part (3) of Theorem~\ref{thm:ogag}.
-Thus, any sample of $F$ is continuous at any given point almost surely which is consistent with our continuity assumptions of $f$ for Bayesian Optimization.
+Thus, any sample of $F$ is continuous at any given point almost surely which is consistent with our continuity assumptions of $f$ for Bayesian optimization.
 
 \begin{figure}
     \centering
@@ -61,17 +59,16 @@ Thus, any sample of $F$ is continuous at any given point almost surely which is 
         \label{subfig:3d-gp-sample}
     \end{subfigure}
     \hfill
-    \caption{Samples of a Gaussian Process using an RBF kernel with parameters $\ell^{2} = 0.1^2$ and $\sigma^{2}_f = 1 ^ 2$.
+    \caption{Samples of a Gaussian process using an RBF kernel with parameters $\ell^{2} = 0.1^2$ and $\sigma^{2}_f = 1 ^ 2$.
     Figure (a) shows three samples with a domain of $\mathcal{X} = [0, 1]$.
     Figure (b) shows one sample with a domain of $\mathcal{X} = [0, 1]^2$.
     }
     \label{fig:gp-sample}
 \end{figure}
 
-\subsubsection{Consistency of Gaussian Processes}
+\subsubsection{Consistency of Gaussian processes}
 
-In Definition~\ref{def:gp}, we asserted that finite marginals of a Gaussian Process are Gaussian, but we still need to verify that these marginals
-are consistent with each other so that we can apply the results from Theorem~\ref{thm:ogag}.
+In Definition~\ref{def:gp}, we asserted that finite marginals of a Gaussian process are Gaussian random vectors, but we still need to verify that these marginals are consistent with each other so that we can apply the results from Theorem~\ref{thm:ogag}.
 For example, given some real-valued random variables $X, Y, Z$, it makes no sense to say that the marginals are
 \begin{align*}
     (X, Y) = (0, 0) \text{ with probability 1} \\
@@ -89,13 +86,10 @@ are consistent because they can be derived from the full joint distribution
 \end{equation*}
 Thus, we will not run into contradictions like we did in the former example.
 
-In the above examples,
-proving and disproving consistency was straightforward because we had a finite number of marginals and a finite number of random variables.
-Proving the consistency of Gaussian Processes is more complicated because we could have uncountably infinite marginals and uncountably infinite random variables.
-Futher, we cannot create a joint distribution for $\{ F(x) | \mathbf{x} \in \mathcal{X} \}$ to prove consistency
-because we could have uncountably infinite random variables, and the laws of probability only allow us to consider a countable number of random variables at once.
-Thus, to show that the Gaussian Processes are consistent,
-we must prove the existence of a probability space and corresponding random variables that generate such marginals.
+In the above examples, proving and disproving consistency was straightforward because we had a finite number of marginals and a finite number of random variables.
+Proving the consistency of Gaussian processes is more complicated because we could have uncountably infinite marginals and uncountably infinite random variables.
+Futher, we cannot create a joint distribution for $\{ F(\mathbf{x}) | \mathbf{x} \in \mathcal{X} \}$ to prove consistency because we could have uncountably infinite random variables, and the laws of probability only allow us to consider a countable number of random variables at once.
+Thus, to show that Gaussian processes are consistent, we must prove the existence of a probability space and corresponding random variables that generate such marginals.
 The Kolmogorov Extension Theorem does just this.
 
 \begin{theorem}[Kolmogorov Extension Theorem]\label{thm:kol-ext}
@@ -104,11 +98,11 @@ The Kolmogorov Extension Theorem does just this.
         \{ \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N} : \mathcal{B}_{N} \to \mathbb{R} \;|\; N \in \mathbb{Z}^{+} \text{ and } (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}\}.
     \end{equation*}
     such that for all $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$,
-    the are true:
+    the following are  true:
     \begin{enumerate}
         \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}( \varnothing) = 0$,
         \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(\mathbb{R}^{N}) = 1$,
-        \item for every disjoint sequence of sets $(E_1, E_2, \dots) \subseteq \mathcal{B}_N$,
+        \item for every disjoint of sets $E_1, E_2, \dots \in \mathcal{B}_N$,
             \begin{equation*}
                 \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}\left(\bigcup_{i = 1}^{\infty}
                 E\right) = \sum_{i = 1}^{\infty}\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i).
@@ -121,14 +115,14 @@ The Kolmogorov Extension Theorem does just this.
     \begin{equation*}
         P((F(\mathbf{x}_1), \dots, F(\mathbf{x}_N)) \in E) = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
     \end{equation*}
-    if the following two conditions hold for all $N \in \mathbb{Z}^{+}, (\mathbf{x}_1, \dots, \mathbf{x}_N) \subseteq \mathcal{X}$:
+    if the following two consistency conditions hold for all $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$:
     \begin{enumerate}
-        \item For any permutation $\pi$ of $\{ 1, \dots, N \}$ and Borel sets $E_1, \dots, E_N$,
+        \item For any permutation $\pi$ of $\{ 1, \dots, N \}$ and Borel sets $E_1, \dots, E_N \in \mathcal{B}_1$,
             \begin{equation*}
                 \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_1 \times \dots \times E_N)
                 =\mu_{\mathbf{x}_{\pi(1)}, \dots, \mathbf{x}_{\pi(N)}}\left(E_{\pi(1)} \times \dots \times E_{\pi(N)}\right).
             \end{equation*}
-        \item 
+        \item
             \begin{equation*}
                 \mu_{\mathbf{x}_1, \dots, \mathbf{x}_{N - 1}}(E_1 \times \dots \times E_{N - 1})
                 =
@@ -142,15 +136,15 @@ The Kolmogorov Extension Theorem does just this.
 
 \begin{theorem}
     \label{thm:gp-const}
-    Gaussian Processes are consistent.
+    Gaussian processes are consistent.
     That is, they satisfy the conditions of Theorem~\ref{thm:kol-ext}.
 \end{theorem}
 \begin{proof}
     Let $F \sim \mathcal{GP}_{ \mathcal{X} }(m, \kappa)$.
-    Given $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathcal{X}$ and $E \in \mathcal{B}_N$,
+    Given $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$ and $E \in \mathcal{B}_N$,
     we would like
     \begin{equation*}
-        P((F(\mathbf{x}_1), \ldots, F(\mathbf{x}_N)) \in E) = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
+        P((F(\mathbf{x}_1), \dots, F(\mathbf{x}_N)) \in E) = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E)
     \end{equation*}
     where
     \begin{equation*}
@@ -169,14 +163,15 @@ The Kolmogorov Extension Theorem does just this.
         \int_{\mathbb{R}^{N}} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} = 1.
     \end{equation*}
 
-    Now, let $(E_1, E_2, \dots) \subseteq \mathcal{B}_{N}$ be a sequence of disjoint sets, $E = E_1 \cup E_2 \cup \dots$, and
+    Now, let $E_1, E_2, \dots \in \mathcal{B}_{N}$ be disjoint, $E = E_1 \cup E_2 \cup \dots$, and
     \begin{equation*}
-        \chi_{E}(\mathbf{y}) =
+        \chi_{S}(\mathbf{y}) =
         \begin{cases}
-            1 & \text{ if $\mathbf{y} \in E$} \\
-            0 & \text{ if $\mathbf{y} \notin E$}.
+            1 & \text{ if $\mathbf{y} \in S$} \\
+            0 & \text{ if $\mathbf{y} \notin S$}
         \end{cases}
     \end{equation*}
+    for any set $S$.
     For some $K \in \mathbb{Z}^{+}$, we can write
     \begin{align*}
         \sum_{i = 1}^{K} \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i)
@@ -187,15 +182,15 @@ The Kolmogorov Extension Theorem does just this.
     \end{align*}
     The last equality comes from the fact that $E_1, \dots, E_K$ are disjoint.
 
-    We see that $\chi_{E_1 \cup \dots E_K}(\cdot)\mathcal{N}(\cdot | \mathbf{m}, \mathbf{K})$ converges to $\chi_E(\cdot) \mathcal{N}(\cdot | \mathbf{m}, \mathbf{K})$ pointwise.
+    We see that $\chi_{E_1 \cup \dots E_K}(\cdot)\mathcal{N}(\cdot | \mathbf{m}, \mathbf{K})$ converges to $\chi_E(\cdot) \mathcal{N}(\cdot | \mathbf{m}, \mathbf{K})$ pointwise as $K \to \infty$.
     Further, for any $\mathbf{y}$ and $\mathbf{K}$,
-    \begin{equation*}
+    \begin{align*}
         \chi_{E_1 \cup \dots \cup E_K}(\mathbf{y}) \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K})
-        \leq
-        \chi_E(\mathbf{y}) \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K})
-        \leq \max_{\mathbf{y}'}\mathcal{N}(\mathbf{y'} | \mathbf{m}, \mathbf{K})
-        < \infty.
-    \end{equation*}
+        & \leq \chi_E(\mathbf{y}) \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \\
+        & \leq \max_{\mathbf{y}'}\mathcal{N}(\mathbf{y'} | \mathbf{m}, \mathbf{K}) \\
+        & = \mathcal{N}( \mathbf{0} | \mathbf{m}, \mathbf{K}) \\
+        & < \infty. \\
+    \end{align*}
     This bound allows us to apply the Monotone Convergence Theorem (Theorem 3.11 of \cite{axler2020}),
     \begin{align*}
         \sum_{i = 1}^{\infty} \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i)
@@ -205,14 +200,14 @@ The Kolmogorov Extension Theorem does just this.
     \end{align*}
     Thus, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure.
 
-    Now, we show that the consistency conditions from Theorem~\ref{thm:kol-ext} hold.
-    Let $\pi$ be a permutation of $\{ 1, \dots, N \}$ and $\mathbf{P} \in \mathbb{R}^{N \times N}$ be the corresponding permutation matrix.
+    Now, we show that the consistency conditions from hold.
+    For the first condition, let $\pi$ be a permutation of $\{ 1, \dots, N \}$ and $\mathbf{P} \in \mathbb{R}^{N \times N}$ be the corresponding permutation matrix.
     Then,
     \begin{equation*}
         \mu_{\mathbf{x}_{\pi(1)}, \dots, \mathbf{x}_{\pi(N)}}(E) =
         \int_{E} \mathcal{N}(\mathbf{y} | \mathbf{Pm}, \mathbf{P} \mathbf{K} \mathbf{P}^{T}) \dd \mathbf{y}.
     \end{equation*}
-    If $E_1, \dots, E_N$ are Borel, then using a change of variables $\mathbf{w} = \mathbf{Py}$
+    If $E_1, \dots, E_N$ are Borel, then using a change of variables $\mathbf{w} = \mathbf{Py}$,
     \begin{align*}
         & \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_1 \times \dots \times E_N) \\
         & = \int_{E_1 \times \dots \times E_N} \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
@@ -221,11 +216,11 @@ The Kolmogorov Extension Theorem does just this.
         \exp \{ (\mathbf{y} - \mathbf{m})^{T} \mathbf{K}^{-1} (\mathbf{y} - \mathbf{m}) \}
         \dd \mathbf{y} \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
-        \frac{ 1 }{ (2 \pi)^{N/2} \lvert \mathbf{PKP^T} \rvert^{1/2} }
-        \exp \{ (\mathbf{P^Tw} - \mathbf{m})^{T} \mathbf{K}^{-1} (\mathbf{P}^{T}\mathbf{y} - \mathbf{m}) \}
+        \frac{ 1 }{ (2 \pi)^{N/2} \left\lvert \mathbf{PKP^T} \right\rvert^{1/2} }
+        \exp \{ \left(\mathbf{P^Tw} - \mathbf{m}\right)^{T} \mathbf{K}^{-1} (\mathbf{P}^{T}\mathbf{y} - \mathbf{m}) \}
         \lvert \mathbf{P}^{T} \rvert \dd \mathbf{w} \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
-        \frac{ 1 }{ (2 \pi)^{N/2} \lvert \mathbf{PKP}^T \rvert^{1/2} }
+        \frac{ 1 }{ (2 \pi)^{N/2} \left\lvert \mathbf{PKP}^T \right\rvert^{1/2} }
         \exp \{ (\mathbf{y} - \mathbf{Pm})^{T} (\mathbf{P}\mathbf{K} \mathbf{P})^{-1} (\mathbf{y} - \mathbf{P}\mathbf{m}) \} \dd \mathbf{w} \\
         & = \int_{E_{\pi(1)} \times \dots \times E_{\pi(N)}}
         \mathcal{N}(\mathbf{w} | \mathbf{Pm}, \mathbf{P} \mathbf{K} \mathbf{P}^{T}) \dd \mathbf{w} \\
@@ -233,43 +228,42 @@ The Kolmogorov Extension Theorem does just this.
     \end{align*}
     Note that $\mathbf{P}^{T} = \mathbf{P}^{-1}$ and $\lvert \mathbf{P} \rvert = 1$.
 
-    For the second consistency condition, let $\mathbf{K}'$ be a $(N - 1) \times (N - 1)$
-    matrix consisting of the first $N - 1$ rows and columns of $\mathbf{K}$.
+    For the second consistency condition, let $\mathbf{K}'$ be a $(N - 1) \times (N - 1)$ matrix consisting of the first $N - 1$ rows and columns of $\mathbf{K}$.
     Also, let $\mathbf{m}' \in \mathbb{R}^{N - 1}$ contain the first $N - 1$ entries of $\mathbf{m}$.
     By part (1) of Theorem~\ref{thm:ogag}, we know that for $\mathbf{y}' \in \mathbb{R}^{N - 1}$,
     \begin{equation*}
         \mathcal{N}(\mathbf{y}' | \mathbf{m}', \mathbf{K}')
         = \int_{\mathbb{R}} \mathcal{N}((\mathbf{y}', y) | \mathbf{m}, \mathbf{K}) \dd y.
     \end{equation*}
-    It follows that for Borel sets $E_1, \ldots E_{N - 1} \in \mathcal{B}_N$,
+    It follows that,
     \begin{align*}
-        \mu_{\mathbf{x}_1, \ldots, \mathbf{x}_{N - 1}, \mathbf{x}_N}(E_1, \ldots, E_{N - 1}, \infty)
-        &= \int_{E} \mathcal{N}( \mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
-        &= \int_{E_1 \times \ldots \times E_{N - 1}}
+        \mu_{\mathbf{x}_1, \dots, \mathbf{x}_{N - 1}, \mathbf{x}_N}(E_1, \dots, E_{N - 1}, \mathbb{R})
+        & = \int_{E} \mathcal{N}( \mathbf{y} | \mathbf{m}, \mathbf{K}) \dd \mathbf{y} \\
+        & = \int_{E_1 \times \dots \times E_{N - 1}}
         \int_{\mathbb{R}}
         \mathcal{N}( (\mathbf{y}', y) | \mathbf{m}, \mathbf{K})
         \dd y
         \dd \mathbf{y}' \\
-        &= \int_{E_1 \times \ldots \times E_{N - 1}}
+        & = \int_{E_1 \times \dots \times E_{N - 1}}
         \mathcal{N}( \mathbf{y}' | \mathbf{m}', \mathbf{K}')
         \dd \mathbf{y}' \\
-        &= \mu_{\mathbf{x}_1, \ldots, \mathbf{x}_{N - 1}, }(E_1, \ldots, E_{N - 1}). 
+        & = \mu_{\mathbf{x}_1, \dots, \mathbf{x}_{N - 1}, }(E_1, \dots, E_{N - 1}).
     \end{align*}
     %We can break up the integral by Fubini's Theorem (Theorem 5.32 in \cite{axler2020}).
-    
-    Since both conditions are met, Gaussian Processes follow the normal rules of probability and are therefore consistent.
+
+    Since both conditions are met, Gaussian processes follow the normal rules of probability and are therefore consistent.
 \end{proof}
 
 \subsubsection{Posterior Inference}\label{sssec:post-inf}
 
-Now that we know that Gaussian Processes follow the laws of probability, we turn our attention to posterior inference.
-For Bayesian Optimization, posterior inference will allow our acquisition function to use previous observations to make informed decisions about where to evaluate $f$ next the Bayesian Optimization loop.
-Specifically, for any $N \in \mathbb{Z}^{+}$, and $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathcal{X}$, we want to quantify our belief of $F \sim \mathcal{GP}(m, \kappa)$
+Now that we know that Gaussian processes follow the laws of probability, we turn our attention to posterior inference.
+For Bayesian optimization, posterior inference will allow our acquisition function to use previous observations to make informed decisions about where to evaluate $f$ next in the Bayesian optimization loop.
+Specifically, for any $N \in \mathbb{Z}^{+}$, and $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$, we want to quantify our belief of $F \sim \mathcal{GP}(m, \kappa)$
 given observations of
 \begin{equation*}
-    \mathbf{F} = (F(\mathbf{x}_1), \dots, F(\mathbf{x}_N)). 
+    \mathbf{F} = (F(\mathbf{x}_1), \dots, F(\mathbf{x}_N)).
 \end{equation*}
-for some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$,
+For some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$
 the joint distribution of $\mathbf{F}$ and $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))$ is
 \begin{equation*}
     \begin{bmatrix}
@@ -299,7 +293,7 @@ where
 \end{align*}
 by part (2) of Theorem~\ref{thm:ogag}.
 
-Since Gaussian Processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that the posterior
+Since Gaussian processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that the posterior
 of $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))$, given exact observations $\mathbf{F} = \mathbf{f}$, is Gaussian with mean
 \begin{equation}
     \label{eq:noisless-post-mean}
@@ -313,28 +307,26 @@ and variance
 (when $\mathbf{K}$ is strictly positive definite).
 
 One issue with applying Equations~\ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var} is that we assume exact observations of $f$, when we only have access to noisy and biased observation.
-As we can see in Figure~\ref{subfig:noiseless-post}, ignoring these factors can cause our model to overfit and give us extreme results.
+We see in Figure~\ref{subfig:noiseless-post} that ignoring these factors can cause our model to overfit and give us extreme results.
 To incorporate the effects of bias and noise into our model, suppose that we have $N$ observations, $N_B$ observers numbered 1 through $N_B$, and that $z_i$ indicates the observer for the $i$th sample.
-We can model the $i$th observation $Y_i$ as a sum of the underlying function, the observer bias, and some noise
+We model the $i$th observation $Y_i$ as a sum of the underlying function, the observer bias, and some noise
 \begin{equation*}
     Y_i = F(\mathbf{x}_i) + B_{z_i} + \epsilon_i.
 \end{equation*}
-If we know $\mathbf{z} = (z_1, \dots, z_N)$, and have Gaussian priors
+If we know $\mathbf{z} = (z_1, \dots, z_N)$, have Gaussian priors
 \begin{align*}
-    \epsilon_i \sim_{iid} \mathcal{N}(0, \sigma^2_{\epsilon}) \text{ for $i = 1, \dots, N$}, \\
-    B_j \sim_{iid} \mathcal{N}(0, \sigma_{b}^2) \text{ for $j = 1, \dots, N_B$},
+    \epsilon_i & \sim_{iid} \mathcal{N}\left(0, \sigma^2_{\epsilon}\right) \text{ for $i = 1, \dots, N$}, \\
+    B_j & \sim_{iid} \mathcal{N}\left(0, \sigma_{B}^2\right) \text{ for $j = 1, \dots, N_B$},
 \end{align*}
-and assume that that $F, \epsilon_1, \dots, \epsilon_N, B_1, \dots, B_{N_B}$
-then
+and assume that that $F, \epsilon_1, \dots, \epsilon_N, B_1, \dots, B_{N_B}$, then
 \begin{equation*}
-    (\mathbf{Y}, \mathbf{F}_*) = (Y_1, \dots, Y_N, F(\mathbf{v}_1), \ldots F(\mathbf{v}_{N_*}))
+    (\mathbf{Y}, \mathbf{F}_*) = (Y_1, \dots, Y_N, F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))
 \end{equation*}
 is a linear combination of jointly Gaussian random variables
 and is Gaussian by parts (3) and (4) of Theorem~\ref{thm:ogag}.
 
 Despite these changes, posterior inference is similar.
-Suppose we want to perform inference on $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_{*}}))$
-where $N_{*} \in \mathbb{Z}^{+}$ and $\mathbf{v}_1, \ldots, \mathbf{v}_{N_*} \in \mathcal{X}$.
+Suppose we want to perform inference on $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_{*}}))$ where $N_{*} \in \mathbb{Z}^{+}$ and $\mathbf{v}_1, \dots, \mathbf{v}_{N_*} \in \mathcal{X}$.
 Our observations $\mathbf{Y}$ have the same prior mean of $\mathbf{m} = (m(\mathbf{x}_1), \dots, m(\mathbf{x}_N))$ as before because $\epsilon_i$ and $B_j$ have mean 0 for all $i$ and $j$.
 We define $\bsy{\Sigma}$ as the covariance matrix of our noisy and biased observations.
 The $i, j$th entry of $\bsy{\Sigma}$ is the covariance of $Y_i$ and $Y_{j}$ which equals
@@ -342,7 +334,7 @@ The $i, j$th entry of $\bsy{\Sigma}$ is the covariance of $Y_i$ and $Y_{j}$ whic
     (\bsy{\Sigma})_{ij}
     & = \mathbb{E}[(Y_i - m(\mathbf{x}_i))(Y_j - m(\mathbf{x}_j)] \\
     & = \mathbb{E}[(F(\mathbf{x}_i) + B_{z_i} + \epsilon_i - m(\mathbf{x}_i))(F(\mathbf{x}_j) + B_{z_j} + \epsilon_j - m(\mathbf{x}_j)] \\
-    & = \kappa(\mathbf{x}_i, \mathbf{x}_{j}) + \mathbb{I}[z_i = z_{j}] \sigma^2_b + \mathbb{I}[i = j]\sigma^2_{ \epsilon }.
+    & = \kappa(\mathbf{x}_i, \mathbf{x}_{j}) + \mathbb{I}[z_i = z_{j}] \sigma^2_B + \mathbb{I}[i = j]\sigma^2_{ \epsilon }.
 \end{align*}
 The covariance between $Y_i$ and $F(\mathbf{v}_j)$ is
 \begin{align*}
@@ -408,7 +400,7 @@ the random vector $(\mathbf{Y}, \mathbf{F}_*)$ is Gaussian
         \end{bmatrix}
     \right).
 \end{equation*}
-It follows by part (2) of Theorem~\ref{thm:ogag} that the posterior of $\mathbf{F}_* = (F(\mathbf{v}_1), \ldots, F(\mathbf{v}_{N_*}))$ given observations $\mathbf{Y} = \mathbf{y}$ is Gaussian with mean
+It follows by part (2) of Theorem~\ref{thm:ogag} that the posterior of $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))$ given observations $\mathbf{Y} = \mathbf{y}$ is Gaussian with mean
 \begin{equation*}
     \mathbf{m}_* + \mathbf{K}_*^T \bsy{\Sigma}^{-1} (\mathbf{y} - \mathbf{m})
 \end{equation*}
@@ -416,24 +408,24 @@ and variance
 \begin{equation*}
     \mathbf{K}_{* *} - \mathbf{K}_*^T \bsy{\Sigma}^{-1} \mathbf{K}_*.
 \end{equation*}
-These equations are similar to Equations \ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var}, but
-with $\bsy{\Sigma}$ instead of $\mathbf{K}$.
+These equations are similar to Equations \ref{eq:noisless-post-mean} and \ref{eq:noiseless-post-var}, but with $\bsy{\Sigma}$ instead of $\mathbf{K}$.
 This difference is crucial as $\mathbf{K}$ might be singular
 while $\bsy{\Sigma}$ is will be strictly positive definite when $\sigma_{\epsilon}^2 > 0$ because
 for any nonzero $\mathbf{c} \in \mathbb{R}^{N}$,
 \begin{align*}
     \mathbf{c}^{T} \bsy{\Sigma} \mathbf{c}
-    &= \mathbf{c}^{T} \left(\mathbf{K} + 
-    \sigma^2_b
+    &= \mathbf{c}^{T} \left(\mathbf{K} +
+    \sigma^2_B
     \begin{bmatrix}
-        \vert & \ldots & \vert \\
-        \mathbf{e}_{z_1} &  \ldots & \mathbf{e}_{z_N} \\
-        \vert & \ldots & \vert \\
-    \end{bmatrix}^{T}
+        \vert & \dots & \vert \\
+        \mathbf{e}_{z_1} & \dots & \mathbf{e}_{z_N} \\
+        \vert & \dots & \vert \\
+    \end{bmatrix}
+    ^{T}
     \begin{bmatrix}
-        \vert & \ldots & \vert \\
-        \mathbf{e}_{z_1} &  \ldots & \mathbf{e}_{z_N} \\
-        \vert & \ldots & \vert \\
+        \vert & \dots & \vert \\
+        \mathbf{e}_{z_1} & \dots & \mathbf{e}_{z_N} \\
+        \vert & \dots & \vert \\
     \end{bmatrix}
     + \sigma^2_{\epsilon} \mathbf{I}
     \right) \mathbf{c} \\
@@ -441,17 +433,13 @@ for any nonzero $\mathbf{c} \in \mathbb{R}^{N}$,
     & > 0
 \end{align*}
 where $\mathbf{e}_n$ is the $n$th standard basis vector of $\mathbb{R}^{N}$.
-As such, for any set of observations, we will not have to worry about nonsingular $\bsy{\Sigma}$ allowing us to
-use Equation~\ref{eq:mvn-pdf} to compute densities.
+As such, for any set of observations, we will not have to worry about nonsingular $\bsy{\Sigma}$ allowing us to use Equation~\ref{eq:mvn-pdf} to compute densities.
 
-Figure~\ref{fig:gp-posteriors} shows the effect of accounting for noise and bias observations.
-Without considering noise and bias, we see our model overfits with extreme curves as in Figure~\ref{subfig:noiseless-post}.
+Figure~\ref{fig:gp-posteriors} shows the effect of accounting for noise and bias observations on posteriors.
+Without accounting for noise and bias, we see our model overfits with extreme curves as in Figure~\ref{subfig:noiseless-post}.
 Accounting for noise gives us a smoother posterior (Figure~\ref{subfig:noisy-posterior}), but our posterior credible intervals still do not correspond with the true values of $f$ as the true values do not fall in the posterior credible interval.
-Finally, we see that account for noise and bias (Figure~\ref{subfig:biased-posterior})
-gives a posterior that contains the true values of $f$ within its 95\% posterior credible interval.
-A model that accounts for noise and bias will make more accurate inferences about $f$ thus
-allowing our acquisition function to make better decisions about where to evaluate $f$ at every iteration.
-
+Finally, we see that account for noise and bias (Figure~\ref{subfig:biased-posterior}) gives a posterior that contains the true values of $f$ within its 95\% posterior credible interval.
+A model that accounts for noise and bias will make more accurate inferences about $f$ thus allowing our acquisition function to make better decisions about where to evaluate $f$ at every iteration.
 
 \begin{figure}
     \centering
@@ -476,14 +464,14 @@ allowing our acquisition function to make better decisions about where to evalua
         \label{subfig:biased-posterior}
     \end{subfigure}
     \hfill
-    \caption{Posteriors of a Gaussian Process $F \sim \mathcal{GP}(0, \kappa_{\rbf})$ given some noisy biased data.
+    \caption{Posteriors of a Gaussian process $F \sim \mathcal{GP}(0, \kappa_{\rbf})$ given some noisy biased data.
     RBF kernel parameters are $\ell^{2} = 0.1^2, \sigma^2_{f} = 0.3 ^ 2$.
     Blue circles have a bias of $B_1 = -1$ while orange squares have a bias of $B_2 = 1$.
     Black crosses are the true values of $f$.
     The dotted black line is the posterior mean and the shaded area is the 95\% posterior credible interval.
-    In Figure (a), our GP does not account for observation noise nor bias by setting $\sigma_{\epsilon}^2 = 0^2$ and $\sigma^2_b = 0^2$.
-    In Figure (b), our GP accounts for observation noise but not for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_b = 0^2$.
-    In Figure (c), our GP accounts for both observation noise and for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_b = 1^2$.
+    In Figure (a), our GP does not account for observation noise nor bias by setting $\sigma_{\epsilon}^2 = 0^2$ and $\sigma^2_B = 0^2$.
+    In Figure (b), our GP accounts for observation noise but not for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_B = 0^2$.
+    In Figure (c), our GP accounts for both observation noise and for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_B = 1^2$.
     }
     \label{fig:gp-posteriors}
 \end{figure}

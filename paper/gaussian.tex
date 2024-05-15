@@ -1,4 +1,4 @@
-A popular way to model an unknown function $f: \mathcal{X} \subseteq \mathbb{R}^{} \to \mathbb{R}$
+A popular way to model an unknown function $f: \mathcal{X} \subseteq \mathbb{R}^{K} \to \mathbb{R}$
 is with a finite number of unknown parameters.
 For example, with multilinear regression,
 we assume that our unknown objective function $f$ is affine and represent our beliefs about $f$ with a random function $F$ in the form
@@ -12,46 +12,46 @@ to perform inference on $F$.
 
 The problem with parametric methods that they assume that $f$ has a specific shape.
 In multilinear regression, the shape is a plane.
-Rarely can we make strong assumptions about $f$'s shape.
-If we are, say, a novice baker, then we do not know enough about the baking process and ingredients interact.
-In this section, we review some properties of Gaussian Distributions and extend them to Gaussian Processes which will allow us to model our beliefs about $f$ without parametric assumptions.
+However, rarely can we make strong assumptions about $f$'s shape.
+If we are, say, a novice baker, then we do not know enough about the baking process and ingredients interactions.
+In this section, we review some properties of Gaussian Distributions and extend them to Gaussian processes which will allow us to model our beliefs about $f$ without parametric assumptions.
 
 \subsection{Gaussian Distributions}\label{ssec:gaus}
 
 We begin by defining Gaussian random variables.
 \begin{definition}[Nondegenerate Gaussian]
-    The probability density of a $K$-dimensional (Multivariate) Nondegenerate Gaussian random vector $\mathbf{x} \sim \mathcal{N}_K(\bsy{\mu}, \bsy{\Sigma})$
+    The probability density of a $K$-dimensional (Multivariate) Nondegenerate Gaussian random vector $\mathbf{y} \sim \mathcal{N}_K(\bsy{\mu}, \bsy{\Sigma})$
     is
     \begin{equation}
         \label{eq:mvn-pdf}
-        \mathcal{N}_K(\mathbf{x} | \bsy{\mu}, \bsy{\Sigma}) = \frac{ 1 }{ (2 \pi)^{K/2} \lvert \bsy{\Sigma} \rvert^{1/2} } \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu})  \right\}
+        \mathcal{N}_K(\mathbf{y} | \bsy{\mu}, \bsy{\Sigma}) = \frac{ 1 }{ (2 \pi)^{K/2} \lvert \bsy{\Sigma} \rvert^{1/2} } \exp \left\{ -\frac12 (\mathbf{y} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{y} - \bsy{\mu})  \right\}
     \end{equation}
     where $\bsy{\mu} \in \mathbb{R}^{K}$ is the mean vector and $\bsy{\Sigma}$ is a $K \times K$ strictly positive definite covariance matrix.
     We just write $\mathcal{N}$ instead of $\mathcal{N}_K$ if $K$ is clear from context.
 \end{definition}
-We can also allow $\bsy{\Sigma}$ to be positive semi-definite giving us a possibly degenerate Gaussian, but these are much harder to work with because we rely on $\bsy{\Sigma}^{-1}$ in Equation~\ref{mvn-pdf}.
+We can also allow $\bsy{\Sigma}$ to be positive semi-definite giving us a possibly degenerate Gaussian, but these are much harder to work with because we rely on $\bsy{\Sigma}^{-1}$ in Equation~\ref{eq:mvn-pdf}.
 
 One reason why Gaussians are popular is because they stay Gaussian under various transformations, as the next theorem shows.
 
 \begin{theorem}[Once Gaussian Always Gaussian]\label{thm:ogag}
-    Suppose $\mathbf{x} = (\mathbf{x}_1, \mathbf{x}_2)$ is a $K$-dimensional multivariate Gaussian with mean and variance
+    Suppose $\mathbf{y} = (\mathbf{y}_1, \mathbf{y}_2)$ is a $K$-dimensional multivariate Gaussian with mean and variance
     \begin{equation*}
         \bsy{\mu} =
-        \begin{pmatrix}
+        \begin{bmatrix}
             \bsy{\mu}_1 \\
             \bsy{\mu}_2
-        \end{pmatrix}
+        \end{bmatrix}
         ,\quad
         \bsy{\Sigma} =
-        \begin{pmatrix}
+        \begin{bmatrix}
             \bsy{\Sigma}_{11} &  & \bsy{\Sigma}_{12} \\
             \bsy{\Sigma}_{21} &  & \bsy{\Sigma}_{22} \\
-        \end{pmatrix}
+        \end{bmatrix}
     \end{equation*}
     where
     \begin{align*}
-        &\mathbf{x}_1, \bsy{\mu}_1 \in \mathbb{R}^{K_1};
-        \mathbf{x}_2, \bsy{\mu}_2 \in \mathbb{R}^{K_2}; \\
+        &\mathbf{y}_1, \bsy{\mu}_1 \in \mathbb{R}^{K_1};
+        \mathbf{y}_2, \bsy{\mu}_2 \in \mathbb{R}^{K_2}; \\
         &\bsy{\Sigma}_{11} \in \mathbb{R}^{K_1 \times K_1};
         \bsy{\Sigma}_{22} \in \mathbb{R}^{K_2 \times K_2};
         \bsy{\Sigma}_{12} = \bsy{\Sigma}_{21}^{T} \in \mathbb{R}^{K_1 \times K_2}; \\
@@ -60,46 +60,46 @@ One reason why Gaussians are popular is because they stay Gaussian under various
     Then, the following statements are true.
     \begin{enumerate}
         \item
-            The marginal of $\mathbf{x}_1$ is
+            The marginal of $\mathbf{y}_1$ is
             \begin{equation*}
-                \mathbf{x}_{1} \sim \mathcal{N}_{K_1}(\bsy{\mu}_1, \bsy{\Sigma}_{11}).
+                \mathbf{y}_{1} \sim \mathcal{N}_{K_1}(\bsy{\mu}_1, \bsy{\Sigma}_{11}).
             \end{equation*}
 
         \item
-            The conditional of $\mathbf{x}_1$ given $\mathbf{x}_2$ is Gaussian
+            The conditional of $\mathbf{y}_1$ given $\mathbf{y}_2$ is Gaussian
             \begin{align*}
-                \mathbf{x}_1 | \mathbf{x}_2 & \sim \mathcal{N}_{K_1}(\bsy{\mu}_{1 | 2}, \bsy{\Sigma}_{1 | 2}) \\
-                \bsy{\mu}_{1 | 2} & = \bsy{\mu}_1 + \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} (\mathbf{x}_2 - \bsy{\mu}_2) \\
+                \mathbf{y}_1 | \mathbf{y}_2 & \sim \mathcal{N}_{K_1}(\bsy{\mu}_{1 | 2}, \bsy{\Sigma}_{1 | 2}) \\
+                \bsy{\mu}_{1 | 2} & = \bsy{\mu}_1 + \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} (\mathbf{y}_2 - \bsy{\mu}_2) \\
                 \bsy{\Sigma}_{1|2 } & = \bsy{\Sigma}_{11} - \bsy{\Sigma}_{12} \bsy{\Sigma}_{22}^{-1} \bsy{\Sigma}_{21}.
             \end{align*}
 
         \item
-            An affine transformation of $\mathbf{x}$ is Gaussian.
+            An affine transformation of $\mathbf{y}$ is Gaussian.
             If $\mathbf{A} \in \mathbb{R}^{J \times K}$ and $\mathbf{b} \in \mathbb{R}^{J}$, then
             \begin{equation*}
-                \mathbf{Ax} + \mathbf{b} \sim \mathcal{N}_J(
+                \mathbf{Ay} + \mathbf{b} \sim \mathcal{N}_J(
                 \mathbf{A} \bsy{\mu} + \mathbf{b},
                 \mathbf{A} \bsy{\Sigma} \mathbf{A}^{T}
                 ).
             \end{equation*}
 
         \item
-            If $\mathbf{y} \sim \mathcal{N}_J( \bsy{\mu}_y, \bsy{\Sigma}_{y})$ and $\mathbf{x}$ are independent, then
+            If $\mathbf{y}' \sim \mathcal{N}_J( \bsy{\mu}', \bsy{\Sigma}')$ and $\mathbf{y}$ are independent, then
             \begin{equation*}
                 \begin{bmatrix}
-                    \mathbf{x} \\
-                    \mathbf{y}
+                    \mathbf{y} \\
+                    \mathbf{y}'
                 \end{bmatrix}
                 \sim \mathcal{N}_{K + J} \left(
                 \begin{bmatrix}
                         \bsy{\mu} \\
-                        \bsy{\mu}_{y}
+                        \bsy{\mu}'
                     \end{bmatrix}
                 ,
                 \begin{bmatrix}
                         \bsy{\Sigma} & \mathbf{0}_{K \times J} \\
                         \mathbf{0}_{J \mathbf{x}
-                        K} & \bsy{\Sigma}_y
+                        K} & \bsy{\Sigma}'
                     \end{bmatrix}
                 \right).
             \end{equation*}
@@ -107,59 +107,45 @@ One reason why Gaussians are popular is because they stay Gaussian under various
 \end{theorem}
 \begin{proof}
     See Chapter 4 of \cite{murphy2012} for (1)-(3).
-    For part (4), suppose that both $\bsy{\Sigma}$ and $\bsy{\Sigma}_y$ are nonsingular
+    For part (4), suppose that both $\bsy{\Sigma}$ and $\bsy{\Sigma}'$ are nonsingular
     and let
     \begin{equation*}
-        \bsy{\Sigma}_{xy} =
+        \bsy{\Sigma}_t =
         \begin{bmatrix}
             \bsy{\Sigma} & \mathbf{0} \\
-            \mathbf{0} & \bsy{\Sigma}_y
+            \mathbf{0} & \bsy{\Sigma}'
         \end{bmatrix}
-        , \bsy{\mu}_{xy} =
+        , \bsy{\mu}_t =
         \begin{bmatrix}
             \bsy{\mu} \\
-            \bsy{\mu}_y
+            \bsy{\mu}'
         \end{bmatrix}
         .
     \end{equation*}
     Then,
     \begin{equation*}
-        \bsy{\Sigma}_{xy}^{-1}
+        \bsy{\Sigma}_t^{-1}
         =
         \begin{bmatrix}
             \bsy{\Sigma}^{-1} & \mathbf{0} \\
-            \mathbf{0} & \bsy{\Sigma}_y^{-1}
+            \mathbf{0} & (\bsy{\Sigma}')^{-1}
         \end{bmatrix}
         \text{ and }
-        \lvert \bsy{\Sigma}_{xy} \rvert
-        = \lvert \bsy{\Sigma} \rvert \lvert \bsy{\Sigma}_y \rvert.
+        \lvert \bsy{\Sigma}_t \rvert
+        = \lvert \bsy{\Sigma} \rvert \left\lvert \bsy{\Sigma}' \right\rvert.
     \end{equation*}
-    It follows that the density of $(\mathbf{x}, \mathbf{y})$ is
+    It follows that the density of $\mathbf{t} = (\mathbf{y}, \mathbf{y}')$ is
     \begin{align*}
-        &\mathcal{N}_K(\mathbf{x} | \bsy{\mu}, \bsy{\Sigma})
-        \mathcal{N}_J(\mathbf{y} | \bsy{\mu}_y, \bsy{\Sigma}_y) \\
-        & = \frac{ 1 }{ (2 \pi)^{(K + J)/2} \lvert \bsy{\Sigma} \rvert^{1/2} \lvert \bsy{\Sigma}_y \rvert^{1/2} }
-        \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{x} - \bsy{\mu})
-        -\frac12 (\mathbf{y} - \bsy{\mu}_y)^{T} \bsy{\Sigma}_y^{-1} (\mathbf{x} - \bsy{\mu}_y)  \right\} \\
-        & = \frac{ 1 }{ (2 \pi)^{(K+ J)/2} \lvert \bsy{\Sigma}_{xy} \rvert^{1/2} }
-        \exp \left\{ -\frac12 (\mathbf{x} - \bsy{\mu}_{xy})^{T} \bsy{\Sigma}_{xy}^{-1} (\mathbf{t} - \bsy{\mu}_{xy})  \right\} \\
+        &\mathcal{N}_K(\mathbf{y} | \bsy{\mu}, \bsy{\Sigma})
+        \mathcal{N}_J(\mathbf{y}' | \bsy{\mu}', \bsy{\Sigma}') \\
+        & = \frac{ 1 }{ (2 \pi)^{(K + J)/2} \lvert \bsy{\Sigma} \rvert^{1/2} \lvert \bsy{\Sigma}' \rvert^{1/2} }
+        \exp \left\{ -\frac12 (\mathbf{y} - \bsy{\mu})^{T} \bsy{\Sigma}^{-1} (\mathbf{y} - \bsy{\mu})
+        -\frac12 (\mathbf{y}' - \bsy{\mu}')^{T} (\bsy{\Sigma}')^{-1} (\mathbf{y}' - \bsy{\mu}')  \right\} \\
+        & = \frac{ 1 }{ (2 \pi)^{(K+ J)/2} \lvert \bsy{\Sigma}_t \rvert^{1/2} }
+        \exp \left\{ -\frac12 (\mathbf{t} - \bsy{\mu}_t)^{T} \bsy{\Sigma}_t^{-1} (\mathbf{t} - \bsy{\mu}_t)  \right\} \\
         & = \mathcal{N}_{K + J} \left(
-        \begin{bmatrix}
-                \mathbf{x} \\
-                \mathbf{y}
-            \end{bmatrix}
-        \middle|
-        \begin{bmatrix}
-                \bsy{\mu} \\
-                \bsy{\mu}_{y}
-            \end{bmatrix}
-        ,
-        \begin{bmatrix}
-                \bsy{\Sigma} & \mathbf{0}_{K \times J} \\
-                \mathbf{0}_{J \mathbf{x}
-                K} & \bsy{\Sigma}_y
-            \end{bmatrix}
+            \mathbf{t} | \bsy{\mu}_t, \bsy{\Sigma}_t
         \right).
     \end{align*}
-    Since the joint density of $(\mathbf{x}, \mathbf{y})$ is Gaussian, the joint distribution of $(\mathbf{x}, \mathbf{y})$ is Gaussian as desired.
+    Since the joint density of $(\mathbf{y}, \mathbf{y}')$ is Gaussian, the joint distribution of $(\mathbf{y}, \mathbf{y}')$ is Gaussian as desired.
 \end{proof}

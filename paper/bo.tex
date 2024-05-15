@@ -1,22 +1,22 @@
-The high-level idea behind Bayesian Optimization is to iteratively evaluate our unknown
+The high-level idea behind Bayesian optimization is to iteratively evaluate our unknown
 function $f: \mathcal{X} \subseteq \mathbb{R}^{K} \to \mathbb{R}$ in an intelligent way.
 The hope is that as we iterate, we get a better and better understanding of $f$'s
-peaks, giving us an accurate estimate of $f$s maximum.
-Bayesian Optimization has two components: a surrogate regression model and an acquisition function.
+peaks, giving us an accurate estimate of $f$'s maximum.
+Bayesian optimization has two components: a surrogate regression model and an acquisition function.
 The surrogate model is a probabilistic model $F$ that represents our beliefs about $f$ given our previous observation observations $\mathcal{D}_N$.
 The acquisition function $a( \mathbf{x} | \mathcal{D}_N)$ tells us where to evaluate $f$ at the $N + 1$st iteration by
-quantifying how much ``utility'' we gain from evaluating $f(\mathbf{x})$ given our existing observations.
-Almost all literature on Bayesian Optimization literature assumes that evaluations of $f$ are noisy but unbiased.
+quantifying how much ``utility'' we gain from evaluating $f(\mathbf{x})$ given our beliefs.
+Most literature on Bayesian optimization literature assumes that evaluations of $f$ are noisy but unbiased.
 In this work, we also consider the case where we have multiple biased observers that create a grouping structure in noise across observations.
 In the baking example, biased observations occur if we have different judges with different standards judging our pastries.
 Generally, we have $N_B$ observers numbered 1 to $N_B$ and let $z_n$ indicate the observer for the $n$th observation.
-As such, the first $N$ observations consist of $\mathcal{D}_N = ((\mathbf{x}_1, y_1, z_1), \ldots, (\mathbf{x}_N, y_N, z_N))$ where
-$y_n \in \mathbb{R}$ is biased and noisy observation of $f(\mathbf{x}_n)$ by observer $z_n$.
+As such, the first $N$ observations consist of $\mathcal{D}_N = ((\mathbf{x}_1, y_1, z_1), \dots, (\mathbf{x}_N, y_N, z_N))$ where
+$y_n \in \mathbb{R}$ is biased and noisy observation of $f(\mathbf{x}_n)$ by observer $z_n$, for $n \in \{ 1, \dots, N \}$.
 We cover the exact details of biased and noisy observations in Section~\ref{sec:sm}.
 The pseudocode for Bayesian optimization is as follows.
 \begin{algorithm}
     \begin{algorithmic}[1]
-        \caption{Bayesian Optimization}
+        \caption{Bayesian optimization}
         \label{alg:bo}
         \State $n \gets 1$
         \State $\mathcal{D}_0 \gets \varnothing$
@@ -29,6 +29,7 @@ The pseudocode for Bayesian optimization is as follows.
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
+The stopping conditions vary from problem to problem, but are often a result of budget of time.
 
 When we finish after $N$ iterations, our estimate for Equation~\ref{eq:obj} is
 the $\mathbf{x}$-value we have sampled that maximizes $F$ (in expectation) given our observations
@@ -40,6 +41,6 @@ Since we want to understand $f$'s peaks,
 there are two competing objects: exploration and exploitation.
 On one hand, we want to sample far and wide in $\mathcal{X}$ to not $f$'s highest peak (exploration).
 But we also want to exploit existing knowledge of $f$'s peaks to get more precise estimates of $f$'s maximums (exploitation).
-Our surrogate model lets us see through the noise and bias of our observations and quantify our belief about $f$.
+Our surrogate model lets us see through the noise and bias of our observations and quantify our beliefs about $f$.
 With this knowledge, our acquisition can make sampling choices that efficiently explore $\mathcal{X}$ and exploit previous observations.
 

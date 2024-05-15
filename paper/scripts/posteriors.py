@@ -43,7 +43,9 @@ K_2s = kernel.rbf(X_star, X_star, scale2, s2f)
 m1 = gp.conditional_mean(y, np.linalg.inv(cov1), k_s.T)
 v1 = gp.conditional_var(K_2s, np.linalg.inv(cov1), k_s.T)
 fig, ax = plt.subplots()
-ax.fill_between(X_star.flatten(), m1 - 2 * v1**0.5, m1 + 2 * v1**0.5, color="lightgray")
+ax.fill_between(
+    X_star.flatten(), m1 - 2 * v1**0.5, m1 + 2 * v1**0.5, color="lightgray"
+)
 ax.plot(X_star, m1, "k--")
 ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
 ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)
@@ -55,7 +57,9 @@ fig.savefig("fig/noiseless-posterior.png", dpi=500, bbox_inches="tight")
 m2 = gp.conditional_mean(y, np.linalg.inv(cov2), k_s.T)
 v2 = gp.conditional_var(K_2s, np.linalg.inv(cov2), k_s.T)
 fig, ax = plt.subplots()
-ax.fill_between(X_star.flatten(), m2 - 2 * v2**0.5, m2 + 2 * v2**0.5, color="lightgray")
+ax.fill_between(
+    X_star.flatten(), m2 - 2 * v2**0.5, m2 + 2 * v2**0.5, color="lightgray"
+)
 ax.plot(X_star, m2, "k--")
 ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
 ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)
@@ -69,7 +73,9 @@ fig.savefig("fig/noisy-posterior.png", dpi=500, bbox_inches="tight")
 m3 = gp.conditional_mean(y, np.linalg.inv(cov3), k_s.T)
 v3 = gp.conditional_var(K_2s, np.linalg.inv(cov3), k_s.T)
 fig, ax = plt.subplots()
-ax.fill_between(X_star.flatten(), m3 - 2 * v3**0.5, m3 + 2 * v3**0.5, color="lightgray")
+ax.fill_between(
+    X_star.flatten(), m3 - 2 * v3**0.5, m3 + 2 * v3**0.5, color="lightgray"
+)
 ax.plot(X_star, m3, "k--")
 ax.scatter(X[Z == 0], y[Z == 0], color=BLUE, marker="o", s=SIZE)
 ax.scatter(X[Z == 1], y[Z == 1], color=ORANGE, marker="s", s=SIZE)

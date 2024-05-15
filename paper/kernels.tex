@@ -1,9 +1,9 @@
 \subsection{Kernels}\label{ssec:kernel}
 
-The central idea of Bayesian Optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points allowing us to make inferences about $f$'s global behavior with a finite number of observations.
+The central idea behind Bayesian optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points allowing us to make inferences about $f$'s global behavior with a finite number of observations.
 Modeling $f$'s global behavior with a surrogate model $F \sim \mathcal{GP}(m, \kappa)$ will allow us to make inferences on the location of peaks which will aid our acquisition function in balancing exploration and exploitation.
-Gaussian Processes implement the idea of similarity with a kernel which gives the covariance of $F(\mathbf{x})$ and $F(\mathbf{x}')$ as a function of $\mathbf{x}$ and $\mathbf{x}'$.
-In this section, we will study the Radial Basis Function and show that it satisfies theoretical requirements of Gaussian Processes and work well with Bayesian Optimization.
+Gaussian processes implement the idea of similarity with a kernel which gives the covariance of $F(\mathbf{x})$ and $F(\mathbf{x}')$ as a function of $\mathbf{x} \in \mathcal{X}$ and $\mathbf{x}' \in \mathcal{X}$.
+In this section, we will study the Radial Basis Function and show that it satisfies theoretical requirements of Gaussian processes and work well with Bayesian optimization.
 
 \begin{definition}[Radial Basis Function]\label{def:rbf}
     A radial basis function $\kappa_{\rbf}: \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}$
@@ -16,7 +16,7 @@ In this section, we will study the Radial Basis Function and show that it satisf
 
     If the parameters are clear from context or not relevant, we omit them and write $\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')$ instead.
 \end{definition}
-In the context of Gaussian Processes, $\sigma_f^2$ gives us the prior marginal variance of $F(\mathbf{x})$ for all $\mathbf{x}$ because
+In the context of Gaussian processes, $\sigma_f^2$ gives us the prior marginal variance of $F(\mathbf{x})$ for all $\mathbf{x}$ because
 \begin{equation*}
     \Var(F(\mathbf{x})) = \Cov(F(\mathbf{x}), F(\mathbf{x})) = \kappa_{\rbf}(\mathbf{x}, \mathbf{x}) = \sigma_f^2.
 \end{equation*}
@@ -25,7 +25,7 @@ Large values of $\ell^2$ shrink the domain while small values of $\ell^2$ expand
 For example, if our $\mathcal{X}$-units were in cups, we would choose small $\ell^2$, but if the units were in teaspoons, we would choose large $\ell^2$.
 
 We also see that RBF uses Euclidean distance as a measure of similarity.
-If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2 / \ell^2$ is large, then the correlation between $F(\mathbf{x})$ and $F(\mathbf{x}')$ small:
+If $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is large, then the correlation between $F(\mathbf{x})$ and $F(\mathbf{x}')$ small:
 \begin{equation*}
     \frac{\Cov(F(\mathbf{x}), F(\mathbf{x}'))}{\sqrt{\Var[F(\mathbf{x})]\Var[F(\mathbf{x}')])}} = \frac{\kappa_{\rbf}(\mathbf{x}, \mathbf{x}')}{\sigma_f^2} = \exp \left\{ -\frac{ \lVert \mathbf{x} - \mathbf{x}' \rVert^2 }{ 2\ell^2 } \right\} \approx 0.
 \end{equation*}
@@ -37,19 +37,19 @@ However, if $\lVert \mathbf{x} - \mathbf{x}' \rVert^2$ is small, then the correl
 
 An important class of kernels is Mercer kernels.
 Such kernels allow us to implicitly map our data to a higher (potentially infinite) dimensional inner product space, and work in that potentially infinite dimensional space with a finite amount of computation.
-We will use this definition to prove necessary and desirable properties of RBF kernels which will make them suitable kernels for Gaussian Processes.
+We will use this definition to prove necessary and desirable properties of RBF kernels which will make them suitable kernels for Gaussian processes.
 
 \begin{definition}[Mercer Kernel]
-    A kernel $\kappa: \mathbb{R}^{K} \times \mathbb{R}^{K} \to \mathbb{R}$
+    A kernel $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
     a Mercer Kernel if there exists an inner product space
-    $V$ and mapping $\gamma : \mathbb{R}^{K} \to V$ such that
+    $V$ and mapping $\gamma : \mathcal{X} \to V$ such that
     \begin{equation*}
         \kappa(\mathbf{x}, \mathbf{x}') = \langle \gamma(\mathbf{x}), \gamma(\mathbf{x}') \rangle.
     \end{equation*}
 \end{definition}
 
 It might be surprising that RBF kernels are Mercer kernels because there is no sum in Equation~\ref{eq:rbf}.
-The next few results utilize infinite dimensional vector spaces and a clever use of the Taylor expansion of $\exp$ to show that RBF kernels are Mercer kernels.
+The next few results utilize infinite dimensional vector spaces and the Taylor expansion of $\exp$ to show that RBF kernels are Mercer kernels.
 For the next definition, $\mathbb{R}^{\omega}$ is the set of sequences of real numbers.
 
 \begin{definition}[$L^1$]
@@ -161,7 +161,7 @@ For the next definition, $\mathbb{R}^{\omega}$ is the set of sequences of real n
         \gamma(\mathbf{x}) = \sigma_f \exp\left\{- \frac{\mathbf{x}^2}{2\ell^2}\right\} \left(\frac{ (\mathbf{x} / \ell)^{n - 1} }{ \sqrt{(n - 1)!} }\right)_{n=1}^{\infty}.
     \end{equation*}
     (We adopt the convention that $0^0 = 1$).
-    The domain of $\gamma$ is $L_1$ because the absolute sum of the elements of $\gamma(\mathbf{x})$ converges by the ratio test.
+    The image of $\gamma$ is $L_1$ because the absolute sum of the elements of $\gamma(\mathbf{x})$ converges by the ratio test.
     Then, for $\mathbf{x}, \mathbf{x'} \in \mathbb{R}^{1}$,
     \begin{align*}
         \langle \gamma(\mathbf{x}), \gamma(\mathbf{x'}) \rangle
@@ -191,7 +191,7 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that they genera
 
 \begin{lemma}
     Suppose $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a Mercer kernel.
-    Then, for any $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathcal{X}$, the matrix $\mathbf{K}$
+    Then, for any $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$, the matrix $\mathbf{K}$
     given by
     \begin{equation*}
         (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)
@@ -200,7 +200,7 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that they genera
 \end{lemma}
 \begin{proof}
     Suppose that $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a Mercer Kernel.
-    Then, there exists a inner product space $V$ and function $\gamma: \mathcal{X} \to V$ such that $\kappa(\mathbf{x}, \mathbf{y}) = \langle\gamma(\mathbf{x}), \gamma(\mathbf{y})\rangle$.
+    Then, there exists a inner product space $V$ and function $\gamma: \mathcal{X} \to V$ such that $\kappa(\mathbf{x}, \mathbf{x}') = \langle\gamma(\mathbf{x}), \gamma(\mathbf{x}')\rangle$.
 
     Now, let $\mathbf{x}_1, \dots, \mathbf{x}_N \in \mathcal{X}$, $\mathbf{c} \in \mathbb{R}^{N}$, and
     \begin{equation*}
@@ -228,8 +228,6 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that they genera
 \end{corollary}
 
 In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
-Thus, the distribution of $(F(\mathbf{x}_1), \dots F(\mathbf{x}_N))$ will be nondegenerate which allows $F(\mathbf{x})$ to take on any value for all $\mathbf{x} \in \mathcal{X}$.
-This property is important because we want to model continuous functions, and for any distinct $\mathbf{x}_1, \dots, \mathbf{x}_N$ and $y_1, \dots, y_N$ there exist continuous functions that map $\mathbf{x}_1, \dots, \mathbf{x}_N$ to $y_1, \dots, y_N$ respectively.
 
 \begin{lemma}
     \label{lem:rbf-pd}
@@ -280,14 +278,14 @@ This property is important because we want to model continuous functions, and fo
         \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) & = \mathbf{x}_{M + 1} \gamma(\mathbf{x}_{M + 1}).
     \end{align*}
 
-    In the case that $\mathbf{x}_{M + 1} = \mathbf{0}$,
+    If $\mathbf{x}_{M + 1} = 0$
     \begin{equation*}
         \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = \mathbf{0}.
     \end{equation*}
     We know that $\mathbf{x}_p w_p \neq 0$ because $w_p \neq 0$ and $\mathbf{x}_p \neq \mathbf{x}_{M + 1} = 0$.
     As such, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weight that equals $\mathbf{0}$ contradicting our assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
 
-    In the case that $\mathbf{x}_{M + 1} \neq 0$,
+    If $\mathbf{x}_{M + 1} \neq 0$,
     \begin{align}
         & \sum\limits_{n=1}^{M} \mathbf{x}_n w_n \gamma(\mathbf{x}_n) = {\mathbf{x}_{M + 1}}\gamma(\mathbf{x}_{M + 1}) \\
         \implies & \sum\limits_{n=1}^{M} \frac{\mathbf{x}_n}{\mathbf{x}_{M + 1}} w_n \gamma(\mathbf{x}_n) = \gamma(\mathbf{x}_{M + 1}). \label{eq:other-dep}
@@ -301,7 +299,7 @@ This property is important because we want to model continuous functions, and fo
         w_p\left(\frac{ \mathbf{x}_p }{ \mathbf{x}_{M + 1} } - 1\right) \neq 0.
     \end{equation*}
     Once again, we have found a linear combination of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ with some nonzero weights that equals $\mathbf{0}$ contradicting the assumption that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_M)$ are linearly independent.
-    Since we get a contradiction in both cases, we conclude that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent when $\mathbf{x}_1, \ldots, \mathbf{x}_N$ are distinct.
+    Since we get a contradiction in both cases, we conclude that $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ are linearly independent when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
 
     Now, we use the independence of $\gamma(\mathbf{x}_1), \dots, \gamma(\mathbf{x}_N)$ to show that $\mathbf{K}$ is strictly positive definite.
     Let $\mathbf{c} \in \mathbb{R}^{N}$ be nonzero.
@@ -316,5 +314,14 @@ This property is important because we want to model continuous functions, and fo
         > 0
     \end{align*}
     by the definiteness and positivity properties of inner products.
-    Thus, the RBF kernel generates strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
+    Thus, RBF kernels generate strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
 \end{proof}
+
+This theorem shows that, the distribution of $(F(\mathbf{x}_1), \dots F(\mathbf{x}_N))$ will be nondegenerate for $N \in \mathbb{Z}^{+}$.
+Given any distinct $\mathbf{x}_1, \dots \mathbf{x}_N$, and $y_1, \ldots, y_N \in \mathbb{R}$, we allow the possibility that
+\begin{equation*}
+    f(\mathbf{x}_1) = y_1, \dots, f(\mathbf{x}_N) = y_N.
+\end{equation*}
+Therefore, by modeling our beliefs about $f$ with a Gaussian process $F \sim \mathcal{GP}(m, \kappa_{\rbf})$,
+we can perform posterior inference on $F$ without making parametric assumptions about $f$'s shape.
+
