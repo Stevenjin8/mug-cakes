@@ -1,6 +1,6 @@
 \subsection{Gaussian Processes}\label{ssec:gp}
 
-Gaussian processes extend Gaussian distributions to random functions $F: \mathcal{X} \to \mathbb{R}$.
+Gaussian processes (GP) extend Gaussian distributions to random functions $F: \mathcal{X} \to \mathbb{R}$.
 That is, for each element $\mathbf{x} \in \mathcal{X}$, we have a random variable $F(\mathbf{x})$.
 Practically speaking, a random variable is a value that we do not know.
 In the baking example, for each recipe $\mathbf{x}$, the unknown value is the recipe's quality $F(\mathbf{x})$.
@@ -11,8 +11,7 @@ The key to making this problem tractable is to consider finitely many random var
 \begin{definition}[Gaussian process]\label{def:gp}
     A Gaussian process on $\mathcal{X}$ is a random function $F$ parameterized by a mean function
     $m: \mathcal{X} \to \mathbb{R}$ and covariance kernel $\kappa: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$
-    such that
-    for any $\mathbf{x}_1, \dots,\mathbf{x}_N \in \mathcal{X}$,
+    such that for any $N \in \mathbb{Z}^{+}$ and $\mathbf{x}_1, \dots,\mathbf{x}_N \in \mathcal{X}$,
     \begin{equation*}
         \mathbf{F} \sim \mathcal{N}_N\left(\mathbf{m}, \mathbf{K}\right)
     \end{equation*}
@@ -87,8 +86,8 @@ are consistent because they can be derived from the full joint distribution
 Thus, we will not run into contradictions like we did in the former example.
 
 In the above examples, proving and disproving consistency was straightforward because we had a finite number of marginals and a finite number of random variables.
-Proving the consistency of Gaussian processes is more complicated because we could have uncountably infinite marginals and uncountably infinite random variables.
-Futher, we cannot create a joint distribution for $\{ F(\mathbf{x}) | \mathbf{x} \in \mathcal{X} \}$ to prove consistency because we could have uncountably infinite random variables, and the laws of probability only allow us to consider a countable number of random variables at once.
+Proving the consistency of Gaussian processes is more complicated because we could have uncountably many marginals and uncountably many random variables.
+We cannot create a joint distribution for $\{ F(\mathbf{x}) | \mathbf{x} \in \mathcal{X} \}$ to prove consistency because the laws of probability only allow us to consider countably many random variables at once.
 Thus, to show that Gaussian processes are consistent, we must prove the existence of a probability space and corresponding random variables that generate such marginals.
 The Kolmogorov Extension Theorem does just this.
 
@@ -101,8 +100,8 @@ The Kolmogorov Extension Theorem does just this.
     the following are  true:
     \begin{enumerate}
         \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}( \varnothing) = 0$,
-        \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(\mathbb{R}^{N}) = 1$,
-        \item for every disjoint of sets $E_1, E_2, \dots \in \mathcal{B}_N$,
+        \item $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}\left(\mathbb{R}^{N}\right) = 1$,
+        \item for any disjoint sets $E_1, E_2, \dots \in \mathcal{B}_N$,
             \begin{equation*}
                 \mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}\left(\bigcup_{i = 1}^{\infty}
                 E\right) = \sum_{i = 1}^{\infty}\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}(E_i).
@@ -189,7 +188,7 @@ The Kolmogorov Extension Theorem does just this.
         & \leq \chi_E(\mathbf{y}) \mathcal{N}(\mathbf{y} | \mathbf{m}, \mathbf{K}) \\
         & \leq \max_{\mathbf{y}'}\mathcal{N}(\mathbf{y'} | \mathbf{m}, \mathbf{K}) \\
         & = \mathcal{N}( \mathbf{0} | \mathbf{m}, \mathbf{K}) \\
-        & < \infty. \\
+        & < \infty.
     \end{align*}
     This bound allows us to apply the Monotone Convergence Theorem (Theorem 3.11 of \cite{axler2020}),
     \begin{align*}
@@ -200,7 +199,7 @@ The Kolmogorov Extension Theorem does just this.
     \end{align*}
     Thus, $\mu_{\mathbf{x}_1, \dots, \mathbf{x}_N}$ is a probability measure.
 
-    Now, we show that the consistency conditions from hold.
+    Now, we show that the consistency conditions hold.
     For the first condition, let $\pi$ be a permutation of $\{ 1, \dots, N \}$ and $\mathbf{P} \in \mathbb{R}^{N \times N}$ be the corresponding permutation matrix.
     Then,
     \begin{equation*}
@@ -251,7 +250,7 @@ The Kolmogorov Extension Theorem does just this.
     \end{align*}
     %We can break up the integral by Fubini's Theorem (Theorem 5.32 in \cite{axler2020}).
 
-    Since both conditions are met, Gaussian processes follow the normal rules of probability and are therefore consistent.
+    Since both conditions are met, Gaussian processes follow the normal rules of probability and are consistent.
 \end{proof}
 
 \subsubsection{Posterior Inference}\label{sssec:post-inf}
@@ -263,7 +262,7 @@ given observations of
 \begin{equation*}
     \mathbf{F} = (F(\mathbf{x}_1), \dots, F(\mathbf{x}_N)).
 \end{equation*}
-For some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$
+For some points of interest $\mathbf{v}_{1}, \dots, \mathbf{v}_{N_{*}}$,
 the joint distribution of $\mathbf{F}$ and $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))$ is
 \begin{equation*}
     \begin{bmatrix}
@@ -289,11 +288,10 @@ where
     \mathbf{m_*} & = (m(\mathbf{v}_1), \dots, m(\mathbf{v}_{N_{*}})), \\
     (\mathbf{K})_{ij} & = \kappa(\mathbf{x}_i, \mathbf{x}_j), \\
     (\mathbf{K}_*)_{ij} & = \kappa(\mathbf{x}_i, \mathbf{v}_j), \\
-    (\mathbf{K}_{* *})_{ij} & = \kappa(\mathbf{v}_i, \mathbf{v}_j)
+    (\mathbf{K}_{* *})_{ij} & = \kappa(\mathbf{v}_i, \mathbf{v}_j).
 \end{align*}
-by part (2) of Theorem~\ref{thm:ogag}.
 
-Since Gaussian processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} that the posterior
+Since Gaussian processes are consistent by Theorem~\ref{thm:gp-const}, it follows from Theorem~\ref{thm:ogag} part (3) that the posterior
 of $\mathbf{F}_* = (F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))$, given exact observations $\mathbf{F} = \mathbf{f}$, is Gaussian with mean
 \begin{equation}
     \label{eq:noisless-post-mean}
@@ -318,7 +316,7 @@ If we know $\mathbf{z} = (z_1, \dots, z_N)$, have Gaussian priors
     \epsilon_i & \sim_{iid} \mathcal{N}\left(0, \sigma^2_{\epsilon}\right) \text{ for $i = 1, \dots, N$}, \\
     B_j & \sim_{iid} \mathcal{N}\left(0, \sigma_{B}^2\right) \text{ for $j = 1, \dots, N_B$},
 \end{align*}
-and assume that that $F, \epsilon_1, \dots, \epsilon_N, B_1, \dots, B_{N_B}$, then
+and assume that $F, \epsilon_1, \dots, \epsilon_N, B_1, \dots, B_{N_B}$, then
 \begin{equation*}
     (\mathbf{Y}, \mathbf{F}_*) = (Y_1, \dots, Y_N, F(\mathbf{v}_1), \dots, F(\mathbf{v}_{N_*}))
 \end{equation*}
@@ -429,7 +427,7 @@ for any nonzero $\mathbf{c} \in \mathbb{R}^{N}$,
     \end{bmatrix}
     + \sigma^2_{\epsilon} \mathbf{I}
     \right) \mathbf{c} \\
-    &\geq \mathbf{c}^{T} \left(\sigma_{\epsilon}^{2}\right) \mathbf{c} \\
+    &\geq \mathbf{c}^{T} \left(\sigma_{\epsilon}^{2} \mathbf{I} \right) \mathbf{c} \\
     & > 0
 \end{align*}
 where $\mathbf{e}_n$ is the $n$th standard basis vector of $\mathbb{R}^{N}$.
@@ -438,7 +436,7 @@ As such, for any set of observations, we will not have to worry about nonsingula
 Figure~\ref{fig:gp-posteriors} shows the effect of accounting for noise and bias observations on posteriors.
 Without accounting for noise and bias, we see our model overfits with extreme curves as in Figure~\ref{subfig:noiseless-post}.
 Accounting for noise gives us a smoother posterior (Figure~\ref{subfig:noisy-posterior}), but our posterior credible intervals still do not correspond with the true values of $f$ as the true values do not fall in the posterior credible interval.
-Finally, we see that account for noise and bias (Figure~\ref{subfig:biased-posterior}) gives a posterior that contains the true values of $f$ within its 95\% posterior credible interval.
+Finally, we see that accounting for noise and bias (Figure~\ref{subfig:biased-posterior}) gives a posterior that contains the true values of $f$ within its 95\% posterior credible interval.
 A model that accounts for noise and bias will make more accurate inferences about $f$ thus allowing our acquisition function to make better decisions about where to evaluate $f$ at every iteration.
 
 \begin{figure}
@@ -468,10 +466,11 @@ A model that accounts for noise and bias will make more accurate inferences abou
     RBF kernel parameters are $\ell^{2} = 0.1^2, \sigma^2_{f} = 0.3 ^ 2$.
     Blue circles have a bias of $B_1 = -1$ while orange squares have a bias of $B_2 = 1$.
     Black crosses are the true values of $f$.
-    The dotted black line is the posterior mean and the shaded area is the 95\% posterior credible interval.
+    The dotted black line is the posterior mean and the shaded area is the 95\% posterior credible interval of $F$.
     In Figure (a), our GP does not account for observation noise nor bias by setting $\sigma_{\epsilon}^2 = 0^2$ and $\sigma^2_B = 0^2$.
     In Figure (b), our GP accounts for observation noise but not for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_B = 0^2$.
     In Figure (c), our GP accounts for both observation noise and for bias by setting $\sigma_{\epsilon}^2 = 0.1^2$ and $\sigma^2_B = 1^2$.
     }
     \label{fig:gp-posteriors}
 \end{figure}
+

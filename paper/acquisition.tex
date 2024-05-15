@@ -1,7 +1,6 @@
 Now that we can express our beliefs about our objective function $f$
 using a Gaussian process $F \sim \mathcal{GP}(m, \kappa_{\rbf})$,
-we discuss acquisition functions which balance
-
+we discuss acquisition functions that balance
 exploration and exploitation by picking where to evaluate $f$ at every iteration.
 Unlike Gaussian processes, acquisition functions are usually heuristics-based.
 In this section, we focus on a variation of Expected Improvement (EI).
@@ -19,8 +18,9 @@ where $y_* = \max\{y_1, \dots, y_N\}$.
 EI encourages both exploitation and exploration because $F(\mathbf{x})$ will probably be greater than $y_*$ only if we are very uncertain about $F(\mathbf{x})$ (exploration) or we think $F(\mathbf{x})$ is near $y_*$ (exploitation).
 
 However, the usage of $y_*$ in Equation~\ref{eq:ei} makes little sense if we have noisy observations because $y_*$'s extremity could be due to noise.
-It makes less sense if we consider biased observations because $y_*$ would be even less representative of the underlying function, and would not be using our knowledge about each observer's bias.
-The following definition addresses this issue by replacing $y_*$ with $F(x_*)$.
+It makes less sense if we consider biased observations because $y_*$ would be even less representative of the underlying function.
+Also, we would not be using our knowledge about each observer's bias.
+The following definition addresses this issue by replacing $y_*$ with $F(\mathbf{x}_*)$.
 
 \begin{definition}[vEI]
     \begin{equation}
@@ -38,18 +38,20 @@ Thus, we need to take into account the dependence between $F(\mathbf{x})$ and $F
 In practice,
 this dependence encourages exploration
 because $F(\mathbf{x}) - F(\mathbf{x}_*)$ will probably be small when
-$\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei} and our discussion in Section~\ref{ssec:gp};
-even though our posterior mean is maximized at 0.8, vEI is maximized at 0.25 because 0.25 is further away from $\mathbf{x}_* = 0.75$ than 0.8.
+$\mathbf{x}$ and $\mathbf{x}_*$ are similar as seen in Figure~\ref{fig:ei} and our discussion in Section~\ref{ssec:gp}.
+As such in Figure~\ref{fig:ei}, even though our posterior mean is maximized at 0.8, vEI is maximized at 0.25 because 0.25 is further away from $\mathbf{x}_* = 0.75$ than 0.8.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.5\textwidth]{fig/ei.png}
     \caption{
         The top figure shows the posterior of a Gaussian process with a mean function of 0,
-        $\sigma_{\epsilon}^2 = 0.2^2$, and RBF kernel.
+        and RBF kernel.
         The kernel parameters are $\sigma_f^2 = 0.5^2, \ell^2 = 0.2^2$.
         The grey area is the 95\% posterior credible interval and the dotted line is the posterior mean.
-        The points are noisy, but unbiased observations, and the dotted vertical red line represents the sampled $\mathbf{x}$-value with the highest posterior mean.
+        The points are noisy ($\sigma_{\epsilon}^2 = 0.2^2$)
+        but unbiased ($\sigma_B^{2} = 0$)..
+        The dotted vertical red line represents the sampled $\mathbf{x}$-value with the highest posterior mean.
         The bottom figure shows $a_\vei$ given the data and the surrogate model from the top figure.
     }
     \label{fig:ei}
@@ -112,6 +114,6 @@ meaning that
 
 Because of the usage of $\Phi$, it is hard to maximize $a_{\vei}$ analytically in line 5 of Algorithm~\ref{alg:bo}.
 At the same time, we can see in Figure~\ref{fig:ei} that $a_{\vei}$ can have many local maxima.
-The fact that we can expresses $a_{\vei}$ and its derivative (which we do not show) in closed form
+The fact that we can express $a_{\vei}$ and its derivative (which we do not show) in closed form
 allows us to use global optimization methods such as Basin Hopping \cite{wales1997}
-to find where to evaluate $f$ at each iteration.
+to maximize $a_{\vei}$ and find where to evaluate $f$ at each iteration.

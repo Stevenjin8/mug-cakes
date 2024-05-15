@@ -1,7 +1,7 @@
 The textbook way to optimize a continuous objective function $f: [a, b] \to \mathbb{R}$ is to
 \begin{enumerate}
     \item Find a formula for $f'$.
-    \item Find the critical points by solving $f'(c) = 0$ or find $f'(c)$ does not exist.
+    \item Find the critical points by solving $f'(c) = 0$ or find where $f'(c)$ does not exist.
     \item Evaluate $f$ at $a$, $b$, and the critical points.
 \end{enumerate}
 However, this method is unsuitable for many real-world problems because
@@ -20,7 +20,7 @@ include finding optimal placements of sensors \cite{capl2017}, sustainable concr
 and the most profitable slot machines \cite{shahriari2016}.
 
 More formally, we consider a compact space $\mathcal{X} \subseteq \mathbb{R}^{K}$  and an unknown continuous function $f: \mathcal{X} \to \mathbb{R}$.
-In the context of baking, $\mathcal{X}$ is the set of vector-encode recipes
+In the context of baking, $\mathcal{X}$ is a set of vector-encode recipes
 and $f$ maps each vector-encoded recipe to its quality.
 For example, given $K$ ingredients, each dimension of $\mathcal{X}$ could represent the proportion of an ingredient in a recipe
 and $\mathcal{X}$ would be a $(K - 1)$-dimensional simplex.
@@ -29,17 +29,18 @@ Our goal is to estimate
     \argmax_{\mathbf{x} \in \mathcal{X}} f(\mathbf{x})
 \end{equation}
 while minimizing the number of imprecise evaluations of $f$.
-(Note that the maximum exists because $f$ by the Extreme Value Theorem).
+(Note that the maximum exists by the Extreme Value Theorem).
 
 In Section~\ref{sec:bo}, we will give an overview of Bayesian optimization and introduce its two components: a surrogate regression model and an acquisition function.
 In Section~\ref{sec:sm}, we will explore how to use Gaussian processes
-to model about our beliefs about $f$ while accoutning for noisy and biased observations.
+to model about our beliefs about $f$ while accounting for noisy and biased observations.
 Section~\ref{sec:af} will present an acquisition function that will tell us where to place our observations.
 Finally, Section~\ref{sec:exp} will present a small experiment where we optimize mug cake recipes using Bayesian optimization.
 
-For the sake of correctness, we only consider Borel subsets of $\mathbb{R}^{N}$ denoted $\mathcal{B}_N$.
+For the sake of correctness, we will only consider Borel subsets of $\mathbb{R}^{N}$ denoted $\mathcal{B}_N$.
 This restriction is crucial for theoretical purposes, but has almost no practical importance because
  ``any subset of $\mathbb{R}$ that you can write down in a concrete fashion is a Borel set'' \cite{axler2020}.
-Further, all integrals are Lebesgue integrals using the Lebesgue measure on $\mathbb{R}^{N}$.
+Further, all integrals will be Lebesgue integrals using the Lebesgue measure on $\mathbb{R}^{N}$.
 Lastly, all functions we consider will be measurable.
 Pragmatic readers that are unfamiliar with measure theory can treat $\mathcal{B}_N$ as the powerset of $\mathbb{R}^{N}$ and ignore the rest of this paragraph.
+

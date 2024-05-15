@@ -1,12 +1,12 @@
 \subsection{Kernels}\label{ssec:kernel}
 
-The central idea behind Bayesian optimization is that learning about $f(\mathbf{x})$ gives us information about its nearby points allowing us to make inferences about $f$'s global behavior with a finite number of observations.
+The central idea behind Bayesian optimization is that learning about $f(\mathbf{x})$ gives us information about nearby points allowing us to make inferences about $f$'s global behavior with a finite number of observations.
 Modeling $f$'s global behavior with a surrogate model $F \sim \mathcal{GP}(m, \kappa)$ will allow us to make inferences on the location of peaks which will aid our acquisition function in balancing exploration and exploitation.
 Gaussian processes implement the idea of similarity with a kernel which gives the covariance of $F(\mathbf{x})$ and $F(\mathbf{x}')$ as a function of $\mathbf{x} \in \mathcal{X}$ and $\mathbf{x}' \in \mathcal{X}$.
-In this section, we will study the Radial Basis Function and show that it satisfies theoretical requirements of Gaussian processes and work well with Bayesian optimization.
+In this section, we will study the Radial Basis Function and show that it satisfies the theoretical requirements of Gaussian processes and works well with Bayesian optimization.
 
 \begin{definition}[Radial Basis Function]\label{def:rbf}
-    A radial basis function $\kappa_{\rbf}: \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}$
+    A Radial Basis Function $\kappa_{\rbf}: \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}$
     is given by
     \begin{equation}\label{eq:rbf}
         \kappa_{\rbf}(\mathbf{x}, \mathbf{x}'; \sigma_f^2, \ell^2)
@@ -113,7 +113,7 @@ For the next definition, $\mathbb{R}^{\omega}$ is the set of sequences of real n
                 \langle \mathbf{f}, \mathbf{f} \rangle
                 = \sum\limits_{n=1}^{\infty} f_n^2
                 \leq \sum\limits_{n=1}^{\infty}
-                M \lvert f_n \rvert < \infty
+                M \lvert f_n \rvert < \infty.
             \end{equation*}
 
         \item \textbf{definiteness} \\ Let $\mathbf{f} \in L^1$.
@@ -224,14 +224,14 @@ Using the fact that RBF kernels are Mercer Kernels, we can show that they genera
 
 \begin{corollary}
     \label{corr:rbf-psd}
-    RBF kernels are positive semi-definite.
+    RBF kernels generate positive semi-definite covariance matrices.
 \end{corollary}
 
 In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then $\mathbf{K}$ is strictly positive definite as the following result shows.
 
 \begin{lemma}
     \label{lem:rbf-pd}
-    If $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel is strictly positive definite.
+    If $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then the covariance matrix generated $\mathbf{K}, (\mathbf{K})_{ij} = \kappa_{\rbf}(\mathbf{x}_i, \mathbf{x}_j)$ by an RBF kernel is strictly positive definite.
 \end{lemma}
 \begin{proof}
     Once again, we only consider the case where $\mathbf{x}, \mathbf{y} \in \mathcal{X} \subseteq \mathbb{R}^{1}$.
@@ -314,10 +314,10 @@ In fact, if $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct, then $\mathbf{K}$ 
         > 0
     \end{align*}
     by the definiteness and positivity properties of inner products.
-    Thus, RBF kernels generate strictly positive definite covariance matrix $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
+    Thus, RBF kernels generate strictly positive definite covariance matrices $\mathbf{K}$ when $\mathbf{x}_1, \dots, \mathbf{x}_N$ are distinct.
 \end{proof}
 
-This theorem shows that, the distribution of $(F(\mathbf{x}_1), \dots F(\mathbf{x}_N))$ will be nondegenerate for $N \in \mathbb{Z}^{+}$.
+This theorem shows that the distribution of $(F(\mathbf{x}_1), \dots F(\mathbf{x}_N))$ will be nondegenerate for $N \in \mathbb{Z}^{+}$.
 Given any distinct $\mathbf{x}_1, \dots \mathbf{x}_N$, and $y_1, \ldots, y_N \in \mathbb{R}$, we allow the possibility that
 \begin{equation*}
     f(\mathbf{x}_1) = y_1, \dots, f(\mathbf{x}_N) = y_N.
